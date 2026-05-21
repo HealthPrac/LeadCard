@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { sendWelcomeEmail } from '@/lib/email/resend'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -67,6 +68,15 @@ export async function POST(req: Request) {
     .single()
 
   if (cardErr) return NextResponse.json({ error: cardErr.message }, { status: 500 })
+
+  // Welcome email — non-blocking
+  if (user.email) {
+    sendWelcomeEmail({
+      toEmail: user.email,
+      toName: display_name,
+      slug: card.slug,
+    }).catch(e => console.error('Welcome email failed:', e))
+  }
 
   return NextResponse.json({ cardId: card.id, slug: card.slug })
 }
