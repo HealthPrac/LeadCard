@@ -3,10 +3,10 @@ import { CardExperience } from '@/components/card/CardExperience'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props { params: { slug: string } }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug } = params
   const card = await getPublicCard(slug)
   if (!card) return { title: 'LeadCard' }
   return {
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PublicCardPage({ params }: Props) {
-  const { slug } = await params
+  const { slug } = params
   const card = await getPublicCard(slug)
   if (!card) notFound()
 

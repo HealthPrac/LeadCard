@@ -1,9 +1,10 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   typescript: {
-    // Type errors from Supabase generic inference — runtime is correct, fix post-launch
     ignoreBuildErrors: true,
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['resend', '@react-email/render'],
   },
   images: {
     remotePatterns: [
