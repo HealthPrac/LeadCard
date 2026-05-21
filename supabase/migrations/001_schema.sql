@@ -9,8 +9,8 @@ create table if not exists subscribers (
   email                    text not null,
   plan                     text not null default 'solo'
                              check (plan in ('solo', 'small', 'enterprise')),
-  paystack_customer_id     text unique,
-  paystack_subscription_id text unique,
+  payfast_customer_id      text unique,
+  payfast_subscription_id  text unique,
   subscription_status      text not null default 'trialing'
                              check (subscription_status in (
                                'trialing', 'active', 'past_due', 'canceled', 'incomplete'

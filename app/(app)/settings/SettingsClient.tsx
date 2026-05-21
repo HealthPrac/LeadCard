@@ -28,10 +28,10 @@ interface Props {
   subscriber: Subscriber
   cards: Card[]
   leadCount: number
-  paystackKey: string
+  payfastMerchantId: string
 }
 
-export default function SettingsClient({ email, subscriber, cards, leadCount, paystackKey }: Props) {
+export default function SettingsClient({ email, subscriber, cards, leadCount, payfastMerchantId }: Props) {
   const router = useRouter()
   const [section, setSection] = useState<'account' | 'billing' | 'data'>('account')
   const [newEmail, setNewEmail] = useState(email)
@@ -60,19 +60,16 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
     setNewPassword('')
   }
 
-  function initPaystack() {
-    if (!paystackKey) { alert('Billing not configured. Contact support@leadcard.app'); return }
-    // @ts-ignore — Paystack inline JS loaded via script tag
-    const handler = (window as any).PaystackPop?.setup({
-      key: paystackKey,
-      email,
-      amount: PLANS.solo.priceMonthly,
-      currency: 'ZAR',
-      metadata: { subscriber_id: subscriber.id, plan: 'solo' },
-      callback: () => router.refresh(),
-      onClose: () => {},
+  async function initPayfast() {
+    // Get a signed PayFast payment URL from the server (includes MD5 signature)
+    const res = await fetch('/api/billing/payfast-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: 'solo' }),
     })
-    handler?.openIframe()
+    if (!res.ok) { alert('Billing not configured. Contact support@leadcard.app'); return }
+    const { url } = await res.json()
+    window.location.href = url
   }
 
   function exportLeadsCsv() {
@@ -151,10 +148,10 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
             <div style={{ padding: 24, borderRadius: 14, background: 'var(--sage-tint)', border: '1px solid var(--line)' }}>
               <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 6 }}>Activate your subscription</div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 16px' }}>Add a payment method to keep your card live and leads flowing after the trial ends.</p>
-              <button onClick={initPaystack} style={{ padding: '10px 22px', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 13.5, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={initPayfast} style={{ padding: '10px 22px', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 13.5, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                 ◈ Add payment method — R 69/mo
               </button>
-              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 10 }}>Powered by Paystack · Secure · Cancel anytime</div>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 10 }}>Powered by PayFast · Secure · Cancel anytime</div>
             </div>
           )}
 

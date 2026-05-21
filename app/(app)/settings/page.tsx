@@ -25,7 +25,7 @@ export default async function SettingsPage() {
     .select('*', { count: 'exact', head: true })
     .eq('subscriber_id', subscriber.id)
 
-  const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? ''
+  const payfastMerchantId = process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_ID ?? ''
 
   return (
     <SettingsClient
@@ -33,7 +33,7 @@ export default async function SettingsPage() {
       subscriber={subscriber}
       cards={cards ?? []}
       leadCount={leadCount ?? 0}
-      paystackKey={paystackKey}
+      payfastMerchantId={payfastMerchantId}
     />
   )
 }

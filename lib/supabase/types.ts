@@ -34,8 +34,8 @@ export interface Subscriber {
   user_id: string
   email: string
   plan: 'solo' | 'small' | 'enterprise'
-  paystack_customer_id: string | null
-  paystack_subscription_id: string | null
+  payfast_customer_id: string | null
+  payfast_subscription_id: string | null
   subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
   trial_ends_at: string | null
   created_at: string
