@@ -2,9 +2,9 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 const ALLOWED_TYPES = {
-  photo: { bucket: 'card-assets', maxSize: 5 * 1024 * 1024, mime: ['image/jpeg', 'image/png', 'image/webp'] },
-  logo: { bucket: 'card-assets', maxSize: 5 * 1024 * 1024, mime: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'] },
-  video: { bucket: 'card-videos', maxSize: 100 * 1024 * 1024, mime: ['video/mp4', 'video/webm', 'video/quicktime'] },
+  photo: { bucket: 'card-assets', maxSize: 5 * 1024 * 1024, mime: ['image/jpeg', 'image/png', 'image/webp'], ext: ['jpg', 'jpeg', 'png', 'webp'] },
+  logo:  { bucket: 'card-assets', maxSize: 5 * 1024 * 1024, mime: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'], ext: ['jpg', 'jpeg', 'png', 'webp', 'svg'] },
+  video: { bucket: 'card-videos', maxSize: 100 * 1024 * 1024, mime: ['video/mp4', 'video/webm', 'video/quicktime', 'text/html'], ext: ['mp4', 'webm', 'mov', 'html'] },
 }
 
 export async function GET(req: Request) {
@@ -23,12 +23,16 @@ export async function GET(req: Request) {
   if (!type || !ALLOWED_TYPES[type]) return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
   if (!cardId) return NextResponse.json({ error: 'cardId required' }, { status: 400 })
 
+  const ext = (filename.split('.').pop() ?? 'bin').toLowerCase()
+  if (!ALLOWED_TYPES[type].ext.includes(ext)) {
+    return NextResponse.json({ error: 'File extension not allowed' }, { status: 400 })
+  }
+
   // Verify card ownership
   const { data: card } = await supabase.from('cards').select('id').eq('id', cardId).eq('subscriber_id', subscriber.id).single()
   if (!card) return NextResponse.json({ error: 'Card not found' }, { status: 404 })
 
   const config = ALLOWED_TYPES[type]
-  const ext = filename.split('.').pop() ?? 'bin'
   const path = `${subscriber.id}/${cardId}/${type}.${ext}`
 
   const service = createServiceClient()

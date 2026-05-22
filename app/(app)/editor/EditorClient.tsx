@@ -122,6 +122,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const [photoPreview, setPhotoPreview] = useState(photoUrl)
   const [logoPreview, setLogoPreview] = useState(logoUrl)
   const [videoPreview, setVideoPreview] = useState(videoUrl)
+  const [videoIsHtml, setVideoIsHtml] = useState(() => card.video_path?.endsWith('.html') ?? false)
   const [uploading, setUploading] = useState<string | null>(null)
 
   const photoRef = useRef<HTMLInputElement>(null)
@@ -142,7 +143,10 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
       })
       const preview = URL.createObjectURL(file)
       if (type === 'photo') setPhotoPreview(preview)
-      if (type === 'video') setVideoPreview(preview)
+      if (type === 'video') {
+        setVideoPreview(preview)
+        setVideoIsHtml(file.type === 'text/html')
+      }
       if (type === 'logo') {
         setLogoPreview(preview)
         router.refresh()  // re-runs server layout so sidebar logo updates immediately
@@ -223,13 +227,15 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
     </div>
   )
 
-  const fileUploader = (type: 'photo' | 'logo' | 'video', label: string, accept: string, preview: string | null, ref: React.RefObject<HTMLInputElement>) => (
+  const fileUploader = (type: 'photo' | 'logo' | 'video', label: string, accept: string, preview: string | null, ref: React.RefObject<HTMLInputElement>, isHtml?: boolean) => (
     <div style={{ marginBottom: 18 }}>
       <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: 'var(--charcoal)' }}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         {preview && (
           type === 'video'
-            ? <video src={preview} style={{ width: 80, height: 54, borderRadius: 6, objectFit: 'cover', border: '1px solid var(--line)' }} muted />
+            ? isHtml
+              ? <div style={{ width: 80, height: 54, borderRadius: 6, border: '1px solid var(--line)', background: 'var(--cream-2)', display: 'grid', placeItems: 'center', fontSize: 22 }}>🌐</div>
+              : <video src={preview} style={{ width: 80, height: 54, borderRadius: 6, objectFit: 'cover', border: '1px solid var(--line)' }} muted />
             : <img src={preview} alt={label} style={{ width: 52, height: 52, borderRadius: type === 'photo' ? '50%' : 6, objectFit: 'cover', border: '1px solid var(--line)' }} />
         )}
         <input ref={ref} type="file" accept={accept} style={{ display: 'none' }}
@@ -335,11 +341,13 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
         {tab === 'video' && (
           <div>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
-              Upload a short 30–60 second intro video. It plays after the welcome screen. If no video is uploaded, an animated placeholder is shown instead.
+              Upload a short intro video (MP4) or an animated HTML file. It plays after the welcome screen. If nothing is uploaded, an animated placeholder is shown instead.
             </p>
-            {fileUploader('video', 'Introduction video (MP4, max 100 MB)', 'video/mp4,video/webm,video/mov', videoPreview, videoRef as React.RefObject<HTMLInputElement>)}
+            {fileUploader('video', 'Intro video — MP4 or HTML (max 100 MB)', 'video/mp4,video/webm,video/quicktime,text/html,.html', videoPreview, videoRef as React.RefObject<HTMLInputElement>, videoIsHtml)}
             {videoPreview && (
-              <video src={videoPreview} controls style={{ width: '100%', borderRadius: 10, marginTop: 8, maxHeight: 280, background: '#000' }} />
+              videoIsHtml
+                ? <iframe src={videoPreview} sandbox="allow-scripts allow-same-origin" style={{ width: '100%', height: 280, borderRadius: 10, marginTop: 8, border: '1px solid var(--line)', background: '#000' }} />
+                : <video src={videoPreview} controls style={{ width: '100%', borderRadius: 10, marginTop: 8, maxHeight: 280, background: '#000' }} />
             )}
           </div>
         )}

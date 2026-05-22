@@ -148,6 +148,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
 // ── Screen 2: Video ─────────────────────────────────────────────────────────
 function ScreenVideo({ card, t, videoUrl, go }: SP & { videoUrl: string | null }) {
   const [progress, setProgress] = useState(0)
+  const isHtml = card.video_path?.endsWith('.html') ?? false
 
   useEffect(() => {
     if (videoUrl) return
@@ -164,7 +165,9 @@ function ScreenVideo({ card, t, videoUrl, go }: SP & { videoUrl: string | null }
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
       {videoUrl ? (
-        <video src={videoUrl} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} onEnded={() => go('cta')}/>
+        isHtml
+          ? <iframe src={videoUrl} sandbox="allow-scripts allow-same-origin" style={{ width: '100%', height: '100%', border: 'none' }} />
+          : <video src={videoUrl} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} onEnded={() => go('cta')}/>
       ) : (
         <AnimatedPlaceholder progress={progress} accent={t.accent} name={card.display_name} title={card.title}/>
       )}
@@ -172,9 +175,11 @@ function ScreenVideo({ card, t, videoUrl, go }: SP & { videoUrl: string | null }
       <button onClick={() => go('cta')} style={{ ...frostedBtn(18, undefined, 18), padding: '8px 16px', borderRadius: 999, width: 'auto' }}>
         Skip →
       </button>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.18)' }}>
-        <div style={{ width: `${progress * 100}%`, height: '100%', background: t.accent, transition: '100ms linear' }}/>
-      </div>
+      {!isHtml && (
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.18)' }}>
+          <div style={{ width: `${progress * 100}%`, height: '100%', background: t.accent, transition: '100ms linear' }}/>
+        </div>
+      )}
     </div>
   )
 }

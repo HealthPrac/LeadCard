@@ -1,7 +1,7 @@
 # LeadCard — Handover Document
 
-**Last updated:** 2026-05-22 (Session 118 complete)  
-**Status:** ✅ Logo + font/size config LIVE. Migrations 001+002 APPLIED. Migration 003 READY TO APPLY. Commit `5b01b9e`.
+**Last updated:** 2026-05-22 (Session 124 complete)  
+**Status:** ✅ Dashboard overview summaries + card welcome banner LIVE. Migrations 001+002 APPLIED. Migrations 003+004 READY TO APPLY. Last commits: `d7f0f8e` (dashboard overview + card polish) → `4111b25` (logo full-width banner).
 
 ---
 
@@ -150,7 +150,7 @@ Supabase → Authentication → URL Configuration:
 `id, user_id, email, plan, payfast_customer_id, payfast_subscription_id, subscription_status (trialing/active/inactive/cancelled), trial_ends_at`
 
 ### cards
-`id, subscriber_id, slug, display_name, title, company, email, mobile, website, welcome_headline, welcome_body, cta_primary_label, cta_primary_url, cta_secondary_label, cta_secondary_url, form_fields (JSONB), lead_destination_email, links (JSONB), theme_bg, theme_fg, theme_accent, theme_font, theme_font_size, photo_path, logo_path, video_path, is_published, is_owner_card`
+`id, subscriber_id, slug, display_name, title, company, email, mobile, website, industry, welcome_headline, welcome_body, cta_primary_label, cta_primary_url, cta_secondary_label, cta_secondary_url, form_fields (JSONB), lead_destination_email, links (JSONB), theme_bg, theme_fg, theme_accent, theme_font, theme_font_size, photo_path, logo_path, video_path, is_published, is_owner_card`
 
 ### leads
 `id, card_id, subscriber_id, first_name, last_name, email, org, role, mobile, message, source, consented_at, ip_address, user_agent`
@@ -163,8 +163,9 @@ Supabase → Authentication → URL Configuration:
 - `supabase/migrations/001_schema.sql` — tables + storage buckets + triggers
 - `supabase/migrations/002_rls.sql` — RLS policies
 - `supabase/migrations/003_theme_fonts.sql` — adds `theme_font` + `theme_font_size` to cards
+- `supabase/migrations/004_industry.sql` — adds `industry text` to cards
 
-**✅ Migrations 001 + 002 applied (Session 117). ⏳ Migration 003 READY TO APPLY.**
+**✅ Migrations 001 + 002 applied (Session 117). ⏳ Migrations 003 + 004 READY TO APPLY in Supabase SQL editor (project `vdrrpixgdgnxtvltglul`).**
 
 ---
 
@@ -222,22 +223,20 @@ Two separate email systems — don't confuse them:
 | Commit | What |
 |--------|------|
 | `1c23a18` | Initial commit — prototype |
-| `888c0b1` | Product summary |
 | `4c51e3e` | Full MVP — all 22 routes |
-| `20e4ee5` | Switch Paystack → PayFast |
 | `ebf2822` | Downgrade Next.js 16 → 14, React 18 |
 | `2c52fb9` | Fix `await cookies()` → `cookies()` for Next.js 14 |
 | `ea9d2e6` | Rename Supabase key to `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
-| `01f83bf` | amplify.yml diagnostic output |
-| `fadcf50` | Update app URL to new Amplify deployment |
+| `c8f5d06` | Fix: expose server-side env vars to Amplify SSR Lambda |
 | `e4b58c7` | Add Resend email confirmation + welcome email flow |
-| `077f304` | Mark Resend env vars live — trigger Amplify redeploy |
-| `ffc781d` | Fix sign-up: check-inbox screen + correct emailRedirectTo |
-| `46f1d6e` | Fix auth/confirm: use NEXT_PUBLIC_APP_URL not request origin |
-| `aeb2117` | Fix redirect loop: move onboarding outside (app) layout group |
-| `4e89540` | Add diagnostic error catch to slug-check + onboarding routes |
-| `8516d68` | Add env var diagnostic to slug-check |
-| `c8f5d06` | **Fix: expose server-side env vars to Amplify SSR Lambda** ← last commit |
+| `5b01b9e` | Logo background removed (auth + onboarding) |
+| `7c89907` | Logo fully removed from auth + onboarding screens |
+| `9e596ac` | Industry field — onboarding (required, searchable dropdown + Other) |
+| `b547538` | Industry field — editor + public card display |
+| `ad4fb97` | Dashboard phone preview + desktop card phone wrapper |
+| `d7f0f8e` | Dashboard overview (Analytics/Team/Leads summary) + card welcome polish |
+| `4111b25` | Card welcome: logo as full-width banner with photo overlap |
+| *(next)* | **Video tab: MP4 + HTML upload support** ← current commit |
 
 ---
 
@@ -246,6 +245,12 @@ Two separate email systems — don't confuse them:
 | Session | Focus |
 |---------|-------|
 | **Session 117 ✅** | Auth email flow (check-inbox, /auth/confirm, /reset-password, sendWelcomeEmail). Migrations 001+002 applied. Root fix: env block in next.config.mjs. |
+| **Session 118 ✅** | Logo removed from auth + onboarding. |
+| **Session 121 ✅** | Industry field (onboarding + editor + public card). |
+| **Session 123 ✅** | Dashboard phone preview (iframe mockup). Desktop card rendered as phone shape. Commit `ad4fb97`. |
+| **Session 124 ✅** | Dashboard overview: removed card identity tile; right column = Analytics (3 stats) + Team summary + Recent leads. Card welcome screen: logo is now a full-width banner (124px) with photo circle overlapping its bottom. Email + phone stacked under industry pill. NFC hidden from sidebar. Commits `d7f0f8e` + `4111b25`. |
+| **Session 125 ✅** | Video tab: MP4 + HTML upload. `upload-url` API adds `text/html` MIME + extension allowlist. Editor detects HTML files and shows iframe preview. Public card `ScreenVideo` renders `<iframe sandbox>` for HTML, `<video>` for MP4. |
+| **⚠️ BEFORE NEXT SESSION** | Apply migrations 003 + 004 in Supabase SQL editor (`vdrrpixgdgnxtvltglul`). |
 | **Next session** | PayFast ITN webhook `/api/webhooks/payfast` · Configure Supabase SMTP → Resend · Custom domain `card.healthprac.com` |
 | **Session +2** | Card editor: photo/video upload preview, image crop |
 | **Session +3** | Analytics: real view tracking, lead source attribution |
