@@ -1,7 +1,7 @@
 # LeadCard — Handover Document
 
-**Last updated:** 2026-05-21 (Session 117)  
-**Status:** ✅ Resend email flow LIVE (commit e4b58c7). Supabase migrations still need applying.
+**Last updated:** 2026-05-22 (Session 117 complete)  
+**Status:** ✅ Full auth + onboarding flow LIVE. Migrations 001+002 APPLIED. Commit `c8f5d06`.
 
 ---
 
@@ -41,10 +41,10 @@
 | `NEXT_PUBLIC_APP_URL` | this doc | `https://main.d2idx6kv8dvjyf.amplifyapp.com` |
 | `RESEND_API_KEY` | resend.com → API Keys | ✅ Set in Amplify — using HPS Resend key |
 | `RESEND_FROM_EMAIL` | — | ✅ Set in Amplify — `leadcard@healthprac.com` |
-| `PAYFAST_MERCHANT_ID` | payfast.co.za dashboard | Add in Session 3 |
-| `PAYFAST_MERCHANT_KEY` | payfast.co.za dashboard | Add in Session 3 |
-| `PAYFAST_PASSPHRASE` | payfast.co.za dashboard | Add in Session 3 |
-| `NEXT_PUBLIC_PAYFAST_MERCHANT_ID` | same as above | Add in Session 3 |
+| `PAYFAST_MERCHANT_ID` | payfast.co.za dashboard | Add before Session 3 payments work |
+| `PAYFAST_MERCHANT_KEY` | payfast.co.za dashboard | Add before Session 3 payments work |
+| `PAYFAST_PASSPHRASE` | payfast.co.za dashboard | Add before Session 3 payments work |
+| `NEXT_PUBLIC_PAYFAST_MERCHANT_ID` | same as above | Add before Session 3 payments work |
 
 ---
 
@@ -85,6 +85,34 @@ const { slug } = await params
 ### 7. `serverComponentsExternalPackages`
 `resend` + `@react-email/render` are in `experimental.serverComponentsExternalPackages` in `next.config.mjs`. Required to prevent prettier webpack crash.
 
+### 8. ⚠️ Amplify SSR: non-NEXT_PUBLIC_ vars MUST be in next.config.mjs env block
+**This is the most common silent failure.** Amplify's SSR Lambda does NOT expose server-side env vars at runtime unless they are explicitly declared in `next.config.mjs`:
+
+```javascript
+// next.config.mjs — REQUIRED for Amplify SSR Lambda
+env: {
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+  PAYFAST_MERCHANT_ID: process.env.PAYFAST_MERCHANT_ID,
+  PAYFAST_MERCHANT_KEY: process.env.PAYFAST_MERCHANT_KEY,
+  PAYFAST_PASSPHRASE: process.env.PAYFAST_PASSPHRASE,
+}
+```
+
+`NEXT_PUBLIC_*` vars are embedded at build time and are always available. Every other server-side secret needs the env block. Missing this causes empty 500 responses with no error log.
+
+### 9. Test auth flows from Amplify URL only — never localhost
+Supabase auth emails embed the origin from `emailRedirectTo`. If you sign up from `localhost:3000`, the confirmation email links back to localhost even in production. **Always test from `https://main.d2idx6kv8dvjyf.amplifyapp.com`.**
+
+### 10. Supabase Site URL must match Amplify URL
+Supabase → Authentication → URL Configuration:
+- **Site URL:** `https://main.d2idx6kv8dvjyf.amplifyapp.com`
+- **Redirect URLs:** `https://main.d2idx6kv8dvjyf.amplifyapp.com/**`
+
+### 11. Onboarding page must stay outside all route groups
+`app/onboarding/page.tsx` — NOT `app/(app)/onboarding/`. The `(app)` layout redirects to `/onboarding` if no subscriber record exists, which creates an infinite redirect loop if onboarding is inside that group.
+
 ---
 
 ## Route Map
@@ -92,9 +120,11 @@ const { slug } = await params
 | Route | Type | What |
 |-------|------|------|
 | `/` | Static | Marketing landing page |
-| `/sign-up` | Static | Auth |
-| `/sign-in` | Static | Auth |
-| `/forgot-password` | Static | Auth |
+| `/sign-up` | Auth | Sign-up + check-inbox screen |
+| `/sign-in` | Auth | Email + password login |
+| `/forgot-password` | Auth | Password reset request |
+| `/reset-password` | Auth | New password form (after token exchange) |
+| `/auth/confirm` | API | Supabase auth callback — handles token_hash + code |
 | `/onboarding` | SSR | 3-step wizard: identity → style → URL claim |
 | `/dashboard` | SSR | Trial banner, card panel, leads summary |
 | `/editor` | SSR | 7-tab card editor |
@@ -133,7 +163,26 @@ const { slug } = await params
 - `supabase/migrations/001_schema.sql` — tables + storage buckets + triggers
 - `supabase/migrations/002_rls.sql` — RLS policies
 
-**⚠️ Neither migration has been applied yet. Apply both in Supabase SQL editor before testing auth/data features.**
+**✅ Both migrations applied in Supabase SQL Editor (Session 117).**
+
+---
+
+## Email Architecture
+
+Two separate email systems — don't confuse them:
+
+| System | Sends | Config |
+|--------|-------|--------|
+| **Supabase Auth** | Confirm email, Reset password | Supabase → Auth → Email Templates + SMTP settings |
+| **Resend (our code)** | Welcome email, Lead notifications | `lib/email/resend.ts`, `RESEND_API_KEY` env var |
+
+**FROM address:** `leadcard@healthprac.com` — uses the existing `healthprac.com` domain verified in Resend (no new domain needed).
+
+**Supabase auth emails:** Currently using Supabase default templates/SMTP (free plan = ~3 emails/hour limit).  
+**⚠️ TODO:** Configure Supabase SMTP → Resend to use branded templates + remove rate limit:
+- Host: `smtp.resend.com`, Port: `465`, Username: `resend`, Password: `RESEND_API_KEY`
+- Paste branded HTML into Supabase → Auth → Email Templates → Confirm signup + Reset password
+- Then re-enable "Confirm email" in Supabase Auth settings
 
 ---
 
@@ -156,7 +205,7 @@ const { slug } = await params
 1. User clicks "Activate" in `/settings`
 2. `POST /api/billing/payfast-url` — builds signed redirect URL (MD5 + passphrase)
 3. User redirected to `payfast.co.za/eng/process`
-4. PayFast posts ITN to `/api/webhooks/payfast` ← **NOT YET BUILT (Session 3)**
+4. PayFast posts ITN to `/api/webhooks/payfast` ← **NOT YET BUILT**
 5. Webhook updates `subscribers.subscription_status` + `subscribers.plan`
 
 ---
@@ -175,11 +224,19 @@ const { slug } = await params
 | `888c0b1` | Product summary |
 | `4c51e3e` | Full MVP — all 22 routes |
 | `20e4ee5` | Switch Paystack → PayFast |
-| `ebf2822` | Downgrade Next.js 16 → 14, React 19 → 18 |
+| `ebf2822` | Downgrade Next.js 16 → 14, React 18 |
 | `2c52fb9` | Fix `await cookies()` → `cookies()` for Next.js 14 |
 | `ea9d2e6` | Rename Supabase key to `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
 | `01f83bf` | amplify.yml diagnostic output |
 | `fadcf50` | Update app URL to new Amplify deployment |
+| `e4b58c7` | Add Resend email confirmation + welcome email flow |
+| `077f304` | Mark Resend env vars live — trigger Amplify redeploy |
+| `ffc781d` | Fix sign-up: check-inbox screen + correct emailRedirectTo |
+| `46f1d6e` | Fix auth/confirm: use NEXT_PUBLIC_APP_URL not request origin |
+| `aeb2117` | Fix redirect loop: move onboarding outside (app) layout group |
+| `4e89540` | Add diagnostic error catch to slug-check + onboarding routes |
+| `8516d68` | Add env var diagnostic to slug-check |
+| `c8f5d06` | **Fix: expose server-side env vars to Amplify SSR Lambda** ← last commit |
 
 ---
 
@@ -187,8 +244,8 @@ const { slug } = await params
 
 | Session | Focus |
 |---------|-------|
-| **Session 117** | Resend email flow: `/auth/confirm` handler, `/reset-password` page, `sendWelcomeEmail()`, middleware public routes updated. Commit `e4b58c7`. |
-| **Session 3 remaining** | Apply Supabase migrations 001+002 · PayFast ITN webhook `/api/webhooks/payfast` · Domain `leadcard.app` |
-| **Session 4** | Card editor: photo/video upload preview, image crop |
-| **Session 5** | Analytics: real view tracking, lead source attribution |
-| **Session 6** | NFC order flow, quarterly PDF report |
+| **Session 117 ✅** | Auth email flow (check-inbox, /auth/confirm, /reset-password, sendWelcomeEmail). Migrations 001+002 applied. Root fix: env block in next.config.mjs. |
+| **Next session** | PayFast ITN webhook `/api/webhooks/payfast` · Configure Supabase SMTP → Resend · Custom domain `card.healthprac.com` |
+| **Session +2** | Card editor: photo/video upload preview, image crop |
+| **Session +3** | Analytics: real view tracking, lead source attribution |
+| **Session +4** | NFC order flow, quarterly PDF report |
