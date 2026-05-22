@@ -27,10 +27,14 @@ interface Props {
   cards: Card[]
 }
 
+const cardMap = (cards: Card[]) => Object.fromEntries(cards.map(c => [c.id, c]))
+
 export default function LeadsClient({ leads, cards }: Props) {
   const [search, setSearch] = useState('')
   const [cardFilter, setCardFilter] = useState('all')
   const [expanded, setExpanded] = useState<string | null>(null)
+  const byId = cardMap(cards)
+  const isTeam = cards.length > 1
 
   const filtered = useMemo(() => {
     return leads.filter(l => {
@@ -115,13 +119,15 @@ export default function LeadsClient({ leads, cards }: Props) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
             <thead>
               <tr style={{ background: 'var(--cream-2)' }}>
-                {['Person', 'Company / Role', 'Source', 'Date', ''].map((h, i) => (
+                {['Lead', 'Company / Role', ...(isTeam ? ['Card'] : []), 'Source', 'Date', ''].map((h, i) => (
                   <th key={i} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', fontWeight: 500 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filtered.map(l => (
+              {filtered.map(l => {
+                const cardOwner = l.card_id ? byId[l.card_id] : null
+                return (
                 <>
                   <tr key={l.id} style={{ borderTop: '1px solid var(--line-2)', cursor: 'pointer' }} onClick={() => setExpanded(expanded === l.id ? null : l.id)}>
                     <td style={{ padding: '14px 20px' }}>
@@ -133,6 +139,16 @@ export default function LeadsClient({ leads, cards }: Props) {
                       <div>{l.org ?? '—'}</div>
                       {l.role && <div style={{ fontSize: 12 }}>{l.role}</div>}
                     </td>
+                    {isTeam && (
+                      <td style={{ padding: '14px 20px' }}>
+                        {cardOwner ? (
+                          <>
+                            <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--charcoal)' }}>{cardOwner.display_name ?? cardOwner.slug}</div>
+                            <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>/c/{cardOwner.slug}</div>
+                          </>
+                        ) : <span style={{ color: 'var(--muted)' }}>—</span>}
+                      </td>
+                    )}
                     <td style={{ padding: '14px 20px', color: 'var(--muted)' }}>{l.source ?? '—'}</td>
                     <td style={{ padding: '14px 20px', color: 'var(--muted)', fontSize: 12 }}>
                       {new Date(l.created_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -143,7 +159,7 @@ export default function LeadsClient({ leads, cards }: Props) {
                   </tr>
                   {expanded === l.id && (
                     <tr key={`${l.id}-expanded`} style={{ borderTop: '1px solid var(--line-2)', background: 'var(--cream-2)' }}>
-                      <td colSpan={5} style={{ padding: '14px 20px' }}>
+                      <td colSpan={isTeam ? 6 : 5} style={{ padding: '14px 20px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                           {l.message && (
                             <div style={{ gridColumn: '1 / -1' }}>
@@ -166,7 +182,7 @@ export default function LeadsClient({ leads, cards }: Props) {
                     </tr>
                   )}
                 </>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
