@@ -85,6 +85,11 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
         <div style={{ fontSize: 15, opacity: 0.78, marginTop: 10 }}>
           {[card.title, card.company].filter(Boolean).join(' · ')}
         </div>
+        {card.industry && (
+          <div style={{ marginTop: 10, display: 'inline-block', padding: '4px 11px', background: `${t.accent}22`, color: t.accent, borderRadius: 999, fontSize: 12, fontWeight: 500, letterSpacing: '0.03em' }}>
+            {card.industry}
+          </div>
+        )}
       </div>
       {card.welcome_body && (
         <p style={{ position: 'relative', marginTop: 16, fontSize: 14, opacity: 0.7, lineHeight: 1.5, maxWidth: 300 }}>

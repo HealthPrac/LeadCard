@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { COUNTRY_CODES, splitPhone, joinPhone } from '@/lib/phone-codes'
+import { INDUSTRIES, IndustrySelect } from '@/components/ui/IndustrySelect'
 
 const PALETTES = [
   { label: 'Midnight', bg: '#17181C', fg: '#F6F7F3', accent: '#8FAF9D' },
@@ -47,6 +48,7 @@ interface Card {
   email: string | null
   mobile: string | null
   website: string | null
+  industry: string | null
   welcome_headline: string | null
   welcome_body: string | null
   cta_primary_label: string | null
@@ -93,6 +95,13 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const [mobileNumber, setMobileNumber] = useState(mobileParsed[1])
 
   const [website, setWebsite] = useState(card.website ?? '')
+
+  const storedIndustry = card.industry ?? ''
+  const isStoredCustom = storedIndustry !== '' && !INDUSTRIES.includes(storedIndustry)
+  const [industrySelection, setIndustrySelection] = useState(isStoredCustom ? 'Other' : storedIndustry)
+  const [industryOther, setIndustryOther] = useState(isStoredCustom ? storedIndustry : '')
+  const industry = industrySelection === 'Other' ? industryOther.trim() : industrySelection
+
   const [headline, setHeadline] = useState(card.welcome_headline ?? '')
   const [body, setBody] = useState(card.welcome_body ?? '')
   const [ctaPrimaryLabel, setCtaPrimaryLabel] = useState(card.cta_primary_label ?? '')
@@ -159,6 +168,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           email,
           mobile: joinPhone(mobileCode, mobileNumber),
           website,
+          industry,
           welcome_headline: headline,
           welcome_body: body,
           cta_primary_label: ctaPrimaryLabel,
@@ -295,6 +305,17 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             </div>
 
             {field('Website', website, setWebsite, 'https://yourwebsite.com', 'url')}
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: 'var(--charcoal)' }}>Industry</label>
+              <IndustrySelect
+                selection={industrySelection}
+                otherText={industryOther}
+                onSelection={setIndustrySelection}
+                onOther={setIndustryOther}
+              />
+            </div>
+
             <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18, marginTop: 4 }}>
               {fileUploader('photo', 'Profile photo', 'image/jpeg,image/png,image/webp', photoPreview, photoRef as React.RefObject<HTMLInputElement>)}
             </div>

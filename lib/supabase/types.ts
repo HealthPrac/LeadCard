@@ -66,6 +66,7 @@ export interface Card {
   email: string | null
   mobile: string | null
   website: string | null
+  industry: string | null
   welcome_headline: string | null
   welcome_body: string | null
   cta_primary_label: string | null
