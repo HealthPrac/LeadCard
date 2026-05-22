@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppSidebar } from '@/components/ui/AppSidebar'
 import { getSignedReadUrl } from '@/lib/cards/actions'
@@ -15,7 +15,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .maybeSingle()
 
   // New user hasn't completed onboarding yet
-  if (!subscriber) redirect('/onboarding')
+  if (!subscriber) {
+    // Pure admin accounts don't need a card — send them to the console
+    const service = createServiceClient()
+    const { data: adminRow } = await service.from('admins').select('id').eq('user_id', user.id).maybeSingle()
+    redirect(adminRow ? '/admin' : '/onboarding')
+  }
 
   const { data: cards } = await supabase
     .from('cards')
