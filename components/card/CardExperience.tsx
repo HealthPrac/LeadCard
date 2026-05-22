@@ -53,29 +53,46 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
 function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: string | null; logoUrl: string | null }) {
   const initials = (card.display_name ?? 'A').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
   return (
-    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', padding: '56px 26px 32px', position: 'relative' }}>
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {/* Background radial gradient */}
       <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 80% 0%, ${t.accent}22, transparent 55%), radial-gradient(circle at 20% 100%, ${t.accent}14, transparent 50%)`, pointerEvents: 'none' }}/>
-      {/* Header — logo right-aligned */}
-      <div style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
+
+      {/* ── Logo banner — full width, prominent ── */}
+      <div style={{
+        position: 'relative',
+        height: 124,
+        background: `linear-gradient(135deg, ${t.accent}1E 0%, ${t.accent}08 100%)`,
+        borderBottom: `1px solid ${t.fg}0C`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0 28px',
+        flexShrink: 0,
+      }}>
         {logoUrl
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={logoUrl} alt={card.company ?? 'Logo'} style={{ height: 44, maxWidth: 160, objectFit: 'contain', display: 'block' }} />
-          : card.company ? <span style={{ fontSize: 13, opacity: 0.8 }}>{card.company}</span> : null
+          ? <img src={logoUrl} alt={card.company ?? 'Logo'} style={{ maxHeight: 66, maxWidth: '82%', objectFit: 'contain', display: 'block' }} />
+          : card.company
+            ? <span style={{ fontSize: 16, opacity: 0.72, fontWeight: 500, letterSpacing: '0.01em' }}>{card.company}</span>
+            : <span style={{ fontSize: 28, opacity: 0.1 }}>✦</span>
         }
       </div>
-      {/* Photo */}
-      <div style={{ position: 'relative', marginTop: 32 }}>
+
+      {/* ── Photo — overlaps banner bottom edge ── */}
+      <div style={{ position: 'relative', padding: '0 26px', marginTop: -46, flexShrink: 0 }}>
         <div style={{
-          width: 96, height: 96, borderRadius: '50%',
+          width: 92, height: 92, borderRadius: '50%',
           background: photoUrl ? `url(${photoUrl}) center/cover` : `${t.accent}28`,
           backgroundSize: 'cover',
           display: 'grid', placeItems: 'center',
-          fontFamily: 'var(--font-serif)', fontSize: 38,
-          border: `1px solid ${t.fg}1A`,
+          fontFamily: 'var(--font-serif)', fontSize: 36,
+          border: `3px solid ${t.bg}`,
+          boxShadow: `0 2px 14px ${t.fg}1A`,
         }}>{!photoUrl && initials}</div>
       </div>
-      {/* Identity */}
-      <div style={{ position: 'relative', marginTop: 22 }}>
+
+      {/* ── Identity ── */}
+      <div style={{ position: 'relative', padding: '0 26px', marginTop: 14 }}>
         <div style={{ fontSize: 11, opacity: 0.65, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
           {card.welcome_headline ?? 'Hello —'}
         </div>
@@ -108,13 +125,15 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
           </div>
         )}
       </div>
+
       {card.welcome_body && (
-        <p style={{ position: 'relative', marginTop: 16, fontSize: 14, opacity: 0.7, lineHeight: 1.5, maxWidth: 300 }}>
+        <p style={{ position: 'relative', padding: '0 26px', margin: '16px 0 0', fontSize: 14, opacity: 0.7, lineHeight: 1.5, maxWidth: 300 }}>
           {card.welcome_body}
         </p>
       )}
+
       {/* CTA buttons */}
-      <div style={{ position: 'relative', marginTop: 'auto', paddingTop: 18 }}>
+      <div style={{ position: 'relative', marginTop: 'auto', padding: '18px 26px 32px' }}>
         <button onClick={() => go('video')} style={{ ...btnAccent(t), width: '100%', padding: '14px 18px', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           ▶ Watch my intro
         </button>
