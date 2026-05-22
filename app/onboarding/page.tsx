@@ -278,7 +278,7 @@ export default function OnboardingPage() {
         {/* LeadCard logo — only visible during setup */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/leadcard-logo.svg" alt="LeadCard" height={34} style={{ display: 'inline-block' }} />
+          <img src="/leadcard-logo-light.svg" alt="LeadCard" height={34} style={{ display: 'inline-block' }} />
         </div>
 
         {/* Progress */}

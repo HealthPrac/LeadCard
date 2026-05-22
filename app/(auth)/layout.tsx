@@ -4,7 +4,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div style={{ width: '100%', maxWidth: 440 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/leadcard-logo.svg" alt="LeadCard" height={36} style={{ display: 'block' }} />
+          <img src="/leadcard-logo-light.svg" alt="LeadCard" height={36} style={{ display: 'block', margin: '0 auto' }} />
         </div>
         {children}
       </div>
