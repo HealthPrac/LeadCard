@@ -151,8 +151,10 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
 // ── Screen 2: Video ─────────────────────────────────────────────────────────
 function ScreenVideo({ card, t, videoUrl, go }: SP & { videoUrl: string | null }) {
   const [progress, setProgress] = useState(0)
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
   const isHtml = card.video_path?.endsWith('.html') ?? false
 
+  // Animated placeholder for when no video is uploaded at all
   useEffect(() => {
     if (videoUrl) return
     const len = 57000
@@ -165,12 +167,35 @@ function ScreenVideo({ card, t, videoUrl, go }: SP & { videoUrl: string | null }
     return () => clearInterval(id)
   }, [videoUrl, go])
 
+  // HTML files: Supabase serves them with Content-Disposition: attachment which
+  // browsers refuse to render in iframes. Fetch the content and create a blob URL
+  // instead — blob URLs are always rendered inline regardless of original headers.
+  useEffect(() => {
+    if (!isHtml || !videoUrl) return
+    let objectUrl: string | null = null
+    fetch(videoUrl)
+      .then(r => r.text())
+      .then(html => {
+        const blob = new Blob([html], { type: 'text/html' })
+        objectUrl = URL.createObjectURL(blob)
+        setBlobUrl(objectUrl)
+      })
+      .catch(() => {})
+    return () => { if (objectUrl) URL.revokeObjectURL(objectUrl) }
+  }, [isHtml, videoUrl])
+
+  const htmlReady = isHtml && blobUrl
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
       {videoUrl ? (
-        isHtml
-          ? <iframe src={videoUrl} sandbox="allow-scripts allow-same-origin" style={{ width: '100%', height: '100%', border: 'none' }} />
-          : <video src={videoUrl} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} onEnded={() => go('cta')}/>
+        isHtml ? (
+          htmlReady
+            ? <iframe src={blobUrl!} sandbox="allow-scripts" style={{ width: '100%', height: '100%', border: 'none' }} />
+            : <AnimatedPlaceholder progress={0} accent={t.accent} name={card.display_name} title={card.title} />
+        ) : (
+          <video src={videoUrl} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} onEnded={() => go('cta')}/>
+        )
       ) : (
         <AnimatedPlaceholder progress={progress} accent={t.accent} name={card.display_name} title={card.title}/>
       )}
