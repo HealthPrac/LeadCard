@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { COUNTRY_CODES, joinPhone } from '@/lib/phone-codes'
@@ -136,6 +136,23 @@ export default function OnboardingPage() {
     updatePerson(idx, { checkingSlug: true })
     await checkSlug(value, available => updatePerson(idx, { slugAvailable: available, checkingSlug: false }))
   }
+
+  // Auto-check all pre-filled slugs whenever the slug step is entered
+  useEffect(() => {
+    if (step !== 'slug') return
+    if (plan === 'solo') {
+      if (soloSlug) {
+        setSoloCheckingSlug(true)
+        setSoloSlugAvailable(null)
+        checkSlug(soloSlug, a => { setSoloSlugAvailable(a); setSoloCheckingSlug(false) })
+      }
+    } else {
+      persons.forEach((p, idx) => {
+        if (p.name.trim() && p.slug) checkPersonSlug(idx, p.slug)
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   function handleContinueFromPlan() {
     if (plan === 'small') setPersons(Array.from({ length: 5 }, emptyPerson))
@@ -608,7 +625,7 @@ function SlugRow({ label, slug, available, checking, onChange }: {
           onChange={e => onChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
           placeholder="their-slug"
         />
-        {slug && (
+        {slug && (checking || available !== null) && (
           <span style={{ paddingRight: 12, fontSize: 12, whiteSpace: 'nowrap' as const, color: checking ? 'var(--muted)' : available ? '#16a34a' : '#dc2626' }}>
             {checking ? '…' : available ? '✓' : '✗ Taken'}
           </span>
