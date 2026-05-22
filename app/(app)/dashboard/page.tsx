@@ -15,6 +15,8 @@ export default async function DashboardPage() {
     .single()
   if (!subscriber) redirect('/onboarding')
 
+  const isTeamPlan = subscriber.plan === 'small' || subscriber.plan === 'enterprise'
+
   const { data: cards } = await supabase
     .from('cards')
     .select('*')
@@ -22,6 +24,13 @@ export default async function DashboardPage() {
     .order('created_at')
   const card = cards?.[0]
 
+  // All leads — used for stat computation
+  const { data: allLeads } = await supabase
+    .from('leads')
+    .select('id, card_id, source, created_at')
+    .eq('subscriber_id', subscriber.id)
+
+  // Recent 5 leads with full fields for display
   const { data: recentLeads } = await supabase
     .from('leads')
     .select('*')
@@ -29,10 +38,23 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(5)
 
-  const { count: totalLeads } = await supabase
-    .from('leads')
-    .select('*', { count: 'exact', head: true })
-    .eq('subscriber_id', subscriber.id)
+  // Computed stats
+  const totalLeads = allLeads?.length ?? 0
+  const since7 = new Date(Date.now() - 7 * 86400000).toISOString()
+  const last7Leads = (allLeads ?? []).filter(l => l.created_at >= since7).length
+
+  const sourceCounts: Record<string, number> = {}
+  for (const l of allLeads ?? []) {
+    const s = l.source ?? 'direct'
+    sourceCounts[s] = (sourceCounts[s] ?? 0) + 1
+  }
+  const topSource = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
+  const uniqueSources = Object.keys(sourceCounts).length
+
+  const cardLeadCounts: Record<string, number> = {}
+  for (const l of allLeads ?? []) {
+    if (l.card_id) cardLeadCounts[l.card_id] = (cardLeadCounts[l.card_id] ?? 0) + 1
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://leadcard.app'
   const cardUrl = card ? `${appUrl}/c/${card.slug}` : null
@@ -80,105 +102,118 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Right: info + stats + leads ── */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* ── Right: summary ── */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {card ? (
             <>
-              {/* Card identity tile */}
-              <div style={{ padding: '28px 32px', borderRadius: 16, background: card.theme_bg, color: card.theme_fg, position: 'relative', overflow: 'hidden' }}>
-                {/* Decorative rings */}
-                <div style={{ position: 'absolute', right: -40, top: -40, width: 260, height: 260, borderRadius: '50%', border: `1px solid ${card.theme_accent}30`, pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', right: -80, top: -80, width: 340, height: 340, borderRadius: '50%', border: `1px solid ${card.theme_accent}16`, pointerEvents: 'none' }} />
-
-                <div style={{ position: 'relative' }}>
-                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: card.theme_accent, fontWeight: 600, marginBottom: 12 }}>
-                    Your card
+              {/* ── Analytics summary ── */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500 }}>Analytics</span>
+                  <Link href="/analytics" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all →</Link>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>All-time</div>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1, color: 'var(--charcoal)' }}>{totalLeads}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>leads captured</div>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 30, lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 4 }}>
-                    {card.display_name}
+                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>Last 7 days</div>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1, color: 'var(--charcoal)' }}>{last7Leads}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>new leads</div>
                   </div>
-                  <div style={{ fontSize: 13.5, opacity: 0.72, marginBottom: card.industry ? 10 : 18 }}>
-                    {[card.title, card.company].filter(Boolean).join(' · ') || <span style={{ opacity: 0.45 }}>No title set</span>}
-                  </div>
-                  {card.industry && (
-                    <div style={{ display: 'inline-block', padding: '3px 11px', background: `${card.theme_accent}22`, color: card.theme_accent, borderRadius: 999, fontSize: 11.5, fontWeight: 500, letterSpacing: '0.02em', marginBottom: 18 }}>
-                      {card.industry}
+                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>
+                      {isTeamPlan ? 'Team members' : 'Sources'}
                     </div>
-                  )}
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, opacity: 0.5, marginBottom: 22 }}>
-                    leadcard.app/c/{card.slug}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
-                    <Link href="/editor" style={{ padding: '9px 18px', background: card.theme_fg, color: card.theme_bg, borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.01em' }}>
-                      ✦ Edit card
-                    </Link>
-                    <Link href="/share" style={{ padding: '9px 18px', background: 'rgba(255,255,255,0.08)', color: card.theme_fg, border: '1px solid rgba(255,255,255,0.14)', borderRadius: 8, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
-                      ⊡ Share
-                    </Link>
-                    {cardUrl && <CopyLinkButton url={cardUrl} fg={card.theme_fg} />}
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1, color: 'var(--charcoal)' }}>
+                      {isTeamPlan ? (cards?.length ?? 1) : (uniqueSources || '—')}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>
+                      {isTeamPlan ? 'active cards' : (topSource ? `top: ${topSource}` : 'no data yet')}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Stats tile */}
-              <div style={{ padding: '22px 28px', borderRadius: 16, background: 'white', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 24 }}>
+              {/* ── Team summary (team plans only) ── */}
+              {isTeamPlan && cards && cards.length > 0 && (
                 <div>
-                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>All time</div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 44, lineHeight: 1, color: 'var(--charcoal)' }}>{totalLeads ?? 0}</span>
-                    <span style={{ fontSize: 14, color: 'var(--muted)' }}>leads captured</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500 }}>Team</span>
+                    <Link href="/team" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all →</Link>
                   </div>
-                </div>
-                <div style={{ marginLeft: 'auto' }}>
-                  <Link href="/leads" style={{ fontSize: 13, color: 'var(--charcoal)', textDecoration: 'none', padding: '8px 16px', background: 'var(--cream-2)', borderRadius: 8, fontWeight: 500, whiteSpace: 'nowrap' as const }}>
-                    View all leads →
-                  </Link>
-                </div>
-              </div>
-
-              {/* Recent leads */}
-              {recentLeads && recentLeads.length > 0 ? (
-                <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden', flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px 12px', borderBottom: '1px solid var(--line-2)' }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--charcoal)' }}>Recent leads</span>
-                    <Link href="/leads" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all</Link>
+                  <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
+                    {cards.slice(0, 4).map((c, idx) => {
+                      const name = (c.display_name ?? '?') as string
+                      const initials = name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
+                      const leads = cardLeadCounts[c.id] ?? 0
+                      const pct = totalLeads > 0 ? Math.round((leads / totalLeads) * 100) : 0
+                      return (
+                        <div key={c.id} style={{ padding: '11px 20px', borderTop: idx === 0 ? 'none' : '1px solid var(--line-2)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--sage-tint)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 600, flexShrink: 0 }}>{initials}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{name}</div>
+                            {c.title && <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>{c.title as string}</div>}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                            <div style={{ width: 56, height: 4, background: 'var(--cream-2)', borderRadius: 99, overflow: 'hidden' }}>
+                              <div style={{ width: `${pct}%`, height: '100%', background: 'var(--sage)', borderRadius: 99 }} />
+                            </div>
+                            <div style={{ fontSize: 12, color: 'var(--muted)', width: 54, textAlign: 'right' as const }}>{leads} lead{leads !== 1 ? 's' : ''}</div>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                    <thead>
-                      <tr style={{ background: 'var(--cream-2)' }}>
-                        {['Person', 'Company', 'Source', 'When'].map(h => (
-                          <th key={h} style={{ padding: '9px 18px', textAlign: 'left', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', fontWeight: 500 }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentLeads.map(l => (
-                        <tr key={l.id} style={{ borderTop: '1px solid var(--line-2)' }}>
-                          <td style={{ padding: '11px 18px' }}>
-                            <div style={{ fontWeight: 500 }}>{[l.first_name, l.last_name].filter(Boolean).join(' ') || l.email}</div>
-                            <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>{l.email}</div>
-                          </td>
-                          <td style={{ padding: '11px 18px', color: 'var(--muted)' }}>{l.org ?? '—'}</td>
-                          <td style={{ padding: '11px 18px', color: 'var(--muted)' }}>{l.source ?? '—'}</td>
-                          <td style={{ padding: '11px 18px', color: 'var(--muted)', fontSize: 11.5 }}>{formatRelTime(l.created_at)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div style={{ background: 'var(--cream-2)', borderRadius: 16, padding: '28px 24px', textAlign: 'center', flex: 1 }}>
-                  <div style={{ fontSize: 20, marginBottom: 8 }}>◎</div>
-                  <p style={{ fontSize: 14, fontWeight: 500, margin: '0 0 6px' }}>No leads yet.</p>
-                  <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 16px', lineHeight: 1.5 }}>
-                    Share your card link to get started — leads appear here the moment someone fills the form.
-                  </p>
-                  {cardUrl && (
-                    <CopyLinkButton url={cardUrl} fg="var(--charcoal)" />
-                  )}
                 </div>
               )}
+
+              {/* ── Recent leads ── */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500 }}>Leads</span>
+                  <Link href="/leads" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all →</Link>
+                </div>
+
+                {recentLeads && recentLeads.length > 0 ? (
+                  <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                      <thead>
+                        <tr style={{ background: 'var(--cream-2)' }}>
+                          {['Person', 'Company', 'Source', 'When'].map(h => (
+                            <th key={h} style={{ padding: '9px 18px', textAlign: 'left', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', fontWeight: 500 }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentLeads.map(l => (
+                          <tr key={l.id} style={{ borderTop: '1px solid var(--line-2)' }}>
+                            <td style={{ padding: '11px 18px' }}>
+                              <div style={{ fontWeight: 500 }}>{[l.first_name, l.last_name].filter(Boolean).join(' ') || l.email}</div>
+                              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>{l.email}</div>
+                            </td>
+                            <td style={{ padding: '11px 18px', color: 'var(--muted)' }}>{l.org ?? '—'}</td>
+                            <td style={{ padding: '11px 18px', color: 'var(--muted)' }}>{l.source ?? '—'}</td>
+                            <td style={{ padding: '11px 18px', color: 'var(--muted)', fontSize: 11.5 }}>{formatRelTime(l.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ background: 'var(--cream-2)', borderRadius: 16, padding: '28px 24px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 20, marginBottom: 8 }}>◎</div>
+                    <p style={{ fontSize: 14, fontWeight: 500, margin: '0 0 6px' }}>No leads yet.</p>
+                    <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 16px', lineHeight: 1.5 }}>
+                      Share your card link to get started — leads appear here the moment someone fills the form.
+                    </p>
+                    {cardUrl && <CopyLinkButton url={cardUrl} fg="var(--charcoal)" />}
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <div style={{ padding: 36, borderRadius: 16, background: 'var(--cream-2)', border: '2px dashed var(--line)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, textAlign: 'center', minHeight: 300 }}>

@@ -64,7 +64,6 @@ export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
       {navItem('/analytics', 'Analytics', '↗')}
       {navItem('/leads', 'Leads', '◎')}
       {navItem('/share', 'Share & QR', '⊡')}
-      {navItem('/nfc', 'NFC', '⬡')}
 
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-2)', padding: '14px 10px 6px', marginTop: 8 }}>Account</div>
       {navItem('/settings', 'Settings', '◈')}

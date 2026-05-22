@@ -55,12 +55,12 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
   return (
     <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', padding: '56px 26px 32px', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 80% 0%, ${t.accent}22, transparent 55%), radial-gradient(circle at 20% 100%, ${t.accent}14, transparent 50%)`, pointerEvents: 'none' }}/>
-      {/* Header — logo if uploaded, otherwise company name text */}
-      <div style={{ position: 'relative' }}>
+      {/* Header — logo right-aligned */}
+      <div style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
         {logoUrl
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={logoUrl} alt={card.company ?? 'Logo'} style={{ height: 28, maxWidth: 140, objectFit: 'contain', display: 'block' }} />
-          : <span style={{ fontSize: 13, opacity: 0.8 }}>{card.company}</span>
+          ? <img src={logoUrl} alt={card.company ?? 'Logo'} style={{ height: 44, maxWidth: 160, objectFit: 'contain', display: 'block' }} />
+          : card.company ? <span style={{ fontSize: 13, opacity: 0.8 }}>{card.company}</span> : null
         }
       </div>
       {/* Photo */}
@@ -90,18 +90,31 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
             {card.industry}
           </div>
         )}
+        {/* Email + phone stacked under industry pill */}
+        {(card.email || card.mobile) && (
+          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 7 }}>
+            {card.email && (
+              <div style={{ fontSize: 13, opacity: 0.72, display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+                <span style={{ opacity: 0.55, fontSize: 12, flexShrink: 0 }}>✉</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{card.email}</span>
+              </div>
+            )}
+            {card.mobile && (
+              <div style={{ fontSize: 13, opacity: 0.72, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ opacity: 0.55, fontSize: 12, flexShrink: 0 }}>✆</span>
+                <span>{card.mobile}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {card.welcome_body && (
         <p style={{ position: 'relative', marginTop: 16, fontSize: 14, opacity: 0.7, lineHeight: 1.5, maxWidth: 300 }}>
           {card.welcome_body}
         </p>
       )}
-      {/* Contact strip */}
+      {/* CTA buttons */}
       <div style={{ position: 'relative', marginTop: 'auto', paddingTop: 18 }}>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 14, opacity: 0.7, fontSize: 13 }}>
-          {card.email && <div style={{ flex: 1, padding: '8px 10px', background: `${t.fg}0D`, borderRadius: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{card.email}</div>}
-          {card.mobile && <div style={{ padding: '8px 10px', background: `${t.fg}0D`, borderRadius: 8, whiteSpace: 'nowrap' }}>{card.mobile}</div>}
-        </div>
         <button onClick={() => go('video')} style={{ ...btnAccent(t), width: '100%', padding: '14px 18px', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           ▶ Watch my intro
         </button>
