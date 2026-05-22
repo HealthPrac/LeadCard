@@ -228,7 +228,7 @@ function VideoBackground({ videoUrl, blobUrl, isHtml, progress, accent, name, ti
             ? <iframe src={blobUrl} sandbox="allow-scripts" style={{ width: '100%', height: '100%', border: 'none' }} />
             : <AnimatedPlaceholder progress={0} accent={accent} name={name} title={title} />
         ) : (
-          <video src={videoUrl} autoPlay muted playsInline
+          <video src={videoUrl} autoPlay playsInline
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onEnded={onEnded} />
         )
