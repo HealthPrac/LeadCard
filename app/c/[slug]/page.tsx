@@ -9,10 +9,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params
   const card = await getPublicCard(slug)
   if (!card) return { title: 'LeadCard' }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://leadcard.app'
+
   return {
     title: `${card.display_name ?? 'LeadCard'} — ${card.company ?? 'LeadCard'}`,
     description: card.welcome_headline ?? `Connect with ${card.display_name}`,
     openGraph: { title: `${card.display_name}`, description: card.welcome_headline ?? '' },
+    manifest: `${appUrl}/api/card-manifest/${slug}`,
+    icons: {
+      apple: `${appUrl}/api/card-icon/${slug}`,
+    },
   }
 }
 
