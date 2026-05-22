@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checkInbox, setCheckInbox] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -19,12 +20,12 @@ export default function SignUpPage() {
     setError(null)
 
     const supabase = createClient()
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { display_name: name },
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        emailRedirectTo: `${window.location.origin}/auth/confirm?next=/onboarding`,
       },
     })
 
@@ -34,8 +35,48 @@ export default function SignUpPage() {
       return
     }
 
-    // Subscriber record + first card created in /onboarding
+    // No session = email confirmation required
+    if (!data.session) {
+      setCheckInbox(true)
+      setLoading(false)
+      return
+    }
+
+    // Session exists = confirmation disabled, go straight to onboarding
     router.push('/onboarding')
+  }
+
+  // Check your inbox screen
+  if (checkInbox) {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>✉️</div>
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
+          Check your inbox
+        </h2>
+        <p style={{ fontSize: 15, color: '#444', margin: '0 0 8px', lineHeight: 1.6 }}>
+          We sent a confirmation link to
+        </p>
+        <p style={{ fontSize: 15, fontWeight: 500, margin: '0 0 24px' }}>{email}</p>
+        <p style={{ fontSize: 14, color: 'var(--muted)', margin: '0 0 28px', lineHeight: 1.6 }}>
+          Click the link in the email to verify your address and activate your account.
+          It only takes a second.
+        </p>
+        <div style={{ padding: '14px 18px', background: 'white', borderRadius: 10, border: '1px solid var(--line)', fontSize: 13, color: 'var(--muted)', marginBottom: 24 }}>
+          Didn&apos;t get it? Check your spam folder or{' '}
+          <button
+            onClick={() => setCheckInbox(false)}
+            style={{ background: 'none', border: 'none', padding: 0, color: 'var(--charcoal)', textDecoration: 'underline', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}
+          >
+            try a different email
+          </button>
+          .
+        </div>
+        <Link href="/sign-in" style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'underline' }}>
+          Back to sign in
+        </Link>
+      </div>
+    )
   }
 
   return (
