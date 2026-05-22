@@ -2,12 +2,22 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { sendWelcomeEmail } from '@/lib/email/resend'
 import { NextResponse } from 'next/server'
 
+interface BrandPayload {
+  companyName: string
+  companyWebsite: string
+  themeBg: string
+  themeFg: string
+  themeAccent: string
+  themeFont: string
+}
+
 interface PersonPayload {
   name: string
   title?: string
   company?: string
-  mobile?: string
   website?: string
+  mobile?: string
+  email?: string
   slug: string
 }
 
@@ -18,10 +28,10 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
     const body = await req.json()
-    const { plan, email, lead_destination_email, persons } = body as {
+    const { plan, email, brand, persons } = body as {
       plan: string
       email: string
-      lead_destination_email: string
+      brand: BrandPayload | null
       persons: PersonPayload[]
     }
 
@@ -65,18 +75,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `These URLs are already taken: ${takenSlugs.join(', ')}` }, { status: 409 })
     }
 
+    // Brand settings — shared across all cards for this subscriber
+    const sharedTheme = brand
+      ? { theme_bg: brand.themeBg, theme_fg: brand.themeFg, theme_accent: brand.themeAccent, theme_font: brand.themeFont }
+      : {}
+
     // Create all cards
     const inserts = activePeople.map(p => ({
       subscriber_id: subscriberId,
       slug: p.slug,
       display_name: p.name,
       title: p.title ?? null,
-      company: p.company ?? null,
-      email: email ?? null,
+      company: brand?.companyName ?? p.company ?? null,
+      website: brand?.companyWebsite ?? p.website ?? null,
+      email: p.email ?? email ?? null,
       mobile: p.mobile ?? null,
-      website: p.website ?? null,
-      lead_destination_email: lead_destination_email ?? null,
+      lead_destination_email: email ?? null,
       is_published: true,
+      ...sharedTheme,
     }))
 
     const { data: cards, error: cardErr } = await service
@@ -86,7 +102,7 @@ export async function POST(req: Request) {
 
     if (cardErr) return NextResponse.json({ error: cardErr.message }, { status: 500 })
 
-    // Welcome email for the first card — non-blocking
+    // Welcome email for the account owner — non-blocking
     const firstCard = cards?.[0]
     if (user.email && firstCard) {
       sendWelcomeEmail({
