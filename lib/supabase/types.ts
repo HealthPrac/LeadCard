@@ -78,6 +78,8 @@ export interface Card {
   theme_bg: string
   theme_fg: string
   theme_accent: string
+  theme_font: string
+  theme_font_size: string
   photo_path: string | null
   logo_path: string | null
   video_path: string | null

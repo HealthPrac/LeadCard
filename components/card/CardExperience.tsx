@@ -11,9 +11,30 @@ interface Props {
   resolvedVideoUrl: string | null
 }
 
+const FONT_FAMILIES: Record<string, string> = {
+  serif:    '"Instrument Serif", Georgia, serif',
+  playfair: '"Playfair Display", Georgia, serif',
+  cormorant:'"Cormorant Garamond", Georgia, serif',
+  'dm-serif':'"DM Serif Display", Georgia, serif',
+  sans:     '"Geist", system-ui, sans-serif',
+  inter:    '"Inter", system-ui, sans-serif',
+}
+
+const FONT_SCALES: Record<string, number> = {
+  compact: 0.82,
+  default: 1,
+  large:   1.22,
+}
+
 export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl }: Props) {
   const [screen, setScreen] = useState<Screen>('welcome')
-  const t = { bg: card.theme_bg, fg: card.theme_fg, accent: card.theme_accent }
+  const t = {
+    bg: card.theme_bg,
+    fg: card.theme_fg,
+    accent: card.theme_accent,
+    headingFont: FONT_FAMILIES[card.theme_font ?? 'serif'] ?? FONT_FAMILIES.serif,
+    scale: FONT_SCALES[card.theme_font_size ?? 'default'] ?? 1,
+  }
 
   return (
     <div style={{ minHeight: '100dvh', width: '100%', background: t.bg, color: t.fg, fontFamily: 'var(--font-sans)', position: 'relative', overflow: 'hidden' }}>
@@ -51,7 +72,7 @@ function ScreenWelcome({ card, t, photoUrl, go }: SP & { photoUrl: string | null
         <div style={{ fontSize: 11, opacity: 0.65, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
           {card.welcome_headline ?? 'Hello —'}
         </div>
-        <div style={{ fontFamily: 'var(--font-serif)', fontSize: 44, lineHeight: 0.98, letterSpacing: '-0.015em' }}>
+        <div style={{ fontFamily: t.headingFont, fontSize: Math.round(44 * t.scale), lineHeight: 0.98, letterSpacing: '-0.015em' }}>
           {card.display_name ?? 'Your Name'}
         </div>
         <div style={{ fontSize: 15, opacity: 0.78, marginTop: 10 }}>
@@ -125,7 +146,7 @@ function AnimatedPlaceholder({ progress, accent, name, title }: { progress: numb
       </svg>
       <div style={{ position: 'absolute', bottom: 80, left: 0, right: 0, textAlign: 'center', color: 'white', opacity: progress > 0.1 && progress < 0.9 ? 1 : 0.4, transition: '500ms' }}>
         <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.6 }}>Intro reel</div>
-        <div style={{ fontFamily: 'var(--font-serif)', fontSize: 28, marginTop: 6 }}>{name}</div>
+        <div style={{ fontSize: 28, marginTop: 6 }}>{name}</div>
         <div style={{ fontSize: 13, opacity: 0.7, marginTop: 2 }}>{title}</div>
       </div>
     </div>
@@ -313,6 +334,6 @@ function MiniQR({ fg }: { fg: string }) {
 
 interface SP {
   card: Card
-  t: { bg: string; fg: string; accent: string }
+  t: { bg: string; fg: string; accent: string; headingFont: string; scale: number }
   go: (s: Screen) => void
 }

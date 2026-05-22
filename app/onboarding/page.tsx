@@ -3,19 +3,9 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { COUNTRY_CODES, splitPhone, joinPhone } from '@/lib/phone-codes'
 
-const PALETTES = [
-  { name: 'Charcoal · Sage',  bg: '#17181C', fg: '#F6F7F3', accent: '#8FAF9D' },
-  { name: 'Ink · Cream',      bg: '#23262B', fg: '#F6F7F3', accent: '#DCE6DE' },
-  { name: 'Sage · Charcoal',  bg: '#8FAF9D', fg: '#17181C', accent: '#17181C' },
-  { name: 'Cream · Charcoal', bg: '#F6F7F3', fg: '#17181C', accent: '#8FAF9D' },
-  { name: 'Espresso · Gold',  bg: '#2B221C', fg: '#F7EFE5', accent: '#C9A878' },
-  { name: 'Midnight · Sky',   bg: '#0F1A2B', fg: '#E8EEF7', accent: '#7AA8D8' },
-  { name: 'Rust · Cream',     bg: '#3A1F1A', fg: '#F7E9DF', accent: '#D08562' },
-  { name: 'Plum · Lilac',     bg: '#2A1B2E', fg: '#F2E6F4', accent: '#B084BF' },
-]
-
-type Step = 'identity' | 'style' | 'slug'
+type Step = 'identity' | 'slug'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -26,9 +16,9 @@ export default function OnboardingPage() {
   const [name, setName] = useState('')
   const [title, setTitle] = useState('')
   const [company, setCompany] = useState('')
-  const [mobile, setMobile] = useState('')
+  const [mobileCode, setMobileCode] = useState('+27')
+  const [mobileNumber, setMobileNumber] = useState('')
   const [website, setWebsite] = useState('')
-  const [paletteIdx, setPaletteIdx] = useState(0)
   const [slug, setSlug] = useState('')
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null)
   const [checkingSlug, setCheckingSlug] = useState(false)
@@ -54,8 +44,6 @@ export default function OnboardingPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/sign-in'); return }
 
-    const palette = PALETTES[paletteIdx] ?? PALETTES[0]
-
     const res = await fetch('/api/onboarding', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -64,12 +52,9 @@ export default function OnboardingPage() {
         title,
         company,
         email: user.email,
-        mobile,
+        mobile: joinPhone(mobileCode, mobileNumber),
         website,
         slug,
-        theme_bg: palette.bg,
-        theme_fg: palette.fg,
-        theme_accent: palette.accent,
         lead_destination_email: user.email,
       }),
     })
@@ -84,17 +69,17 @@ export default function OnboardingPage() {
     router.push('/dashboard')
   }
 
-  const steps: Step[] = ['identity', 'style', 'slug']
+  const steps: Step[] = ['identity', 'slug']
   const stepIdx = steps.indexOf(step)
-  const stepLabels = ['Identity', 'Style', 'Your URL']
+  const stepLabels = ['Identity', 'Your URL']
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--cream)', padding: '40px 20px' }}>
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 48 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--charcoal)', display: 'grid', placeItems: 'center', color: 'var(--sage)', fontFamily: 'var(--font-serif)', fontSize: 20, lineHeight: 1, paddingBottom: 2 }}>L</div>
-          <span style={{ fontSize: 16, fontWeight: 500 }}>LeadCard</span>
+        <div style={{ marginBottom: 48 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="LeadCard" height={34} style={{ display: 'block', borderRadius: 10 }} />
         </div>
 
         {/* Progress */}
@@ -120,7 +105,7 @@ export default function OnboardingPage() {
         <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', padding: '36px 40px', minHeight: 360 }}>
           {step === 'identity' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 1 of 3</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 1 of 2</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 24px', letterSpacing: '-0.01em' }}>Who&apos;s on the card?</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <Field label="Display name" required>
@@ -133,7 +118,7 @@ export default function OnboardingPage() {
                   <input style={inputStyle} value={company} onChange={e => setCompany(e.target.value)} placeholder="Northwind Studio" />
                 </Field>
                 <Field label="Mobile" hint="Tap-to-call on your card">
-                  <input style={inputStyle} value={mobile} onChange={e => setMobile(e.target.value)} placeholder="+27 82 555 0100" />
+                  <PhoneField code={mobileCode} number={mobileNumber} onCode={setMobileCode} onNumber={setMobileNumber} />
                 </Field>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <Field label="Website">
@@ -144,35 +129,9 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {step === 'style' && (
-            <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 2 of 3</p>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 6px', letterSpacing: '-0.01em' }}>Pick your colours.</h2>
-              <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 24px' }}>You&apos;ll have full hex-code control in the editor.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-                {PALETTES.map((p, i) => (
-                  <button key={i} onClick={() => setPaletteIdx(i)} style={{
-                    padding: 0, borderRadius: 12, overflow: 'hidden', textAlign: 'left', cursor: 'pointer',
-                    border: `2px solid ${paletteIdx === i ? 'var(--charcoal)' : 'transparent'}`,
-                    background: 'transparent',
-                  }}>
-                    <div style={{ height: 80, background: p.bg, color: p.fg, padding: 12, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <span style={{ fontFamily: 'var(--font-serif)', fontSize: 15 }}>Aa</span>
-                      <div style={{ display: 'flex', gap: 3 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: p.fg }}/>
-                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: p.accent }}/>
-                      </div>
-                    </div>
-                    <div style={{ padding: '8px 10px', background: 'var(--cream-2)', fontSize: 10.5, color: 'var(--muted)' }}>{p.name}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {step === 'slug' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 3 of 3</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 2 of 2</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 6px', letterSpacing: '-0.01em' }}>Claim your URL.</h2>
               <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 24px' }}>Print it, paste it in your email signature, generate a QR.</p>
               <Field label="Your card URL" hint="Letters, numbers, dashes. You can change this later.">
@@ -231,6 +190,30 @@ export default function OnboardingPage() {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+function PhoneField({ code, number, onCode, onNumber }: {
+  code: string; number: string; onCode: (v: string) => void; onNumber: (v: string) => void
+}) {
+  return (
+    <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden', background: 'white' }}>
+      <select
+        value={code}
+        onChange={e => onCode(e.target.value)}
+        style={{ padding: '11px 8px', border: 'none', borderRight: '1px solid var(--line)', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: 'var(--cream-2)', cursor: 'pointer', flexShrink: 0 }}
+      >
+        {COUNTRY_CODES.map(cc => (
+          <option key={cc.code} value={cc.code}>{cc.label}</option>
+        ))}
+      </select>
+      <input
+        value={number}
+        onChange={e => onNumber(e.target.value)}
+        placeholder="82 555 0100"
+        style={{ flex: 1, padding: '11px 12px', border: 'none', fontSize: 14, fontFamily: 'inherit', outline: 'none', minWidth: 0 }}
+      />
     </div>
   )
 }

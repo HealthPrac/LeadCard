@@ -1,22 +1,32 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { COUNTRY_CODES, splitPhone, joinPhone } from '@/lib/phone-codes'
 
 const PALETTES = [
   { label: 'Midnight', bg: '#17181C', fg: '#F6F7F3', accent: '#8FAF9D' },
-  { label: 'Sage', bg: '#2C3E2D', fg: '#F0F4F0', accent: '#A3C2A8' },
-  { label: 'Linen', bg: '#F5F0E8', fg: '#2A2118', accent: '#C4956A' },
-  { label: 'Slate', bg: '#1E2A38', fg: '#E8EDF2', accent: '#7BAED4' },
-  { label: 'Blush', bg: '#3D1C2E', fg: '#F9EFF5', accent: '#D4889A' },
-  { label: 'Cream', bg: '#FAF8F3', fg: '#1A1A18', accent: '#9E9E7C' },
-  { label: 'Ocean', bg: '#0D2137', fg: '#E5F0FA', accent: '#5BA3C9' },
-  { label: 'Forest', bg: '#1A2F1E', fg: '#EDF4EE', accent: '#6FAF7F' },
+  { label: 'Sage',     bg: '#2C3E2D', fg: '#F0F4F0', accent: '#A3C2A8' },
+  { label: 'Linen',    bg: '#F5F0E8', fg: '#2A2118', accent: '#C4956A' },
+  { label: 'Slate',    bg: '#1E2A38', fg: '#E8EDF2', accent: '#7BAED4' },
+  { label: 'Blush',    bg: '#3D1C2E', fg: '#F9EFF5', accent: '#D4889A' },
+  { label: 'Cream',    bg: '#FAF8F3', fg: '#1A1A18', accent: '#9E9E7C' },
+  { label: 'Ocean',    bg: '#0D2137', fg: '#E5F0FA', accent: '#5BA3C9' },
+  { label: 'Forest',   bg: '#1A2F1E', fg: '#EDF4EE', accent: '#6FAF7F' },
 ]
 
 const FONT_OPTIONS = [
-  { value: 'default', label: 'Instrument Serif' },
-  { value: 'mono', label: 'Geist Mono' },
-  { value: 'sans', label: 'Geist Sans' },
+  { value: 'serif',    label: 'Instrument Serif',    fontFamily: '"Instrument Serif", Georgia, serif' },
+  { value: 'playfair', label: 'Playfair Display',    fontFamily: '"Playfair Display", Georgia, serif' },
+  { value: 'cormorant',label: 'Cormorant Garamond',  fontFamily: '"Cormorant Garamond", Georgia, serif' },
+  { value: 'dm-serif', label: 'DM Serif Display',    fontFamily: '"DM Serif Display", Georgia, serif' },
+  { value: 'sans',     label: 'Geist Sans',           fontFamily: '"Geist", system-ui, sans-serif' },
+  { value: 'inter',    label: 'Inter',                fontFamily: '"Inter", system-ui, sans-serif' },
+]
+
+const FONT_SIZE_OPTIONS = [
+  { value: 'compact', label: 'Compact', nameSize: 36 },
+  { value: 'default', label: 'Default', nameSize: 44 },
+  { value: 'large',   label: 'Large',   nameSize: 54 },
 ]
 
 const LINK_ICONS: Record<string, string> = {
@@ -48,6 +58,8 @@ interface Card {
   theme_bg: string
   theme_fg: string
   theme_accent: string
+  theme_font: string
+  theme_font_size: string
   photo_path: string | null
   logo_path: string | null
   video_path: string | null
@@ -68,30 +80,32 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const [saved, setSaved] = useState(false)
   const [err, setErr] = useState('')
 
-  // Form state — mirrors card fields
+  // Form state
   const [displayName, setDisplayName] = useState(card.display_name ?? '')
   const [title, setTitle] = useState(card.title ?? '')
   const [company, setCompany] = useState(card.company ?? '')
   const [email, setEmail] = useState(card.email ?? '')
-  const [mobile, setMobile] = useState(card.mobile ?? '')
-  const [website, setWebsite] = useState(card.website ?? '')
 
+  const [mobileParsed] = useState(() => splitPhone(card.mobile))
+  const [mobileCode, setMobileCode] = useState(mobileParsed[0])
+  const [mobileNumber, setMobileNumber] = useState(mobileParsed[1])
+
+  const [website, setWebsite] = useState(card.website ?? '')
   const [headline, setHeadline] = useState(card.welcome_headline ?? '')
   const [body, setBody] = useState(card.welcome_body ?? '')
-
   const [ctaPrimaryLabel, setCtaPrimaryLabel] = useState(card.cta_primary_label ?? '')
   const [ctaPrimaryUrl, setCtaPrimaryUrl] = useState(card.cta_primary_url ?? '')
   const [ctaSecondaryLabel, setCtaSecondaryLabel] = useState(card.cta_secondary_label ?? '')
   const [ctaSecondaryUrl, setCtaSecondaryUrl] = useState(card.cta_secondary_url ?? '')
-
   const [formFields, setFormFields] = useState<FormField[]>(card.form_fields ?? [])
   const [leadEmail, setLeadEmail] = useState(card.lead_destination_email ?? '')
-
   const [links, setLinks] = useState<CardLink[]>(card.links ?? [])
 
   const [themeBg, setThemeBg] = useState(card.theme_bg)
   const [themeFg, setThemeFg] = useState(card.theme_fg)
   const [themeAccent, setThemeAccent] = useState(card.theme_accent)
+  const [themeFont, setThemeFont] = useState(card.theme_font ?? 'serif')
+  const [themeFontSize, setThemeFontSize] = useState(card.theme_font_size ?? 'default')
 
   // File upload state
   const [photoPreview, setPhotoPreview] = useState(photoUrl)
@@ -110,7 +124,6 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
       if (!res.ok) throw new Error('Failed to get upload URL')
       const { uploadUrl, path } = await res.json()
       await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-      // Save path to card
       await fetch('/api/cards/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -120,8 +133,8 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
       if (type === 'photo') setPhotoPreview(preview)
       if (type === 'logo') setLogoPreview(preview)
       if (type === 'video') setVideoPreview(preview)
-    } catch (e: any) {
-      setErr(e.message)
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : 'Upload failed')
     }
     setUploading(null)
   }
@@ -139,7 +152,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           title,
           company,
           email,
-          mobile,
+          mobile: joinPhone(mobileCode, mobileNumber),
           website,
           welcome_headline: headline,
           welcome_body: body,
@@ -153,13 +166,15 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           theme_bg: themeBg,
           theme_fg: themeFg,
           theme_accent: themeAccent,
+          theme_font: themeFont,
+          theme_font_size: themeFontSize,
         }),
       })
       if (!res.ok) throw new Error('Save failed')
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
-    } catch (e: any) {
-      setErr(e.message)
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : 'Save failed')
     }
     setSaving(false)
   }
@@ -213,6 +228,9 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
     </div>
   )
 
+  const activeFontFamily = FONT_OPTIONS.find(f => f.value === themeFont)?.fontFamily ?? FONT_OPTIONS[0].fontFamily
+  const activeFontSize = FONT_SIZE_OPTIONS.find(s => s.value === themeFontSize)?.nameSize ?? 44
+
   return (
     <div style={{ maxWidth: 780 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -248,11 +266,33 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             {field('Job title', title, setTitle, 'e.g. Head of Sales')}
             {field('Company', company, setCompany, 'e.g. Acme Corp')}
             {field('Email', email, setEmail, 'you@company.com', 'email')}
-            {field('Mobile / WhatsApp', mobile, setMobile, '+27 82 000 0000')}
+
+            {/* Mobile with country code */}
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: 'var(--charcoal)' }}>Mobile / WhatsApp</label>
+              <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 8, overflow: 'hidden', background: 'white' }}>
+                <select
+                  value={mobileCode}
+                  onChange={e => setMobileCode(e.target.value)}
+                  style={{ padding: '10px 8px', border: 'none', borderRight: '1px solid var(--line)', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: 'var(--cream-2)', cursor: 'pointer', flexShrink: 0 }}
+                >
+                  {COUNTRY_CODES.map(cc => (
+                    <option key={cc.code} value={cc.code}>{cc.label}</option>
+                  ))}
+                </select>
+                <input
+                  value={mobileNumber}
+                  onChange={e => setMobileNumber(e.target.value)}
+                  placeholder="82 000 0000"
+                  style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', minWidth: 0 }}
+                />
+              </div>
+            </div>
+
             {field('Website', website, setWebsite, 'https://yourwebsite.com', 'url')}
             <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18, marginTop: 4 }}>
-              {fileUploader('photo', 'Profile photo', 'image/jpeg,image/png,image/webp', photoPreview, photoRef as any)}
-              {fileUploader('logo', 'Company logo', 'image/jpeg,image/png,image/webp,image/svg+xml', logoPreview, logoRef as any)}
+              {fileUploader('photo', 'Profile photo', 'image/jpeg,image/png,image/webp', photoPreview, photoRef as React.RefObject<HTMLInputElement>)}
+              {fileUploader('logo', 'Company logo', 'image/jpeg,image/png,image/webp,image/svg+xml', logoPreview, logoRef as React.RefObject<HTMLInputElement>)}
             </div>
           </div>
         )}
@@ -272,7 +312,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
               Upload a short 30–60 second intro video. It plays after the welcome screen. If no video is uploaded, an animated placeholder is shown instead.
             </p>
-            {fileUploader('video', 'Introduction video (MP4, max 100 MB)', 'video/mp4,video/webm,video/mov', videoPreview, videoRef as any)}
+            {fileUploader('video', 'Introduction video (MP4, max 100 MB)', 'video/mp4,video/webm,video/mov', videoPreview, videoRef as React.RefObject<HTMLInputElement>)}
             {videoPreview && (
               <video src={videoPreview} controls style={{ width: '100%', borderRadius: 10, marginTop: 8, maxHeight: 280, background: '#000' }} />
             )}
@@ -300,7 +340,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
         {tab === 'form' && (
           <div>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
-              Customise which fields appear on the lead capture form. Drag to reorder. Email is always required.
+              Customise which fields appear on the lead capture form. Email is always required.
             </p>
             <div style={{ marginBottom: 20 }}>
               {formFields.map((f, i) => (
@@ -358,16 +398,19 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
         {tab === 'theme' && (
           <div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
-              Choose a preset palette or customise the exact colours.
+            {/* ── Colour palettes ── */}
+            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Colour</div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px', lineHeight: 1.6 }}>
+              Choose a preset palette or enter exact hex codes below.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 28 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
               {PALETTES.map(p => (
                 <button
                   key={p.label}
                   onClick={() => { setThemeBg(p.bg); setThemeFg(p.fg); setThemeAccent(p.accent) }}
                   style={{
-                    padding: '14px 12px', borderRadius: 10, background: p.bg, color: p.fg, border: `2px solid ${themeBg === p.bg ? p.accent : 'transparent'}`,
+                    padding: '14px 12px', borderRadius: 10, background: p.bg, color: p.fg,
+                    border: `2px solid ${themeBg === p.bg ? p.accent : 'transparent'}`,
                     cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 500,
                   }}
                 >
@@ -375,7 +418,9 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                 </button>
               ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+
+            {/* ── Hex code inputs ── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
               {([['Background', themeBg, setThemeBg], ['Text', themeFg, setThemeFg], ['Accent', themeAccent, setThemeAccent]] as [string, string, (v: string) => void][]).map(([label, value, setter]) => (
                 <div key={label}>
                   <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>{label}</div>
@@ -388,10 +433,50 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                 </div>
               ))}
             </div>
-            {/* Preview swatch */}
-            <div style={{ marginTop: 24, padding: 20, borderRadius: 12, background: themeBg, color: themeFg }}>
+
+            {/* ── Font family ── */}
+            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Font</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 20 }}>
+              {FONT_OPTIONS.map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => setThemeFont(f.value)}
+                  style={{
+                    padding: '12px 10px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+                    border: `2px solid ${themeFont === f.value ? 'var(--charcoal)' : 'var(--line)'}`,
+                    background: themeFont === f.value ? 'var(--cream-2)' : 'white',
+                  }}
+                >
+                  <div style={{ fontFamily: f.fontFamily, fontSize: 22, lineHeight: 1, marginBottom: 5, color: 'var(--charcoal)' }}>Aa</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.2 }}>{f.label}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* ── Font size ── */}
+            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Text size</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+              {FONT_SIZE_OPTIONS.map(s => (
+                <button
+                  key={s.value}
+                  onClick={() => setThemeFontSize(s.value)}
+                  style={{
+                    flex: 1, padding: '12px 8px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+                    border: `2px solid ${themeFontSize === s.value ? 'var(--charcoal)' : 'var(--line)'}`,
+                    background: themeFontSize === s.value ? 'var(--cream-2)' : 'white',
+                    textAlign: 'center' as const,
+                  }}
+                >
+                  <div style={{ fontFamily: activeFontFamily, fontSize: s.nameSize * 0.38, lineHeight: 1, marginBottom: 5, color: 'var(--charcoal)' }}>Aa</div>
+                  <div style={{ fontSize: 11.5, fontWeight: themeFontSize === s.value ? 600 : 400 }}>{s.label}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* ── Live preview swatch ── */}
+            <div style={{ padding: 20, borderRadius: 12, background: themeBg, color: themeFg }}>
               <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: themeAccent, marginBottom: 6 }}>Preview</div>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, marginBottom: 4 }}>{displayName || 'Your name'}</div>
+              <div style={{ fontFamily: activeFontFamily, fontSize: activeFontSize * 0.5, lineHeight: 1, marginBottom: 4 }}>{displayName || 'Your name'}</div>
               <div style={{ fontSize: 12, opacity: 0.7 }}>{title || 'Your title'}</div>
               <div style={{ marginTop: 14, display: 'inline-block', padding: '7px 14px', background: themeFg, color: themeBg, borderRadius: 7, fontSize: 12.5, fontWeight: 500 }}>Primary CTA</div>
             </div>

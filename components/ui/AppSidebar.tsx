@@ -44,9 +44,9 @@ export function AppSidebar({ plan, cardSlug, displayName }: Props) {
   return (
     <aside style={{ background: 'var(--cream)', borderRight: '1px solid var(--line)', padding: '22px 14px', display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
       {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px 22px' }}>
-        <div style={{ width: 26, height: 26, borderRadius: 7, background: 'var(--charcoal)', display: 'grid', placeItems: 'center', color: 'var(--sage)', fontFamily: 'var(--font-serif)', fontSize: 18, lineHeight: 1, paddingBottom: 2 }}>L</div>
-        <span style={{ fontSize: 15.5, fontWeight: 500, letterSpacing: '-0.01em' }}>LeadCard</span>
+      <div style={{ padding: '6px 10px 22px' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.svg" alt="LeadCard" height={30} style={{ display: 'block', borderRadius: 8 }} />
       </div>
 
       {navItem('/dashboard', 'Overview', '⊞')}
