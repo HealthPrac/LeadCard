@@ -29,6 +29,10 @@ const FONT_SCALES: Record<string, number> = {
 
 export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resolvedLogoUrl }: Props) {
   const [screen, setScreen] = useState<Screen>('welcome')
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [progress, setProgress] = useState(0)
+  const isHtml = card.video_path?.endsWith('.html') ?? false
+
   const t = {
     bg: card.theme_bg,
     fg: card.theme_fg,
@@ -40,11 +44,67 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
     scale: FONT_SCALES[card.theme_font_size ?? 'default'] ?? 1,
   }
 
+  // HTML files: Supabase serves with Content-Disposition: attachment — fetch and create
+  // a blob URL that browsers will always render inline inside an iframe.
+  useEffect(() => {
+    if (!isHtml || !resolvedVideoUrl) return
+    let objectUrl: string | null = null
+    fetch(resolvedVideoUrl)
+      .then(r => r.text())
+      .then(html => {
+        const blob = new Blob([html], { type: 'text/html' })
+        objectUrl = URL.createObjectURL(blob)
+        setBlobUrl(objectUrl)
+      })
+      .catch(() => {})
+    return () => { if (objectUrl) URL.revokeObjectURL(objectUrl) }
+  }, [isHtml, resolvedVideoUrl])
+
+  // Animated-placeholder progress timer (only when no video uploaded)
+  useEffect(() => {
+    if (screen !== 'video' || resolvedVideoUrl) return
+    const len = 57000
+    const t0 = Date.now()
+    const id = setInterval(() => {
+      const p = Math.min(1, (Date.now() - t0) / len)
+      setProgress(p)
+      if (p >= 1) { clearInterval(id); setScreen('cta') }
+    }, 100)
+    return () => clearInterval(id)
+  }, [screen, resolvedVideoUrl])
+
   return (
     <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', width: '100%', background: t.bg, color: t.fg, fontFamily: 'var(--font-sans)', position: 'relative', overflow: 'hidden' }}>
-      {screen === 'welcome'   && <ScreenWelcome   card={card} t={t} photoUrl={resolvedPhotoUrl} logoUrl={resolvedLogoUrl} go={setScreen} />}
-      {screen === 'video'     && <ScreenVideo     card={card} t={t} videoUrl={resolvedVideoUrl} go={setScreen} />}
-      {screen === 'cta'       && <ScreenCTA       card={card} t={t} videoUrl={resolvedVideoUrl} go={setScreen} />}
+      {screen === 'welcome' && <ScreenWelcome card={card} t={t} photoUrl={resolvedPhotoUrl} logoUrl={resolvedLogoUrl} go={setScreen} />}
+
+      {/* VideoBackground stays at the same JSX position for both video + cta screens.
+          React keeps the same DOM node → video/iframe plays on behind the CTA overlay. */}
+      {(screen === 'video' || screen === 'cta') && (
+        <VideoBackground
+          videoUrl={resolvedVideoUrl}
+          blobUrl={blobUrl}
+          isHtml={isHtml}
+          progress={progress}
+          accent={t.accent}
+          name={card.display_name}
+          title={card.title}
+          onEnded={() => setScreen('cta')}
+        />
+      )}
+
+      {/* Screen 2: controls only (back / skip / progress bar) */}
+      {screen === 'video' && (
+        <VideoControls
+          isHtml={isHtml}
+          progress={progress}
+          accent={t.accent}
+          onBack={() => setScreen('welcome')}
+          onSkip={() => setScreen('cta')}
+        />
+      )}
+
+      {/* Screen 3: CTA overlay — sits on top of the still-live VideoBackground */}
+      {screen === 'cta'       && <ScreenCTA       card={card} t={t} go={setScreen} />}
       {screen === 'form'      && <ScreenForm      card={card} t={t} go={setScreen} />}
       {screen === 'confirmed' && <ScreenConfirmed card={card} t={t} go={setScreen} />}
       {screen === 'share'     && <ScreenShare     card={card} t={t} go={setScreen} />}
@@ -148,64 +208,55 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
   )
 }
 
-// ── Screen 2: Video ─────────────────────────────────────────────────────────
-function ScreenVideo({ card, t, videoUrl, go }: SP & { videoUrl: string | null }) {
-  const [progress, setProgress] = useState(0)
-  const [blobUrl, setBlobUrl] = useState<string | null>(null)
-  const isHtml = card.video_path?.endsWith('.html') ?? false
-
-  // Animated placeholder for when no video is uploaded at all
-  useEffect(() => {
-    if (videoUrl) return
-    const len = 57000
-    const t0 = Date.now()
-    const id = setInterval(() => {
-      const p = Math.min(1, (Date.now() - t0) / len)
-      setProgress(p)
-      if (p >= 1) { clearInterval(id); go('cta') }
-    }, 100)
-    return () => clearInterval(id)
-  }, [videoUrl, go])
-
-  // HTML files: Supabase serves them with Content-Disposition: attachment which
-  // browsers refuse to render in iframes. Fetch the content and create a blob URL
-  // instead — blob URLs are always rendered inline regardless of original headers.
-  useEffect(() => {
-    if (!isHtml || !videoUrl) return
-    let objectUrl: string | null = null
-    fetch(videoUrl)
-      .then(r => r.text())
-      .then(html => {
-        const blob = new Blob([html], { type: 'text/html' })
-        objectUrl = URL.createObjectURL(blob)
-        setBlobUrl(objectUrl)
-      })
-      .catch(() => {})
-    return () => { if (objectUrl) URL.revokeObjectURL(objectUrl) }
-  }, [isHtml, videoUrl])
-
-  const htmlReady = isHtml && blobUrl
-
+// ── Video background (shared between Screen 2 and Screen 3) ─────────────────
+// Rendered at the same JSX position for both screens so React never unmounts it.
+// The video keeps playing / stays on last frame when CTA overlay appears.
+function VideoBackground({ videoUrl, blobUrl, isHtml, progress, accent, name, title, onEnded }: {
+  videoUrl: string | null
+  blobUrl: string | null
+  isHtml: boolean
+  progress: number
+  accent: string
+  name: string | null
+  title: string | null
+  onEnded: () => void
+}) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
       {videoUrl ? (
         isHtml ? (
-          htmlReady
-            ? <iframe src={blobUrl!} sandbox="allow-scripts" style={{ width: '100%', height: '100%', border: 'none' }} />
-            : <AnimatedPlaceholder progress={0} accent={t.accent} name={card.display_name} title={card.title} />
+          blobUrl
+            ? <iframe src={blobUrl} sandbox="allow-scripts" style={{ width: '100%', height: '100%', border: 'none' }} />
+            : <AnimatedPlaceholder progress={0} accent={accent} name={name} title={title} />
         ) : (
-          <video src={videoUrl} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} onEnded={() => go('cta')}/>
+          <video src={videoUrl} autoPlay muted playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onEnded={onEnded} />
         )
       ) : (
-        <AnimatedPlaceholder progress={progress} accent={t.accent} name={card.display_name} title={card.title}/>
+        <AnimatedPlaceholder progress={progress} accent={accent} name={name} title={title} />
       )}
-      <button onClick={() => go('welcome')} style={frostedBtn(18, 18)}>←</button>
-      <button onClick={() => go('cta')} style={{ ...frostedBtn(18, undefined, 18), padding: '8px 16px', borderRadius: 999, width: 'auto' }}>
+    </div>
+  )
+}
+
+// ── Screen 2: controls only (back / skip / progress bar) ────────────────────
+function VideoControls({ isHtml, progress, accent, onBack, onSkip }: {
+  isHtml: boolean
+  progress: number
+  accent: string
+  onBack: () => void
+  onSkip: () => void
+}) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+      <button onClick={onBack} style={{ ...frostedBtn(18, 18), pointerEvents: 'auto' }}>←</button>
+      <button onClick={onSkip} style={{ ...frostedBtn(18, undefined, 18), padding: '8px 16px', borderRadius: 999, width: 'auto', pointerEvents: 'auto' }}>
         Skip →
       </button>
       {!isHtml && (
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.18)' }}>
-          <div style={{ width: `${progress * 100}%`, height: '100%', background: t.accent, transition: '100ms linear' }}/>
+          <div style={{ width: `${progress * 100}%`, height: '100%', background: accent, transition: '100ms linear' }} />
         </div>
       )}
     </div>
@@ -230,14 +281,13 @@ function AnimatedPlaceholder({ progress, accent, name, title }: { progress: numb
   )
 }
 
-// ── Screen 3: Post-video CTAs ────────────────────────────────────────────────
-function ScreenCTA({ card, t, videoUrl, go }: SP & { videoUrl: string | null }) {
+// ── Screen 3: CTA overlay (video background is provided by VideoBackground above) ──
+function ScreenCTA({ card, t, go }: SP) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#000', color: 'white', overflow: 'hidden' }}>
-      <AnimatedPlaceholder progress={1} accent={t.accent} name={card.display_name} title={card.title}/>
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)' }}/>
-      <button onClick={() => go('welcome')} style={frostedBtn(18, 18)}>←</button>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10, animation: 'lc-rise 600ms ease-out' }}>
+    <div style={{ position: 'fixed', inset: 0, color: 'white', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)' }} />
+      <button onClick={() => go('welcome')} style={{ ...frostedBtn(18, 18), pointerEvents: 'auto' }}>←</button>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10, animation: 'lc-rise 600ms ease-out', pointerEvents: 'auto' }}>
         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, lineHeight: 1.1, marginBottom: 8 }}>Ready to take the next step?</div>
         {card.cta_primary_url && (
           <a href={card.cta_primary_url} target="_blank" rel="noopener noreferrer" style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}>
