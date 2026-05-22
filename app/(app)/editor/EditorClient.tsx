@@ -61,6 +61,9 @@ interface Card {
   theme_bg: string
   theme_fg: string
   theme_accent: string
+  theme_banner_bg: string | null
+  theme_heading: string | null
+  theme_subtext: string | null
   theme_font: string
   theme_font_size: string
   photo_path: string | null
@@ -115,6 +118,9 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const [themeBg, setThemeBg] = useState(card.theme_bg)
   const [themeFg, setThemeFg] = useState(card.theme_fg)
   const [themeAccent, setThemeAccent] = useState(card.theme_accent)
+  const [themeBannerBg, setThemeBannerBg] = useState(card.theme_banner_bg ?? '')
+  const [themeHeading, setThemeHeading] = useState(card.theme_heading ?? '')
+  const [themeSubtext, setThemeSubtext] = useState(card.theme_subtext ?? '')
   const [themeFont, setThemeFont] = useState(card.theme_font ?? 'serif')
   const [themeFontSize, setThemeFontSize] = useState(card.theme_font_size ?? 'default')
 
@@ -157,6 +163,20 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
     setUploading(null)
   }
 
+  async function deleteLogo() {
+    try {
+      await fetch('/api/cards/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cardId: card.id, logo_path: null }),
+      })
+      setLogoPreview(null)
+      router.refresh()
+    } catch {
+      setErr('Delete failed')
+    }
+  }
+
   async function save() {
     setSaving(true)
     setErr('')
@@ -185,6 +205,9 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           theme_bg: themeBg,
           theme_fg: themeFg,
           theme_accent: themeAccent,
+          theme_banner_bg: themeBannerBg || null,
+          theme_heading: themeHeading || null,
+          theme_subtext: themeSubtext || null,
           theme_font: themeFont,
           theme_font_size: themeFontSize,
         }),
@@ -431,19 +454,22 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
         {tab === 'theme' && (
           <div>
-            {/* ── Colour palettes ── */}
-            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Colour</div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px', lineHeight: 1.6 }}>
-              Choose a preset palette or enter exact hex codes below.
+            {/* ── Colour presets ── */}
+            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Presets</div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
+              Pick a starting palette, then fine-tune each colour below.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 28 }}>
               {PALETTES.map(p => (
                 <button
                   key={p.label}
-                  onClick={() => { setThemeBg(p.bg); setThemeFg(p.fg); setThemeAccent(p.accent) }}
+                  onClick={() => {
+                    setThemeBg(p.bg); setThemeFg(p.fg); setThemeAccent(p.accent)
+                    setThemeBannerBg(''); setThemeHeading(''); setThemeSubtext('')
+                  }}
                   style={{
                     padding: '14px 12px', borderRadius: 10, background: p.bg, color: p.fg,
-                    border: `2px solid ${themeBg === p.bg ? p.accent : 'transparent'}`,
+                    border: `2px solid ${themeBg === p.bg && !themeBannerBg ? p.accent : 'transparent'}`,
                     cursor: 'pointer', fontFamily: 'inherit', fontSize: 12.5, fontWeight: 500,
                   }}
                 >
@@ -452,19 +478,94 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
               ))}
             </div>
 
-            {/* ── Hex code inputs ── */}
+            {/* ── 6 colour pickers ── */}
+            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Colours</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
-              {([['Background', themeBg, setThemeBg], ['Text', themeFg, setThemeFg], ['Accent', themeAccent, setThemeAccent]] as [string, string, (v: string) => void][]).map(([label, value, setter]) => (
-                <div key={label}>
-                  <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>{label}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <input type="color" value={value} onChange={e => setter(e.target.value)}
-                      style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2 }} />
-                    <input value={value} onChange={e => setter(e.target.value)}
-                      style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12.5, fontFamily: 'var(--font-mono)', outline: 'none' }} />
-                  </div>
+
+              {/* Card background */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>Card background</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="color" value={themeBg} onChange={e => setThemeBg(e.target.value)}
+                    style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2, flexShrink: 0 }} />
+                  <input value={themeBg} onChange={e => setThemeBg(e.target.value)}
+                    style={{ flex: 1, padding: '8px 8px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12, fontFamily: 'var(--font-mono)', outline: 'none', minWidth: 0 }} />
                 </div>
-              ))}
+              </div>
+
+              {/* Banner background */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Banner background</span>
+                  {themeBannerBg
+                    ? <button onClick={() => setThemeBannerBg('')} style={{ fontSize: 10, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>reset</button>
+                    : <span style={{ fontSize: 10, color: 'var(--muted)', background: 'var(--cream-2)', padding: '1px 5px', borderRadius: 3 }}>auto</span>
+                  }
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="color" value={themeBannerBg || themeAccent} onChange={e => setThemeBannerBg(e.target.value)}
+                    style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2, flexShrink: 0, opacity: themeBannerBg ? 1 : 0.4 }} />
+                  <input value={themeBannerBg} onChange={e => setThemeBannerBg(e.target.value)} placeholder="auto"
+                    style={{ flex: 1, padding: '8px 8px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12, fontFamily: 'var(--font-mono)', outline: 'none', minWidth: 0 }} />
+                </div>
+              </div>
+
+              {/* Name / heading colour */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Name colour</span>
+                  {themeHeading
+                    ? <button onClick={() => setThemeHeading('')} style={{ fontSize: 10, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>reset</button>
+                    : <span style={{ fontSize: 10, color: 'var(--muted)', background: 'var(--cream-2)', padding: '1px 5px', borderRadius: 3 }}>auto</span>
+                  }
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="color" value={themeHeading || themeFg} onChange={e => setThemeHeading(e.target.value)}
+                    style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2, flexShrink: 0, opacity: themeHeading ? 1 : 0.4 }} />
+                  <input value={themeHeading} onChange={e => setThemeHeading(e.target.value)} placeholder="auto"
+                    style={{ flex: 1, padding: '8px 8px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12, fontFamily: 'var(--font-mono)', outline: 'none', minWidth: 0 }} />
+                </div>
+              </div>
+
+              {/* Body text */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>Body text</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="color" value={themeFg} onChange={e => setThemeFg(e.target.value)}
+                    style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2, flexShrink: 0 }} />
+                  <input value={themeFg} onChange={e => setThemeFg(e.target.value)}
+                    style={{ flex: 1, padding: '8px 8px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12, fontFamily: 'var(--font-mono)', outline: 'none', minWidth: 0 }} />
+                </div>
+              </div>
+
+              {/* Accent / CTA */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>Accent / CTA</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="color" value={themeAccent} onChange={e => setThemeAccent(e.target.value)}
+                    style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2, flexShrink: 0 }} />
+                  <input value={themeAccent} onChange={e => setThemeAccent(e.target.value)}
+                    style={{ flex: 1, padding: '8px 8px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12, fontFamily: 'var(--font-mono)', outline: 'none', minWidth: 0 }} />
+                </div>
+              </div>
+
+              {/* Secondary text (role, email, phone) */}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Secondary text</span>
+                  {themeSubtext
+                    ? <button onClick={() => setThemeSubtext('')} style={{ fontSize: 10, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>reset</button>
+                    : <span style={{ fontSize: 10, color: 'var(--muted)', background: 'var(--cream-2)', padding: '1px 5px', borderRadius: 3 }}>auto</span>
+                  }
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input type="color" value={themeSubtext || themeFg} onChange={e => setThemeSubtext(e.target.value)}
+                    style={{ width: 38, height: 38, borderRadius: 8, border: '1px solid var(--line)', cursor: 'pointer', padding: 2, flexShrink: 0, opacity: themeSubtext ? 1 : 0.4 }} />
+                  <input value={themeSubtext} onChange={e => setThemeSubtext(e.target.value)} placeholder="auto"
+                    style={{ flex: 1, padding: '8px 8px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 12, fontFamily: 'var(--font-mono)', outline: 'none', minWidth: 0 }} />
+                </div>
+              </div>
+
             </div>
 
             {/* ── Font family ── */}
@@ -488,7 +589,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
             {/* ── Font size ── */}
             <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Text size</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
               {FONT_SIZE_OPTIONS.map(s => (
                 <button
                   key={s.value}
@@ -509,16 +610,57 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             {/* ── Company logo ── */}
             <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Company logo</div>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
-              Shown on the public card experience. For team plans, upload once here — it applies to all cards.
+              Appears in the banner strip at the top of your card.
             </p>
-            {fileUploader('logo', 'Company logo', 'image/jpeg,image/png,image/webp,image/svg+xml', logoPreview, logoRef as React.RefObject<HTMLInputElement>)}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              {logoPreview && (
+                <img src={logoPreview} alt="Logo" style={{ height: 44, maxWidth: 120, objectFit: 'contain', borderRadius: 6, border: '1px solid var(--line)' }} />
+              )}
+              <input ref={logoRef} type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml" style={{ display: 'none' }}
+                onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f, 'logo') }} />
+              <button onClick={() => logoRef.current?.click()} disabled={uploading === 'logo'}
+                style={{ padding: '8px 16px', background: 'var(--cream-2)', color: 'var(--charcoal)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13, cursor: uploading === 'logo' ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                {uploading === 'logo' ? 'Uploading…' : logoPreview ? 'Replace' : 'Upload logo'}
+              </button>
+              {logoPreview && (
+                <button onClick={deleteLogo}
+                  style={{ padding: '8px 16px', background: 'white', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Remove
+                </button>
+              )}
+            </div>
 
-            {/* ── Live preview swatch ── */}
-            <div style={{ padding: 20, borderRadius: 12, background: themeBg, color: themeFg }}>
-              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: themeAccent, marginBottom: 6 }}>Preview</div>
-              <div style={{ fontFamily: activeFontFamily, fontSize: activeFontSize * 0.5, lineHeight: 1, marginBottom: 4 }}>{displayName || 'Your name'}</div>
-              <div style={{ fontSize: 12, opacity: 0.7 }}>{title || 'Your title'}</div>
-              <div style={{ marginTop: 14, display: 'inline-block', padding: '7px 14px', background: themeFg, color: themeBg, borderRadius: 7, fontSize: 12.5, fontWeight: 500 }}>Primary CTA</div>
+            {/* ── Live preview ── */}
+            <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)' }}>
+              {/* Banner */}
+              <div style={{
+                height: 56, background: themeBannerBg || `linear-gradient(135deg, ${themeAccent}30 0%, ${themeAccent}10 100%)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px',
+              }}>
+                {logoPreview
+                  ? <img src={logoPreview} alt="logo" style={{ maxHeight: 32, maxWidth: '80%', objectFit: 'contain' }} />
+                  : <span style={{ fontSize: 12, color: themeAccent, fontWeight: 500 }}>{company || 'Your company'}</span>
+                }
+              </div>
+              {/* Card body */}
+              <div style={{ background: themeBg, padding: '16px 18px 18px' }}>
+                <div style={{ fontFamily: activeFontFamily, fontSize: activeFontSize * 0.42, lineHeight: 1.1, color: themeHeading || themeFg, marginBottom: 4 }}>
+                  {displayName || 'Your name'}
+                </div>
+                <div style={{ fontSize: 12, color: themeSubtext || themeFg, opacity: themeSubtext ? 1 : 0.72, marginBottom: 10 }}>
+                  {[title, company].filter(Boolean).join(' · ') || 'Title · Company'}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ padding: '6px 12px', background: themeAccent, color: themeBg, borderRadius: 8, fontSize: 12, fontWeight: 500 }}>
+                    {card.cta_primary_label || 'Book a call'}
+                  </div>
+                  {card.industry && (
+                    <div style={{ padding: '6px 10px', background: `${themeAccent}22`, color: themeAccent, borderRadius: 8, fontSize: 12 }}>
+                      {card.industry}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}

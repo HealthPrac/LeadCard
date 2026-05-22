@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   const path = `${subscriber.id}/${cardId}/${type}.${ext}`
 
   const service = createServiceClient()
-  const { data, error } = await service.storage.from(config.bucket).createSignedUploadUrl(path)
+  const { data, error } = await service.storage.from(config.bucket).createSignedUploadUrl(path, { upsert: true })
 
   if (error || !data) {
     console.error('Signed upload URL error:', error?.message)

@@ -7,7 +7,7 @@ const ALLOWED_FIELDS = new Set([
   'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
   'form_fields', 'lead_destination_email',
   'links',
-  'theme_bg', 'theme_fg', 'theme_accent', 'theme_font', 'theme_font_size',
+  'theme_bg', 'theme_fg', 'theme_accent', 'theme_banner_bg', 'theme_heading', 'theme_subtext', 'theme_font', 'theme_font_size',
   'photo_path', 'logo_path', 'video_path',
   'is_published',
 ])

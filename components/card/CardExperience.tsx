@@ -33,6 +33,9 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
     bg: card.theme_bg,
     fg: card.theme_fg,
     accent: card.theme_accent,
+    bannerBg: card.theme_banner_bg ?? null,
+    heading: card.theme_heading ?? null,
+    subtext: card.theme_subtext ?? null,
     headingFont: FONT_FAMILIES[card.theme_font ?? 'serif'] ?? FONT_FAMILIES.serif,
     scale: FONT_SCALES[card.theme_font_size ?? 'default'] ?? 1,
   }
@@ -61,7 +64,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
       <div style={{
         position: 'relative',
         height: 124,
-        background: `linear-gradient(135deg, ${t.accent}1E 0%, ${t.accent}08 100%)`,
+        background: t.bannerBg ?? `linear-gradient(135deg, ${t.accent}1E 0%, ${t.accent}08 100%)`,
         borderBottom: `1px solid ${t.fg}0C`,
         display: 'flex',
         alignItems: 'center',
@@ -93,13 +96,13 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
 
       {/* ── Identity ── */}
       <div style={{ position: 'relative', padding: '0 26px', marginTop: 14 }}>
-        <div style={{ fontSize: 11, opacity: 0.65, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 8, color: t.subtext ?? t.fg, opacity: t.subtext ? 0.85 : 0.65 }}>
           {card.welcome_headline ?? 'Hello —'}
         </div>
-        <div style={{ fontFamily: t.headingFont, fontSize: Math.round(44 * t.scale), lineHeight: 0.98, letterSpacing: '-0.015em' }}>
+        <div style={{ fontFamily: t.headingFont, fontSize: Math.round(44 * t.scale), lineHeight: 0.98, letterSpacing: '-0.015em', color: t.heading ?? t.fg }}>
           {card.display_name ?? 'Your Name'}
         </div>
-        <div style={{ fontSize: 15, opacity: 0.78, marginTop: 10 }}>
+        <div style={{ fontSize: 15, marginTop: 10, color: t.subtext ?? t.fg, opacity: t.subtext ? 1 : 0.78 }}>
           {[card.title, card.company].filter(Boolean).join(' · ')}
         </div>
         {card.industry && (
@@ -111,13 +114,13 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
         {(card.email || card.mobile) && (
           <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 7 }}>
             {card.email && (
-              <div style={{ fontSize: 13, opacity: 0.72, display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+              <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden', color: t.subtext ?? t.fg, opacity: t.subtext ? 1 : 0.72 }}>
                 <span style={{ opacity: 0.55, fontSize: 12, flexShrink: 0 }}>✉</span>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{card.email}</span>
               </div>
             )}
             {card.mobile && (
-              <div style={{ fontSize: 13, opacity: 0.72, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, color: t.subtext ?? t.fg, opacity: t.subtext ? 1 : 0.72 }}>
                 <span style={{ opacity: 0.55, fontSize: 12, flexShrink: 0 }}>✆</span>
                 <span>{card.mobile}</span>
               </div>
@@ -127,7 +130,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
       </div>
 
       {card.welcome_body && (
-        <p style={{ position: 'relative', padding: '0 26px', margin: '16px 0 0', fontSize: 14, opacity: 0.7, lineHeight: 1.5, maxWidth: 300 }}>
+        <p style={{ position: 'relative', padding: '0 26px', margin: '16px 0 0', fontSize: 14, lineHeight: 1.5, maxWidth: 300, color: t.subtext ?? t.fg, opacity: t.subtext ? 1 : 0.7 }}>
           {card.welcome_body}
         </p>
       )}
@@ -383,6 +386,6 @@ function MiniQR({ fg }: { fg: string }) {
 
 interface SP {
   card: Card
-  t: { bg: string; fg: string; accent: string; headingFont: string; scale: number }
+  t: { bg: string; fg: string; accent: string; bannerBg: string | null; heading: string | null; subtext: string | null; headingFont: string; scale: number }
   go: (s: Screen) => void
 }
