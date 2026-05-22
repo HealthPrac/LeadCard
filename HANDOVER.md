@@ -1,7 +1,7 @@
 # LeadCard — Handover Document
 
-**Last updated:** 2026-05-21 (Session 116)  
-**Status:** ✅ MVP LIVE on Amplify. Supabase migrations still need applying.
+**Last updated:** 2026-05-21 (Session 117)  
+**Status:** ✅ Resend email flow LIVE (commit e4b58c7). Supabase migrations still need applying.
 
 ---
 
@@ -39,8 +39,8 @@
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → Connect → Next.js | starts with `sb_publishable_` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → Secret key | starts with `sb_secret_` |
 | `NEXT_PUBLIC_APP_URL` | this doc | `https://main.d2idx6kv8dvjyf.amplifyapp.com` |
-| `RESEND_API_KEY` | resend.com → API Keys | Add in Session 3 |
-| `RESEND_FROM_EMAIL` | — | `hello@leadcard.app` — add in Session 3 |
+| `RESEND_API_KEY` | resend.com → API Keys | ✅ Set in Amplify — using HPS Resend key |
+| `RESEND_FROM_EMAIL` | — | ✅ Set in Amplify — `leadcard@healthprac.com` |
 | `PAYFAST_MERCHANT_ID` | payfast.co.za dashboard | Add in Session 3 |
 | `PAYFAST_MERCHANT_KEY` | payfast.co.za dashboard | Add in Session 3 |
 | `PAYFAST_PASSPHRASE` | payfast.co.za dashboard | Add in Session 3 |
@@ -187,7 +187,8 @@ const { slug } = await params
 
 | Session | Focus |
 |---------|-------|
-| **Session 3 (next)** | Apply Supabase migrations · PayFast ITN webhook · Resend email verification · Domain `leadcard.app` |
+| **Session 117** | Resend email flow: `/auth/confirm` handler, `/reset-password` page, `sendWelcomeEmail()`, middleware public routes updated. Commit `e4b58c7`. |
+| **Session 3 remaining** | Apply Supabase migrations 001+002 · PayFast ITN webhook `/api/webhooks/payfast` · Domain `leadcard.app` |
 | **Session 4** | Card editor: photo/video upload preview, image crop |
 | **Session 5** | Analytics: real view tracking, lead source attribution |
 | **Session 6** | NFC order flow, quarterly PDF report |
