@@ -28,6 +28,44 @@ const FONT_OPTIONS = [
   { value: 'inter',     label: 'Inter',               fontFamily: '"Inter", system-ui, sans-serif' },
 ]
 
+const INDUSTRIES = [
+  'Accounting & Finance',
+  'Advertising & Marketing',
+  'Agriculture & Farming',
+  'Architecture & Design',
+  'Automotive',
+  'Aviation & Transport',
+  'Banking & Financial Services',
+  'Business Consulting',
+  'Construction',
+  'Education & Training',
+  'Energy & Utilities',
+  'Engineering',
+  'Entertainment & Media',
+  'Environmental Services',
+  'Fashion & Apparel',
+  'Food & Beverage',
+  'Government & Public Sector',
+  'Healthcare & Medical',
+  'Hospitality & Tourism',
+  'Human Resources & Recruitment',
+  'Information Technology',
+  'Insurance',
+  'Legal Services',
+  'Logistics & Supply Chain',
+  'Manufacturing',
+  'Mining & Resources',
+  'Non-Profit & NGO',
+  'Pharmaceuticals',
+  'Property & Real Estate',
+  'Retail & E-commerce',
+  'Security Services',
+  'Sports & Fitness',
+  'Technology & Software',
+  'Telecommunications',
+  'Other',
+]
+
 const PLANS: { id: Plan; name: string; tagline: string; features: string[]; price: string; period: string }[] = [
   {
     id: 'solo',
@@ -105,6 +143,8 @@ export default function OnboardingPage() {
   const [themeFg, setThemeFg] = useState(PALETTES[0].fg)
   const [themeAccent, setThemeAccent] = useState(PALETTES[0].accent)
   const [themeFont, setThemeFont] = useState('serif')
+  const [industrySelection, setIndustrySelection] = useState('')
+  const [industryOther, setIndustryOther] = useState('')
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
@@ -119,6 +159,8 @@ export default function OnboardingPage() {
   const [soloSlug, setSoloSlug] = useState('')
   const [soloSlugAvailable, setSoloSlugAvailable] = useState<boolean | null>(null)
   const [soloCheckingSlug, setSoloCheckingSlug] = useState(false)
+  const [soloIndustrySelection, setSoloIndustrySelection] = useState('')
+  const [soloIndustryOther, setSoloIndustryOther] = useState('')
 
   // Team (Small / Enterprise)
   const [persons, setPersons] = useState<PersonEntry[]>([emptyPerson()])
@@ -157,6 +199,9 @@ export default function OnboardingPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
 
+  const soloIndustry = soloIndustrySelection === 'Other' ? soloIndustryOther.trim() : soloIndustrySelection
+  const industry = industrySelection === 'Other' ? industryOther.trim() : industrySelection
+
   function handleContinueFromPlan() {
     if (plan === 'small') setPersons(Array.from({ length: 5 }, emptyPerson))
     else if (plan === 'enterprise') setPersons([emptyPerson()])
@@ -192,6 +237,7 @@ export default function OnboardingPage() {
             mobile: joinPhone(soloMobileCode, soloMobileNumber),
             email: user.email,
             slug: soloSlug.trim(),
+            industry: soloIndustry,
           }],
         }
       : {
@@ -204,6 +250,7 @@ export default function OnboardingPage() {
             themeFg,
             themeAccent,
             themeFont,
+            industry,
           },
           persons: persons
             .filter(p => p.name.trim() && p.slug.trim())
@@ -371,6 +418,15 @@ export default function OnboardingPage() {
                   <label style={labelStyle}>Company website</label>
                   <input style={inputStyle} value={companyWebsite} onChange={e => setCompanyWebsite(e.target.value)} placeholder="https://acmecorp.com" />
                 </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={labelStyle}>Industry <span style={{ color: 'var(--sage)' }}>*</span></label>
+                  <IndustrySelect
+                    selection={industrySelection}
+                    otherText={industryOther}
+                    onSelection={setIndustrySelection}
+                    onOther={setIndustryOther}
+                  />
+                </div>
               </div>
 
               {/* Colour palettes */}
@@ -522,6 +578,15 @@ export default function OnboardingPage() {
                     <label style={labelStyle}>Website</label>
                     <input style={inputStyle} value={soloWebsite} onChange={e => setSoloWebsite(e.target.value)} placeholder="https://yoursite.com" />
                   </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={labelStyle}>Industry <span style={{ color: 'var(--sage)' }}>*</span></label>
+                    <IndustrySelect
+                      selection={soloIndustrySelection}
+                      otherText={soloIndustryOther}
+                      onSelection={setSoloIndustrySelection}
+                      onOther={setSoloIndustryOther}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -641,8 +706,8 @@ export default function OnboardingPage() {
           {step === 'brand' && (
             <button
               onClick={() => setStep('identity')}
-              disabled={!companyName.trim()}
-              style={{ padding: '12px 24px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: !companyName.trim() ? 0.4 : 1 }}
+              disabled={!companyName.trim() || !industry}
+              style={{ padding: '12px 24px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: (!companyName.trim() || !industry) ? 0.4 : 1 }}
             >
               Continue →
             </button>
@@ -651,8 +716,8 @@ export default function OnboardingPage() {
           {step === 'identity' && (
             <button
               onClick={() => setStep('slug')}
-              disabled={plan === 'solo' ? !soloName.trim() : !persons[0]?.name.trim()}
-              style={{ padding: '12px 24px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: (plan === 'solo' ? !soloName.trim() : !persons[0]?.name.trim()) ? 0.4 : 1 }}
+              disabled={plan === 'solo' ? !soloName.trim() || !soloIndustry : !persons[0]?.name.trim()}
+              style={{ padding: '12px 24px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: (plan === 'solo' ? !soloName.trim() || !soloIndustry : !persons[0]?.name.trim()) ? 0.4 : 1 }}
             >
               Continue →
             </button>
@@ -769,6 +834,115 @@ function PhoneField({ code, number, onCode, onNumber }: { code: string; number: 
       </select>
       <input value={number} onChange={e => onNumber(e.target.value)} placeholder="82 555 0100"
         style={{ flex: 1, padding: '11px 12px', border: 'none', fontSize: 14, fontFamily: 'inherit', outline: 'none', minWidth: 0 }} />
+    </div>
+  )
+}
+
+// ── Industry select ───────────────────────────────────────────────────────────
+function IndustrySelect({ selection, otherText, onSelection, onOther }: {
+  selection: string
+  otherText: string
+  onSelection: (v: string) => void
+  onOther: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  const filtered = search
+    ? INDUSTRIES.filter(i => i.toLowerCase().includes(search.toLowerCase()))
+    : INDUSTRIES
+
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+        setSearch('')
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [])
+
+  useEffect(() => {
+    if (open) searchRef.current?.focus()
+  }, [open])
+
+  function pick(v: string) {
+    onSelection(v)
+    setOpen(false)
+    setSearch('')
+  }
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          ...inputStyle,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          cursor: 'pointer', textAlign: 'left' as const,
+          color: selection ? 'var(--charcoal)' : '#9CA3AF',
+        }}
+      >
+        <span>{selection || 'Select industry…'}</span>
+        <span style={{ fontSize: 10, color: 'var(--muted)', marginLeft: 8, flexShrink: 0 }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+          background: 'white', border: '1px solid var(--line)', borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 200, overflow: 'hidden',
+        }}>
+          <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--line-2)' }}>
+            <input
+              ref={searchRef}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search industries…"
+              style={{ width: '100%', border: 'none', outline: 'none', fontSize: 13.5, fontFamily: 'inherit', background: 'transparent', color: 'var(--charcoal)', boxSizing: 'border-box' as const }}
+            />
+          </div>
+          <div style={{ maxHeight: 220, overflowY: 'auto' as const }}>
+            {filtered.length === 0
+              ? <div style={{ padding: '12px 14px', fontSize: 13, color: 'var(--muted)' }}>No results</div>
+              : filtered.map((ind, i) => (
+                <button
+                  key={ind}
+                  type="button"
+                  onClick={() => pick(ind)}
+                  style={{
+                    display: 'block', width: '100%', padding: '10px 14px',
+                    textAlign: 'left' as const, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13.5,
+                    border: 'none',
+                    borderBottom: i < filtered.length - 1 ? '1px solid var(--line-2)' : 'none',
+                    background: selection === ind ? 'var(--cream-2)' : 'transparent',
+                    color: 'var(--charcoal)',
+                    fontWeight: ind === 'Other' ? 500 : 400,
+                  }}
+                >
+                  {ind}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      )}
+
+      {selection === 'Other' && (
+        <div style={{ marginTop: 8 }}>
+          <input
+            autoFocus
+            style={inputStyle}
+            value={otherText}
+            onChange={e => onOther(e.target.value)}
+            placeholder="Please specify your industry…"
+          />
+        </div>
+      )}
     </div>
   )
 }

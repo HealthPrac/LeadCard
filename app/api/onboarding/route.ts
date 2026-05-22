@@ -9,6 +9,7 @@ interface BrandPayload {
   themeFg: string
   themeAccent: string
   themeFont: string
+  industry?: string
 }
 
 interface PersonPayload {
@@ -19,6 +20,7 @@ interface PersonPayload {
   mobile?: string
   email?: string
   slug: string
+  industry?: string
 }
 
 export async function POST(req: Request) {
@@ -92,6 +94,7 @@ export async function POST(req: Request) {
       mobile: p.mobile ?? null,
       lead_destination_email: email ?? null,
       is_published: true,
+      industry: brand?.industry ?? p.industry ?? null,
       ...sharedTheme,
     }))
 

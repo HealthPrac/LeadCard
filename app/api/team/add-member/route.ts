@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     // Inherit brand from owner card (first card, ordered by created_at)
     const { data: ownerCard } = await service
       .from('cards')
-      .select('theme_bg, theme_fg, theme_accent, theme_font, logo_path, company, website, lead_destination_email')
+      .select('theme_bg, theme_fg, theme_accent, theme_font, logo_path, company, website, lead_destination_email, industry')
       .eq('subscriber_id', subscriber.id)
       .order('created_at', { ascending: true })
       .limit(1)
@@ -89,6 +89,7 @@ export async function POST(req: Request) {
         theme_accent: ownerCard?.theme_accent ?? '#8FAF9D',
         theme_font: ownerCard?.theme_font ?? 'serif',
         logo_path: ownerCard?.logo_path ?? null,
+        industry: ownerCard?.industry ?? null,
       })
       .select('id, slug, display_name')
       .single()

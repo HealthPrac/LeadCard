@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 const ALLOWED_FIELDS = new Set([
-  'display_name', 'title', 'company', 'email', 'mobile', 'website',
+  'display_name', 'title', 'company', 'email', 'mobile', 'website', 'industry',
   'welcome_headline', 'welcome_body',
   'cta_primary_label', 'cta_primary_url', 'cta_secondary_label', 'cta_secondary_url',
   'form_fields', 'lead_destination_email',
