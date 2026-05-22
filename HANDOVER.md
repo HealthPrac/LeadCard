@@ -1,7 +1,7 @@
 # LeadCard — Handover Document
 
-**Last updated:** 2026-05-22 (Session 117 complete)  
-**Status:** ✅ Full auth + onboarding flow LIVE. Migrations 001+002 APPLIED. Commit `c8f5d06`.
+**Last updated:** 2026-05-22 (Session 118 complete)  
+**Status:** ✅ Logo + font/size config LIVE. Migrations 001+002 APPLIED. Migration 003 READY TO APPLY. Commit `5b01b9e`.
 
 ---
 
@@ -125,7 +125,7 @@ Supabase → Authentication → URL Configuration:
 | `/forgot-password` | Auth | Password reset request |
 | `/reset-password` | Auth | New password form (after token exchange) |
 | `/auth/confirm` | API | Supabase auth callback — handles token_hash + code |
-| `/onboarding` | SSR | 3-step wizard: identity → style → URL claim |
+| `/onboarding` | SSR | 2-step wizard: identity → URL claim (style removed — done post-subscribe in editor) |
 | `/dashboard` | SSR | Trial banner, card panel, leads summary |
 | `/editor` | SSR | 7-tab card editor |
 | `/leads` | SSR | Full leads inbox, search, CSV export |
@@ -150,7 +150,7 @@ Supabase → Authentication → URL Configuration:
 `id, user_id, email, plan, payfast_customer_id, payfast_subscription_id, subscription_status (trialing/active/inactive/cancelled), trial_ends_at`
 
 ### cards
-`id, subscriber_id, slug, display_name, title, company, email, mobile, website, welcome_headline, welcome_body, cta_primary_label, cta_primary_url, cta_secondary_label, cta_secondary_url, form_fields (JSONB), lead_destination_email, links (JSONB), theme_bg, theme_fg, theme_accent, photo_path, logo_path, video_path, is_published, is_owner_card`
+`id, subscriber_id, slug, display_name, title, company, email, mobile, website, welcome_headline, welcome_body, cta_primary_label, cta_primary_url, cta_secondary_label, cta_secondary_url, form_fields (JSONB), lead_destination_email, links (JSONB), theme_bg, theme_fg, theme_accent, theme_font, theme_font_size, photo_path, logo_path, video_path, is_published, is_owner_card`
 
 ### leads
 `id, card_id, subscriber_id, first_name, last_name, email, org, role, mobile, message, source, consented_at, ip_address, user_agent`
@@ -162,8 +162,9 @@ Supabase → Authentication → URL Configuration:
 ### Migrations
 - `supabase/migrations/001_schema.sql` — tables + storage buckets + triggers
 - `supabase/migrations/002_rls.sql` — RLS policies
+- `supabase/migrations/003_theme_fonts.sql` — adds `theme_font` + `theme_font_size` to cards
 
-**✅ Both migrations applied in Supabase SQL Editor (Session 117).**
+**✅ Migrations 001 + 002 applied (Session 117). ⏳ Migration 003 READY TO APPLY.**
 
 ---
 
