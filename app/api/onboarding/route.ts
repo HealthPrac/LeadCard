@@ -3,6 +3,7 @@ import { sendWelcomeEmail } from '@/lib/email/resend'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
+  try {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
@@ -79,4 +80,7 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ cardId: card.id, slug: card.slug })
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message ?? String(e) }, { status: 500 })
+  }
 }
