@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppSidebar } from '@/components/ui/AppSidebar'
+import { getSignedReadUrl } from '@/lib/cards/actions'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -18,11 +19,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const { data: cards } = await supabase
     .from('cards')
-    .select('id, slug, display_name, is_published')
+    .select('id, slug, display_name, is_published, logo_path')
     .eq('subscriber_id', subscriber.id)
     .order('created_at', { ascending: true })
 
   const primaryCard = cards?.[0] ?? null
+  const logoUrl = primaryCard?.logo_path
+    ? await getSignedReadUrl('card-assets', primaryCard.logo_path)
+    : null
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '100vh', background: 'var(--cream)' }}>
@@ -30,6 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         plan={subscriber.plan}
         cardSlug={primaryCard?.slug ?? null}
         displayName={primaryCard?.display_name ?? null}
+        logoUrl={logoUrl}
       />
       <main style={{ minWidth: 0, padding: '36px 40px', overflowY: 'auto' }}>
         {children}

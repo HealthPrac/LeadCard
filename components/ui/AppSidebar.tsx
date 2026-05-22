@@ -9,9 +9,10 @@ interface Props {
   plan: string
   cardSlug: string | null
   displayName: string | null
+  logoUrl: string | null
 }
 
-export function AppSidebar({ plan, cardSlug, displayName }: Props) {
+export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -43,10 +44,18 @@ export function AppSidebar({ plan, cardSlug, displayName }: Props) {
 
   return (
     <aside style={{ background: 'var(--cream)', borderRight: '1px solid var(--line)', padding: '22px 14px', display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
-      {/* Brand */}
+      {/* Tenant logo */}
       <div style={{ padding: '6px 10px 22px' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.svg" alt="LeadCard" height={30} style={{ display: 'block', borderRadius: 8 }} />
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="Logo" height={32} style={{ display: 'block', maxWidth: 160, objectFit: 'contain', borderRadius: 6 }} />
+        ) : (
+          <div style={{ height: 32, display: 'flex', alignItems: 'center' }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--charcoal)', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
+              {displayName ?? 'My Card'}
+            </span>
+          </div>
+        )}
       </div>
 
       {navItem('/dashboard', 'Overview', '⊞')}
@@ -80,6 +89,9 @@ export function AppSidebar({ plan, cardSlug, displayName }: Props) {
         <button onClick={handleSignOut} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px', borderRadius: 8, fontSize: 12.5, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
           <span>⎋</span> Sign out
         </button>
+        <div style={{ paddingTop: 10, fontSize: 10, color: 'var(--muted-2)', textAlign: 'center', lineHeight: 1.4 }}>
+          © 2026 HealthPrac Solutions. All Rights Reserved.
+        </div>
       </div>
     </aside>
   )
