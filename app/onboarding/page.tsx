@@ -5,14 +5,50 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { COUNTRY_CODES, splitPhone, joinPhone } from '@/lib/phone-codes'
 
-type Step = 'identity' | 'slug'
+type Plan = 'solo' | 'small' | 'enterprise'
+type Step = 'plan' | 'identity' | 'slug'
+
+const PLANS: {
+  id: Plan
+  name: string
+  tagline: string
+  features: string[]
+  price: string
+  period: string
+}[] = [
+  {
+    id: 'solo',
+    name: 'Solo',
+    tagline: 'Your personal digital card',
+    features: ['1 digital experience', 'Lead capture', 'Video intro', 'Analytics'],
+    price: '$4',
+    period: 'per month',
+  },
+  {
+    id: 'small',
+    name: 'Small Business',
+    tagline: 'Cards for your whole team',
+    features: ['Up to 4 cards', 'Lead capture', 'Team dashboard', 'Priority support'],
+    price: '$12',
+    period: 'per month',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    tagline: 'Built to scale — fully customisable',
+    features: ['Unlimited cards', 'Custom branding', 'API access', 'Dedicated support'],
+    price: 'Custom',
+    period: 'contact us',
+  },
+]
 
 export default function OnboardingPage() {
   const router = useRouter()
-  const [step, setStep] = useState<Step>('identity')
+  const [step, setStep] = useState<Step>('plan')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [plan, setPlan] = useState<Plan>('solo')
   const [name, setName] = useState('')
   const [title, setTitle] = useState('')
   const [company, setCompany] = useState('')
@@ -48,6 +84,7 @@ export default function OnboardingPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        plan,
         display_name: name,
         title,
         company,
@@ -69,18 +106,13 @@ export default function OnboardingPage() {
     router.push('/dashboard')
   }
 
-  const steps: Step[] = ['identity', 'slug']
+  const steps: Step[] = ['plan', 'identity', 'slug']
   const stepIdx = steps.indexOf(step)
-  const stepLabels = ['Identity', 'Your URL']
+  const stepLabels = ['Plan', 'Identity', 'Your URL']
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--cream)', padding: '40px 20px' }}>
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
-        {/* Brand */}
-        <div style={{ marginBottom: 48 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="LeadCard" height={34} style={{ display: 'block', borderRadius: 10 }} />
-        </div>
 
         {/* Progress */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 40 }}>
@@ -103,9 +135,58 @@ export default function OnboardingPage() {
 
         {/* Card */}
         <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', padding: '36px 40px', minHeight: 360 }}>
+
+          {/* ── Step 1: Plan selection ── */}
+          {step === 'plan' && (
+            <div>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 1 of 3</p>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 8px', letterSpacing: '-0.01em' }}>Choose your plan.</h2>
+              <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 28px' }}>Pick the experience that fits your business.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {PLANS.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPlan(p.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 20,
+                      padding: '18px 22px', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit',
+                      border: `2px solid ${plan === p.id ? 'var(--charcoal)' : 'var(--line)'}`,
+                      background: plan === p.id ? 'var(--cream-2)' : 'white',
+                      textAlign: 'left', width: '100%', transition: '120ms',
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--charcoal)' }}>{p.name}</span>
+                        {p.id === 'small' && (
+                          <span style={{ fontSize: 10, padding: '2px 8px', background: 'var(--sage)', color: 'var(--charcoal)', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>POPULAR</span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 10 }}>{p.tagline}</div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                        {p.features.map(f => (
+                          <span key={f} style={{
+                            fontSize: 11, padding: '2px 9px',
+                            background: plan === p.id ? '#e8f0ec' : 'var(--cream)',
+                            borderRadius: 999, color: 'var(--charcoal)',
+                          }}>{f}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
+                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400, color: 'var(--charcoal)', lineHeight: 1 }}>{p.price}</div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>{p.period}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Step 2: Identity ── */}
           {step === 'identity' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 1 of 2</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 2 of 3</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 24px', letterSpacing: '-0.01em' }}>Who&apos;s on the card?</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <Field label="Display name" required>
@@ -129,14 +210,15 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {/* ── Step 3: URL ── */}
           {step === 'slug' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 2 of 2</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 3 of 3</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 6px', letterSpacing: '-0.01em' }}>Claim your URL.</h2>
               <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 24px' }}>Print it, paste it in your email signature, generate a QR.</p>
               <Field label="Your card URL" hint="Letters, numbers, dashes. You can change this later.">
                 <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 10, background: 'white', overflow: 'hidden' }}>
-                  <span style={{ padding: '11px 0 11px 14px', fontSize: 13.5, color: 'var(--muted)', whiteSpace: 'nowrap' }}>leadcard.app/c/</span>
+                  <span style={{ padding: '11px 0 11px 14px', fontSize: 13.5, color: 'var(--muted)', whiteSpace: 'nowrap' as const }}>leadcard.app/c/</span>
                   <input
                     style={{ ...inputStyle, border: 'none', borderRadius: 0, paddingLeft: 0 }}
                     value={slug}
@@ -144,7 +226,7 @@ export default function OnboardingPage() {
                     placeholder="your-slug"
                   />
                   {slug && (
-                    <span style={{ paddingRight: 12, fontSize: 12, whiteSpace: 'nowrap', color: checkingSlug ? 'var(--muted)' : slugAvailable ? '#16a34a' : '#dc2626' }}>
+                    <span style={{ paddingRight: 12, fontSize: 12, whiteSpace: 'nowrap' as const, color: checkingSlug ? 'var(--muted)' : slugAvailable ? '#16a34a' : '#dc2626' }}>
                       {checkingSlug ? '…' : slugAvailable ? '✓ Available' : '✗ Taken'}
                     </span>
                   )}

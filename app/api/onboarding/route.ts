@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
   const body = await req.json()
-  const { display_name, title, company, email, mobile, website, slug, theme_bg, theme_fg, theme_accent, lead_destination_email } = body
+  const { plan, display_name, title, company, email, mobile, website, slug, theme_bg, theme_fg, theme_accent, lead_destination_email } = body
 
   if (!display_name?.trim() || !slug?.trim()) {
     return NextResponse.json({ error: 'Name and slug are required.' }, { status: 400 })
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   } else {
     const { data: sub, error: subErr } = await service
       .from('subscribers')
-      .insert({ user_id: user.id, email: user.email! })
+      .insert({ user_id: user.id, email: user.email!, plan: plan ?? 'solo' })
       .select('id')
       .single()
 
