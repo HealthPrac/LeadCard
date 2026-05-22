@@ -42,11 +42,15 @@ export default async function PublicCardPage({ params }: Props) {
     : null
 
   return (
-    <CardExperience
-      card={card}
-      resolvedPhotoUrl={photoUrl}
-      resolvedVideoUrl={videoUrl}
-      resolvedLogoUrl={logoUrl}
-    />
+    <div className="card-page-outer">
+      <div className="card-page-inner">
+        <CardExperience
+          card={card}
+          resolvedPhotoUrl={photoUrl}
+          resolvedVideoUrl={videoUrl}
+          resolvedLogoUrl={logoUrl}
+        />
+      </div>
+    </div>
   )
 }

@@ -38,7 +38,7 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
   }
 
   return (
-    <div style={{ minHeight: '100dvh', width: '100%', background: t.bg, color: t.fg, fontFamily: 'var(--font-sans)', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', width: '100%', background: t.bg, color: t.fg, fontFamily: 'var(--font-sans)', position: 'relative', overflow: 'hidden' }}>
       {screen === 'welcome'   && <ScreenWelcome   card={card} t={t} photoUrl={resolvedPhotoUrl} logoUrl={resolvedLogoUrl} go={setScreen} />}
       {screen === 'video'     && <ScreenVideo     card={card} t={t} videoUrl={resolvedVideoUrl} go={setScreen} />}
       {screen === 'cta'       && <ScreenCTA       card={card} t={t} videoUrl={resolvedVideoUrl} go={setScreen} />}
@@ -53,7 +53,7 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
 function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: string | null; logoUrl: string | null }) {
   const initials = (card.display_name ?? 'A').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', padding: '56px 26px 32px', position: 'relative' }}>
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', padding: '56px 26px 32px', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 80% 0%, ${t.accent}22, transparent 55%), radial-gradient(circle at 20% 100%, ${t.accent}14, transparent 50%)`, pointerEvents: 'none' }}/>
       {/* Header — logo if uploaded, otherwise company name text */}
       <div style={{ position: 'relative' }}>
@@ -216,7 +216,7 @@ function ScreenForm({ card, t, go }: SP) {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', overflowY: 'auto', padding: '24px 22px 40px' }}>
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', overflowY: 'auto', padding: '24px 22px 40px' }}>
       <button onClick={() => go('cta')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.fg, opacity: 0.7, fontSize: 13, marginBottom: 18, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 30, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Request a callback</div>
       <p style={{ fontSize: 13, opacity: 0.7, lineHeight: 1.5, marginTop: 10, marginBottom: 22 }}>Leave your details — we&apos;ll be in touch within one business day.</p>
@@ -251,7 +251,7 @@ function ScreenForm({ card, t, go }: SP) {
 // ── Screen 5: Confirmed ──────────────────────────────────────────────────────
 function ScreenConfirmed({ card, t, go }: SP) {
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 30px', textAlign: 'center' }}>
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 30px', textAlign: 'center' }}>
       <div style={{ width: 64, height: 64, borderRadius: '50%', background: t.accent, color: t.bg, display: 'grid', placeItems: 'center', marginBottom: 28, animation: 'lc-pop 500ms ease-out', fontSize: 28 }}>✓</div>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 36, lineHeight: 1, letterSpacing: '-0.01em' }}>Thank you.</div>
       <p style={{ fontSize: 15, opacity: 0.7, lineHeight: 1.5, marginTop: 14, marginBottom: 32, maxWidth: 240 }}>
@@ -274,7 +274,7 @@ function ScreenShare({ card, t, go }: SP) {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', overflowY: 'auto', padding: '24px 22px 40px' }}>
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', overflowY: 'auto', padding: '24px 22px 40px' }}>
       <button onClick={() => go('welcome')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.fg, opacity: 0.7, fontSize: 13, marginBottom: 18, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 34, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Share my card</div>
       <p style={{ fontSize: 13, opacity: 0.7, marginTop: 8, marginBottom: 22 }}>Scan, tap, or save my contact.</p>
