@@ -9,6 +9,7 @@ interface Props {
   card: Card
   resolvedPhotoUrl: string | null
   resolvedVideoUrl: string | null
+  resolvedLogoUrl: string | null
 }
 
 const FONT_FAMILIES: Record<string, string> = {
@@ -26,7 +27,7 @@ const FONT_SCALES: Record<string, number> = {
   large:   1.22,
 }
 
-export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl }: Props) {
+export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resolvedLogoUrl }: Props) {
   const [screen, setScreen] = useState<Screen>('welcome')
   const t = {
     bg: card.theme_bg,
@@ -38,7 +39,7 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl }: Pro
 
   return (
     <div style={{ minHeight: '100dvh', width: '100%', background: t.bg, color: t.fg, fontFamily: 'var(--font-sans)', position: 'relative', overflow: 'hidden' }}>
-      {screen === 'welcome'   && <ScreenWelcome   card={card} t={t} photoUrl={resolvedPhotoUrl} go={setScreen} />}
+      {screen === 'welcome'   && <ScreenWelcome   card={card} t={t} photoUrl={resolvedPhotoUrl} logoUrl={resolvedLogoUrl} go={setScreen} />}
       {screen === 'video'     && <ScreenVideo     card={card} t={t} videoUrl={resolvedVideoUrl} go={setScreen} />}
       {screen === 'cta'       && <ScreenCTA       card={card} t={t} videoUrl={resolvedVideoUrl} go={setScreen} />}
       {screen === 'form'      && <ScreenForm      card={card} t={t} go={setScreen} />}
@@ -49,13 +50,19 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl }: Pro
 }
 
 // ── Screen 1: Welcome ───────────────────────────────────────────────────────
-function ScreenWelcome({ card, t, photoUrl, go }: SP & { photoUrl: string | null }) {
+function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: string | null; logoUrl: string | null }) {
   const initials = (card.display_name ?? 'A').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', padding: '56px 26px 32px', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 80% 0%, ${t.accent}22, transparent 55%), radial-gradient(circle at 20% 100%, ${t.accent}14, transparent 50%)`, pointerEvents: 'none' }}/>
-      {/* Header */}
-      <div style={{ position: 'relative', fontSize: 13, opacity: 0.8 }}>{card.company}</div>
+      {/* Header — logo if uploaded, otherwise company name text */}
+      <div style={{ position: 'relative' }}>
+        {logoUrl
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={logoUrl} alt={card.company ?? 'Logo'} style={{ height: 28, maxWidth: 140, objectFit: 'contain', display: 'block' }} />
+          : <span style={{ fontSize: 13, opacity: 0.8 }}>{card.company}</span>
+        }
+      </div>
       {/* Photo */}
       <div style={{ position: 'relative', marginTop: 32 }}>
         <div style={{

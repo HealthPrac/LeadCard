@@ -30,11 +30,16 @@ export default async function PublicCardPage({ params }: Props) {
     ? await getSignedReadUrl('card-videos', card.video_path, 3600)
     : null
 
+  const logoUrl = card.logo_path
+    ? await getSignedReadUrl('card-assets', card.logo_path, 3600)
+    : null
+
   return (
     <CardExperience
       card={card}
       resolvedPhotoUrl={photoUrl}
       resolvedVideoUrl={videoUrl}
+      resolvedLogoUrl={logoUrl}
     />
   )
 }

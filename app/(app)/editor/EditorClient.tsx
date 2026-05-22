@@ -254,13 +254,13 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
       {/* Tab bar */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--cream-2)', padding: 4, borderRadius: 10, overflowX: 'auto' }}>
+        {tabButton('theme', 'Theme')}
         {tabButton('identity', 'Identity')}
         {tabButton('welcome', 'Welcome')}
         {tabButton('video', 'Video')}
         {tabButton('cta', 'CTA')}
         {tabButton('form', 'Lead form')}
         {tabButton('links', 'Links')}
-        {tabButton('theme', 'Theme')}
       </div>
 
       <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: 28 }}>
