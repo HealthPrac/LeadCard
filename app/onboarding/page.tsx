@@ -20,6 +20,16 @@ const PALETTES = [
   { label: 'Forest',   bg: '#1A2F1E', fg: '#EDF4EE', accent: '#6FAF7F' },
 ]
 
+const COUNTRIES = [
+  'South Africa',
+  'Australia', 'Botswana', 'Canada', 'Egypt', 'Ethiopia', 'France',
+  'Germany', 'Ghana', 'India', 'Ireland', 'Kenya', 'Lesotho', 'Malawi',
+  'Mauritius', 'Mozambique', 'Namibia', 'Netherlands', 'New Zealand',
+  'Nigeria', 'Portugal', 'Rwanda', 'Singapore', 'Spain', 'Swaziland',
+  'Tanzania', 'Uganda', 'United Arab Emirates', 'United Kingdom',
+  'United States', 'Zambia', 'Zimbabwe',
+]
+
 const FONT_OPTIONS = [
   { value: 'serif',     label: 'Instrument Serif',   fontFamily: '"Instrument Serif", Georgia, serif' },
   { value: 'playfair',  label: 'Playfair Display',   fontFamily: '"Playfair Display", Georgia, serif' },
@@ -125,6 +135,12 @@ export default function OnboardingPage() {
   const [soloCheckingSlug, setSoloCheckingSlug] = useState(false)
   const [soloIndustrySelection, setSoloIndustrySelection] = useState('')
   const [soloIndustryOther, setSoloIndustryOther] = useState('')
+  const [soloCountry, setSoloCountry] = useState('South Africa')
+  const [soloCity, setSoloCity] = useState('')
+
+  // Brand location (Small / Enterprise)
+  const [brandCountry, setBrandCountry] = useState('South Africa')
+  const [brandCity, setBrandCity] = useState('')
 
   // Team (Small / Enterprise)
   const [persons, setPersons] = useState<PersonEntry[]>([emptyPerson()])
@@ -192,6 +208,8 @@ export default function OnboardingPage() {
       ? {
           plan,
           email: user.email,
+          country: soloCountry,
+          city: soloCity.trim() || null,
           brand: null,
           persons: [{
             name: soloName.trim(),
@@ -215,6 +233,8 @@ export default function OnboardingPage() {
             themeAccent,
             themeFont,
             industry,
+            country: brandCountry,
+            city: brandCity.trim() || null,
           },
           persons: persons
             .filter(p => p.name.trim() && p.slug.trim())
@@ -391,6 +411,16 @@ export default function OnboardingPage() {
                     onOther={setIndustryOther}
                   />
                 </div>
+                <div>
+                  <label style={labelStyle}>Country <span style={{ color: 'var(--sage)' }}>*</span></label>
+                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={brandCountry} onChange={e => setBrandCountry(e.target.value)}>
+                    {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>City <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></label>
+                  <input style={inputStyle} value={brandCity} onChange={e => setBrandCity(e.target.value)} placeholder="Cape Town" />
+                </div>
               </div>
 
               {/* Colour palettes */}
@@ -551,6 +581,16 @@ export default function OnboardingPage() {
                       onOther={setSoloIndustryOther}
                     />
                   </div>
+                  <div>
+                    <label style={labelStyle}>Country <span style={{ color: 'var(--sage)' }}>*</span></label>
+                    <select style={{ ...inputStyle, cursor: 'pointer' }} value={soloCountry} onChange={e => setSoloCountry(e.target.value)}>
+                      {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>City <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 400 }}>(optional)</span></label>
+                    <input style={inputStyle} value={soloCity} onChange={e => setSoloCity(e.target.value)} placeholder="Cape Town" />
+                  </div>
                 </div>
               )}
 
@@ -670,7 +710,7 @@ export default function OnboardingPage() {
           {step === 'brand' && (
             <button
               onClick={() => setStep('identity')}
-              disabled={!companyName.trim() || !industry}
+              disabled={!companyName.trim() || !industry || !brandCountry}
               style={{ padding: '12px 24px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: (!companyName.trim() || !industry) ? 0.4 : 1 }}
             >
               Continue →
@@ -680,7 +720,7 @@ export default function OnboardingPage() {
           {step === 'identity' && (
             <button
               onClick={() => setStep('slug')}
-              disabled={plan === 'solo' ? !soloName.trim() || !soloIndustry : !persons[0]?.name.trim()}
+              disabled={plan === 'solo' ? !soloName.trim() || !soloIndustry || !soloCountry : !persons[0]?.name.trim()}
               style={{ padding: '12px 24px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: (plan === 'solo' ? !soloName.trim() || !soloIndustry : !persons[0]?.name.trim()) ? 0.4 : 1 }}
             >
               Continue →

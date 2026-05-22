@@ -20,6 +20,8 @@ const nextConfig = {
     PAYFAST_MERCHANT_ID: process.env.PAYFAST_MERCHANT_ID,
     PAYFAST_MERCHANT_KEY: process.env.PAYFAST_MERCHANT_KEY,
     PAYFAST_PASSPHRASE: process.env.PAYFAST_PASSPHRASE,
+    // Shared secret for server-to-server market-intel endpoint
+    LEADCARD_ADMIN_SECRET: process.env.LEADCARD_ADMIN_SECRET,
   },
 }
 

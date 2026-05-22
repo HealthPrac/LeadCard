@@ -10,6 +10,8 @@ interface BrandPayload {
   themeAccent: string
   themeFont: string
   industry?: string
+  country?: string
+  city?: string | null
 }
 
 interface PersonPayload {
@@ -30,12 +32,16 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 })
 
     const body = await req.json()
-    const { plan, email, brand, persons } = body as {
+    const { plan, email, brand, persons, country: bodyCountry, city: bodyCity } = body as {
       plan: string
       email: string
       brand: BrandPayload | null
       persons: PersonPayload[]
+      country?: string
+      city?: string | null
     }
+    const country = brand?.country ?? bodyCountry ?? null
+    const city = brand?.city ?? bodyCity ?? null
 
     const activePeople = (persons ?? []).filter(p => p.name?.trim() && p.slug?.trim())
     if (activePeople.length === 0) {
@@ -54,10 +60,16 @@ export async function POST(req: Request) {
 
     if (existing) {
       subscriberId = existing.id
+      // Update geography if provided (re-onboarding or missing from earlier signup)
+      if (country) {
+        await service.from('subscribers')
+          .update({ country, city: city ?? null })
+          .eq('id', subscriberId)
+      }
     } else {
       const { data: sub, error: subErr } = await service
         .from('subscribers')
-        .insert({ user_id: user.id, email: user.email!, plan: plan ?? 'solo' })
+        .insert({ user_id: user.id, email: user.email!, plan: plan ?? 'solo', country, city: city ?? null })
         .select('id')
         .single()
 
