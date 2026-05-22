@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, CSSProperties } from 'react'
+import QRCode from 'qrcode'
 import type { Card, FormField } from '@/lib/supabase/types'
 
 type Screen = 'welcome' | 'video' | 'cta' | 'form' | 'confirmed' | 'share'
@@ -117,8 +118,6 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
   const initials = (card.display_name ?? 'A').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
   return (
     <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Background radial gradient */}
-      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 80% 0%, ${t.accent}22, transparent 55%), radial-gradient(circle at 20% 100%, ${t.accent}14, transparent 50%)`, pointerEvents: 'none' }}/>
 
       {/* ── Logo banner — full width, prominent ── */}
       <div style={{
@@ -148,7 +147,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
           background: photoUrl ? `url(${photoUrl}) center/cover` : `${t.accent}28`,
           backgroundSize: 'cover',
           display: 'grid', placeItems: 'center',
-          fontFamily: 'var(--font-serif)', fontSize: 36,
+          fontFamily: t.headingFont, fontSize: 36,
           border: `3px solid ${t.bg}`,
           boxShadow: `0 2px 14px ${t.fg}1A`,
         }}>{!photoUrl && initials}</div>
@@ -288,7 +287,7 @@ function ScreenCTA({ card, t, go }: SP) {
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)' }} />
       <button onClick={() => go('welcome')} style={{ ...frostedBtn(18, 18), pointerEvents: 'auto' }}>←</button>
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10, animation: 'lc-rise 600ms ease-out', pointerEvents: 'auto' }}>
-        <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, lineHeight: 1.1, marginBottom: 8 }}>Ready to take the next step?</div>
+        <div style={{ fontFamily: t.headingFont, fontSize: 22, lineHeight: 1.1, marginBottom: 8 }}>Ready to take the next step?</div>
         {card.cta_primary_url && (
           <a href={card.cta_primary_url} target="_blank" rel="noopener noreferrer" style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}>
             🌐 {card.cta_primary_label ?? 'Visit the website'}
@@ -333,7 +332,7 @@ function ScreenForm({ card, t, go }: SP) {
   return (
     <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', overflowY: 'auto', padding: '24px 22px 40px' }}>
       <button onClick={() => go('cta')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.fg, opacity: 0.7, fontSize: 13, marginBottom: 18, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 30, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Request a callback</div>
+      <div style={{ fontFamily: t.headingFont, fontSize: 30, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Request a callback</div>
       <p style={{ fontSize: 13, opacity: 0.7, lineHeight: 1.5, marginTop: 10, marginBottom: 22 }}>Leave your details — we&apos;ll be in touch within one business day.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {fields.map(f => (
@@ -368,7 +367,7 @@ function ScreenConfirmed({ card, t, go }: SP) {
   return (
     <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 30px', textAlign: 'center' }}>
       <div style={{ width: 64, height: 64, borderRadius: '50%', background: t.accent, color: t.bg, display: 'grid', placeItems: 'center', marginBottom: 28, animation: 'lc-pop 500ms ease-out', fontSize: 28 }}>✓</div>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 36, lineHeight: 1, letterSpacing: '-0.01em' }}>Thank you.</div>
+      <div style={{ fontFamily: t.headingFont, fontSize: 36, lineHeight: 1, letterSpacing: '-0.01em' }}>Thank you.</div>
       <p style={{ fontSize: 15, opacity: 0.7, lineHeight: 1.5, marginTop: 14, marginBottom: 32, maxWidth: 240 }}>
         Your request is in. We&apos;ll reach out within one business day.
       </p>
@@ -391,11 +390,11 @@ function ScreenShare({ card, t, go }: SP) {
   return (
     <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', overflowY: 'auto', padding: '24px 22px 40px' }}>
       <button onClick={() => go('welcome')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.fg, opacity: 0.7, fontSize: 13, marginBottom: 18, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 34, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Share my card</div>
+      <div style={{ fontFamily: t.headingFont, fontSize: 34, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Share my card</div>
       <p style={{ fontSize: 13, opacity: 0.7, marginTop: 8, marginBottom: 22 }}>Scan, tap, or save my contact.</p>
       <div style={{ background: `${t.fg}0D`, borderRadius: 16, padding: 22, marginBottom: 14 }}>
-        <div style={{ background: t.fg, borderRadius: 12, padding: 16, display: 'grid', placeItems: 'center' }}>
-          <MiniQR fg={t.bg} />
+        <div style={{ background: '#ffffff', borderRadius: 12, padding: 12, display: 'grid', placeItems: 'center' }}>
+          <RealQR url={url} size={140} />
         </div>
         <div style={{ textAlign: 'center', fontSize: 11, opacity: 0.6, marginTop: 12, fontFamily: 'monospace' }}>
           leadcard.app/c/{card.slug}
@@ -441,22 +440,16 @@ function frostedBtn(top: number, left?: number, right?: number): CSSProperties {
   return { position: 'absolute', top, left, right, width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', color: 'white', display: 'grid', placeItems: 'center', border: '1px solid rgba(255,255,255,0.16)', fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }
 }
 
-function MiniQR({ fg }: { fg: string }) {
-  const cells = Array.from({ length: 21 * 21 }, (_, i) => {
-    const x = i % 21, y = Math.floor(i / 21)
-    const corner = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13)
-    if (corner) {
-      const cx = x < 7 ? 3 : 17; const cy = y < 7 ? 3 : 17
-      const d = Math.max(Math.abs(x - cx), Math.abs(y - cy))
-      return d === 0 || d === 2 || d === 3
-    }
-    return (Math.sin(x * 13.7 + y * 7.3) * 9999) % 1 > 0.5
-  })
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(21, 1fr)', gap: 0, width: 140, height: 140 }}>
-      {cells.map((on, i) => <div key={i} style={{ background: on ? fg : 'transparent', aspectRatio: '1/1' }}/>)}
-    </div>
-  )
+function RealQR({ url, size }: { url: string; size: number }) {
+  const [dataUrl, setDataUrl] = useState('')
+  useEffect(() => {
+    QRCode.toDataURL(url, { width: size, margin: 1, color: { dark: '#17181C', light: '#ffffff' } })
+      .then(setDataUrl)
+      .catch(() => {})
+  }, [url, size])
+  if (!dataUrl) return <div style={{ width: size, height: size, background: '#f0f0f0', borderRadius: 4 }} />
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={dataUrl} alt="QR code" width={size} height={size} style={{ display: 'block' }} />
 }
 
 interface SP {
