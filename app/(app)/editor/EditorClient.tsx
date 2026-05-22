@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { COUNTRY_CODES, splitPhone, joinPhone } from '@/lib/phone-codes'
 
 const PALETTES = [
@@ -75,6 +76,7 @@ interface Props {
 }
 
 export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl }: Props) {
+  const router = useRouter()
   const [tab, setTab] = useState<'identity' | 'welcome' | 'video' | 'cta' | 'form' | 'links' | 'theme'>('identity')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -131,8 +133,11 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
       })
       const preview = URL.createObjectURL(file)
       if (type === 'photo') setPhotoPreview(preview)
-      if (type === 'logo') setLogoPreview(preview)
       if (type === 'video') setVideoPreview(preview)
+      if (type === 'logo') {
+        setLogoPreview(preview)
+        router.refresh()  // re-runs server layout so sidebar logo updates immediately
+      }
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : 'Upload failed')
     }
@@ -292,7 +297,6 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             {field('Website', website, setWebsite, 'https://yourwebsite.com', 'url')}
             <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18, marginTop: 4 }}>
               {fileUploader('photo', 'Profile photo', 'image/jpeg,image/png,image/webp', photoPreview, photoRef as React.RefObject<HTMLInputElement>)}
-              {fileUploader('logo', 'Company logo', 'image/jpeg,image/png,image/webp,image/svg+xml', logoPreview, logoRef as React.RefObject<HTMLInputElement>)}
             </div>
           </div>
         )}
@@ -472,6 +476,13 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                 </button>
               ))}
             </div>
+
+            {/* ── Company logo ── */}
+            <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Company logo</div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
+              Shown on the public card experience. For team plans, upload once here — it applies to all cards.
+            </p>
+            {fileUploader('logo', 'Company logo', 'image/jpeg,image/png,image/webp,image/svg+xml', logoPreview, logoRef as React.RefObject<HTMLInputElement>)}
 
             {/* ── Live preview swatch ── */}
             <div style={{ padding: 20, borderRadius: 12, background: themeBg, color: themeFg }}>

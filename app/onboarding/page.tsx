@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { COUNTRY_CODES, joinPhone } from '@/lib/phone-codes'
@@ -105,6 +105,9 @@ export default function OnboardingPage() {
   const [themeFg, setThemeFg] = useState(PALETTES[0].fg)
   const [themeAccent, setThemeAccent] = useState(PALETTES[0].accent)
   const [themeFont, setThemeFont] = useState('serif')
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   // Solo identity
   const [soloName, setSoloName] = useState('')
@@ -226,6 +229,28 @@ export default function OnboardingPage() {
       setError(msg ?? 'Something went wrong.')
       setSaving(false)
       return
+    }
+
+    // Upload logo to all cards if one was selected in the brand step
+    if (logoFile) {
+      try {
+        const { cardId, cardIds } = await res.json()
+        const urlRes = await fetch(`/api/upload-url?type=logo&cardId=${cardId}&filename=${encodeURIComponent(logoFile.name)}`)
+        if (urlRes.ok) {
+          const { uploadUrl, path } = await urlRes.json()
+          await fetch(uploadUrl, { method: 'PUT', body: logoFile, headers: { 'Content-Type': logoFile.type } })
+          // Propagate logo_path to every card under this subscriber
+          await Promise.all((cardIds as string[]).map((id: string) =>
+            fetch('/api/cards/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ cardId: id, logo_path: path }),
+            })
+          ))
+        }
+      } catch {
+        // Logo upload is non-blocking — user can upload later in the editor
+      }
     }
 
     router.push('/dashboard')
@@ -408,9 +433,45 @@ export default function OnboardingPage() {
                 <div style={{ marginTop: 12, display: 'inline-block', padding: '6px 12px', background: themeFg, color: themeBg, borderRadius: 6, fontSize: 11.5, fontWeight: 500 }}>Connect</div>
               </div>
 
-              <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 14, lineHeight: 1.5 }}>
-                Logo upload is available in the editor after setup.
-              </p>
+              {/* Logo upload */}
+              <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18, marginTop: 18 }}>
+                <div style={{ fontSize: 12, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', marginBottom: 10 }}>Company logo <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional)</span></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  {logoPreview && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logoPreview} alt="Logo preview" style={{ height: 44, maxWidth: 120, objectFit: 'contain', borderRadius: 6, border: '1px solid var(--line)', background: themeBg, padding: 4 }} />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    style={{ padding: '8px 16px', background: 'var(--cream-2)', color: 'var(--charcoal)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    {logoPreview ? 'Replace logo' : 'Upload logo'}
+                  </button>
+                  {logoPreview && (
+                    <button
+                      type="button"
+                      onClick={() => { setLogoFile(null); setLogoPreview(null) }}
+                      style={{ fontSize: 12.5, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) { setLogoFile(f); setLogoPreview(URL.createObjectURL(f)) }
+                    }}
+                  />
+                </div>
+                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, lineHeight: 1.5 }}>
+                  Applies to all team cards. You can update it any time from the Theme tab in the editor.
+                </p>
+              </div>
             </div>
           )}
 

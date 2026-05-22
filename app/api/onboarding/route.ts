@@ -112,7 +112,12 @@ export async function POST(req: Request) {
       }).catch(e => console.error('Welcome email failed:', e))
     }
 
-    return NextResponse.json({ cardId: firstCard?.id, slug: firstCard?.slug, count: cards?.length ?? 0 })
+    return NextResponse.json({
+      cardId: firstCard?.id,
+      cardIds: (cards ?? []).map(c => c.id),
+      slug: firstCard?.slug,
+      count: cards?.length ?? 0,
+    })
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
   }

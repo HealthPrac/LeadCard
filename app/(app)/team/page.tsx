@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { AddMemberModal } from '@/components/ui/AddMemberModal'
 
 export default async function TeamPage() {
   const supabase = await createClient()
@@ -33,6 +34,10 @@ export default async function TeamPage() {
 
   const totalLeads = (leadRows ?? []).length
   const companyName = cards?.[0]?.company ?? null
+  // Derive company slug prefix from owner card slug (e.g. "acme-sarah" → "acme")
+  const ownerSlug = cards?.[0]?.slug ?? ''
+  const companySlug = ownerSlug.includes('-') ? ownerSlug.split('-').slice(0, -1).join('-') : ownerSlug
+  const cardCount = cards?.length ?? 0
 
   return (
     <div style={{ maxWidth: 900 }}>
@@ -42,9 +47,10 @@ export default async function TeamPage() {
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, margin: '0 0 4px', letterSpacing: '-0.01em' }}>Team</h1>
           <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
             {companyName && <span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>{companyName} · </span>}
-            {cards?.length ?? 0} active {(cards?.length ?? 0) === 1 ? 'card' : 'cards'} · {totalLeads} total leads
+            {cardCount} active {cardCount === 1 ? 'card' : 'cards'} · {totalLeads} total leads
           </p>
         </div>
+        <AddMemberModal plan={subscriber.plan} cardCount={cardCount} companySlug={companySlug} />
       </div>
 
       {/* Cards table */}
