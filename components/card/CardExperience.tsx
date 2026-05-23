@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, CSSProperties } from 'react'
+import { useState, useEffect, useRef, CSSProperties } from 'react'
 import QRCode from 'qrcode'
 import type { Card, FormField } from '@/lib/supabase/types'
 
@@ -38,6 +38,26 @@ function detectDevice(): string {
     if (/mobile|iphone|android/i.test(ua)) return 'mobile'
     return 'desktop'
   } catch { return 'unknown' }
+}
+
+function trackViewEnded(cardId: string, durationSeconds: number) {
+  if (typeof window === 'undefined') return
+  try {
+    const params = new URLSearchParams(window.location.search)
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventName:      'card_view_ended',
+        cardId,
+        sessionId:      getOrCreateSessionId(cardId),
+        shareSource:    params.get('src') ?? 'direct',
+        shareLinkToken: params.get('lc')  ?? undefined,
+        deviceType:     detectDevice(),
+        durationSeconds,
+      }),
+    }).catch(() => {})
+  } catch {}
 }
 
 function trackEvent(cardId: string, eventName: string, extra?: Record<string, string>) {
@@ -89,6 +109,22 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
   // Fire card_view_started once per mount
   useEffect(() => {
     trackEvent(card.id, 'card_view_started')
+  }, [card.id])
+
+  // Fire card_view_ended with duration when the tab hides or component unmounts
+  const mountTime = useRef(Date.now())
+  const viewEndedFired = useRef(false)
+  useEffect(() => {
+    mountTime.current = Date.now()
+    viewEndedFired.current = false
+    function fire() {
+      if (viewEndedFired.current) return
+      viewEndedFired.current = true
+      trackViewEnded(card.id, Math.round((Date.now() - mountTime.current) / 1000))
+    }
+    const onHide = () => { if (document.visibilityState === 'hidden') fire() }
+    document.addEventListener('visibilitychange', onHide)
+    return () => { document.removeEventListener('visibilitychange', onHide); fire() }
   }, [card.id])
 
   const t = {

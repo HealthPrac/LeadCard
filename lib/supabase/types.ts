@@ -133,6 +133,10 @@ export interface CardEvent {
   cta_type: string | null
   device_type: string | null
   referrer_domain: string | null
+  country: string | null
+  country_code: string | null
+  city: string | null
+  duration_s: number | null
   payload_json: Json | null
   occurred_at: string
 }

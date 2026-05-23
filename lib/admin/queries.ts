@@ -220,7 +220,7 @@ export async function getAdminAnalytics() {
   const [eventsRes, shareLinksRes, cardsRes] = await Promise.all([
     service
       .from('card_events')
-      .select('id, event_name, card_id, device_type, occurred_at')
+      .select('id, event_name, card_id, device_type, country, country_code, city, duration_s, occurred_at')
       .gte('occurred_at', since30)
       .limit(100000),
     service
@@ -228,7 +228,7 @@ export async function getAdminAnalytics() {
       .select('id, card_id, channel_type, view_count, lead_count'),
     service
       .from('cards')
-      .select('id, slug, display_name'),
+      .select('id, slug, display_name, industry'),
   ])
 
   const events     = eventsRes.data     ?? []
@@ -255,16 +255,24 @@ export async function getAdminAnalytics() {
   })
 
   // Engagement funnel
-  const count = (name: string) => events.filter(e => e.event_name === name).length
+  const countEv = (name: string) => events.filter(e => e.event_name === name).length
   const funnel = {
-    views30:      count('card_view_started'),
-    videoStarts:  count('video_play_started'),
-    ctaClicks:    count('cta_clicked'),
-    formStarts:   count('lead_form_started'),
-    formSubmits:  count('lead_form_submitted'),
+    views30:     countEv('card_view_started'),
+    videoStarts: countEv('video_play_started'),
+    ctaClicks:   countEv('cta_clicked'),
+    formStarts:  countEv('lead_form_started'),
+    formSubmits: countEv('lead_form_submitted'),
   }
 
-  // Device split (from view events only)
+  // Avg time on card (from card_view_ended duration_s, ignore outliers > 2hrs)
+  const durations = events
+    .filter(e => e.event_name === 'card_view_ended' && typeof e.duration_s === 'number' && e.duration_s > 0)
+    .map(e => e.duration_s as number)
+  const avgDurationSeconds = durations.length > 0
+    ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+    : null
+
+  // Device split (view_started only)
   const deviceMap = new Map<string, number>()
   for (const e of events) {
     if (e.event_name === 'card_view_started' && e.device_type) {
@@ -275,7 +283,50 @@ export async function getAdminAnalytics() {
     .map(([device, count]) => ({ device, count }))
     .sort((a, b) => b.count - a.count)
 
-  // Share channel breakdown (from share_links row-level counters)
+  // Geographic breakdown (view_started only, top 20)
+  const geoMap = new Map<string, { country: string; views: number; leads: number }>()
+  for (const e of events) {
+    const code = e.country_code
+    if (!code) continue
+    const cur = geoMap.get(code) ?? { country: e.country ?? code, views: 0, leads: 0 }
+    if (e.event_name === 'card_view_started')    geoMap.set(code, { ...cur, views: cur.views + 1 })
+    if (e.event_name === 'lead_form_submitted')  geoMap.set(code, { ...cur, leads: cur.leads + 1 })
+  }
+  const geoBreakdown = Array.from(geoMap.entries())
+    .map(([countryCode, { country, views, leads }]) => ({ countryCode, country, views, leads }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 20)
+
+  // Industry breakdown (card_id → industry via cards table)
+  const cardIndustry = new Map(cards.filter(c => c.industry).map(c => [c.id, c.industry!]))
+  const industryMap = new Map<string, { views: number; leads: number }>()
+  for (const e of events) {
+    const industry = e.card_id ? cardIndustry.get(e.card_id) : undefined
+    if (!industry) continue
+    const cur = industryMap.get(industry) ?? { views: 0, leads: 0 }
+    if (e.event_name === 'card_view_started')    industryMap.set(industry, { ...cur, views: cur.views + 1 })
+    if (e.event_name === 'lead_form_submitted')  industryMap.set(industry, { ...cur, leads: cur.leads + 1 })
+  }
+  const industryBreakdown = Array.from(industryMap.entries())
+    .map(([industry, { views, leads }]) => ({ industry, views, leads }))
+    .sort((a, b) => b.views - a.views)
+
+  // Time of day — 24-bucket histogram (UTC hours, view_started only)
+  const hourMap = new Map<number, number>()
+  for (let h = 0; h < 24; h++) hourMap.set(h, 0)
+  for (const e of events) {
+    if (e.event_name === 'card_view_started') {
+      const h = new Date(e.occurred_at as string).getUTCHours()
+      hourMap.set(h, (hourMap.get(h) ?? 0) + 1)
+    }
+  }
+  const timeOfDay = Array.from({ length: 24 }, (_, h) => ({
+    hour:  h,
+    label: `${String(h).padStart(2, '0')}:00`,
+    views: hourMap.get(h) ?? 0,
+  }))
+
+  // Share channel breakdown (from share_links counters)
   const channelMap = new Map<string, { views: number; leads: number }>()
   for (const l of shareLinks) {
     const cur = channelMap.get(l.channel_type) ?? { views: 0, leads: 0 }
@@ -299,7 +350,17 @@ export async function getAdminAnalytics() {
     .sort((a, b) => b.views - a.views)
     .slice(0, 10)
 
-  return { dailyViews, funnel, deviceSplit, shareChannels, topCards }
+  return {
+    dailyViews,
+    funnel,
+    avgDurationSeconds,
+    deviceSplit,
+    geoBreakdown,
+    industryBreakdown,
+    timeOfDay,
+    shareChannels,
+    topCards,
+  }
 }
 
 export type AdminAnalytics = Awaited<ReturnType<typeof getAdminAnalytics>>

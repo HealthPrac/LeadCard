@@ -30,7 +30,7 @@ export default async function AnalyticsPage() {
       .eq('subscriber_id', subscriber.id),
     supabase
       .from('card_events')
-      .select('id, event_name, card_id, cta_label, cta_type, device_type, occurred_at')
+      .select('id, event_name, card_id, cta_label, cta_type, device_type, country, country_code, duration_s, occurred_at')
       .eq('subscriber_id', subscriber.id)
       .order('occurred_at', { ascending: false })
       .limit(5000),
@@ -84,6 +84,35 @@ export default async function AnalyticsPage() {
   }
   const sortedDevices = Object.entries(deviceCounts).sort((a, b) => b[1] - a[1])
 
+  // Avg time on card
+  const durations = events
+    .filter(e => e.event_name === 'card_view_ended' && typeof e.duration_s === 'number' && e.duration_s > 0)
+    .map(e => e.duration_s as number)
+  const avgDuration = durations.length > 0
+    ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+    : null
+
+  // Geographic breakdown
+  const geoCounts: Record<string, { country: string; views: number }> = {}
+  for (const v of views) {
+    const code = v.country_code
+    if (!code) continue
+    if (!geoCounts[code]) geoCounts[code] = { country: v.country ?? code, views: 0 }
+    geoCounts[code].views++
+  }
+  const sortedGeo = Object.entries(geoCounts)
+    .sort((a, b) => b[1].views - a[1].views)
+    .slice(0, 10)
+
+  // Time of day (UTC hours)
+  const hourCounts: number[] = Array(24).fill(0)
+  for (const v of views) {
+    const h = new Date(v.occurred_at).getUTCHours()
+    hourCounts[h]++
+  }
+  const maxHour    = Math.max(...hourCounts, 1)
+  const peakHour   = hourCounts.indexOf(Math.max(...hourCounts))
+
   // Monthly views — last 6 months
   const now = new Date()
   const monthViewMap = new Map<string, number>()
@@ -102,6 +131,14 @@ export default async function AnalyticsPage() {
   })
   const maxMonth = Math.max(1, ...last6Months.map(m => m.count))
 
+  function fmtDuration(s: number): string {
+    if (s < 60) return `${s}s`
+    const m = Math.floor(s / 60); const rs = s % 60
+    if (m < 60) return rs > 0 ? `${m}m ${rs}s` : `${m}m`
+    const h = Math.floor(m / 60); const rm = m % 60
+    return rm > 0 ? `${h}h ${rm}m` : `${h}h`
+  }
+
   const statBox = (label: string, value: string | number, sub?: string) => (
     <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
       <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>{label}</div>
@@ -117,10 +154,11 @@ export default async function AnalyticsPage() {
 
       {/* Stat row — views */}
       <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', margin: '0 0 12px' }}>Card views</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
         {statBox('All-time views', totalViews.toLocaleString())}
         {statBox('Last 7 days', last7Views.toLocaleString())}
         {statBox('View → lead rate', convRate !== null ? `${convRate}%` : '—', totalViews > 0 ? `${formSubmits} form submits` : 'No data yet')}
+        {statBox('Avg time on card', avgDuration !== null ? fmtDuration(avgDuration) : '—', avgDuration !== null ? `${durations.length} sessions` : 'Collecting data')}
       </div>
 
       {/* Monthly views chart */}
@@ -178,6 +216,55 @@ export default async function AnalyticsPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Time of day */}
+      {totalViews > 0 && (
+        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', margin: 0 }}>When visitors arrive (UTC)</p>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Peak: {String(peakHour).padStart(2, '0')}:00 UTC</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 60 }}>
+            {hourCounts.map((count, h) => (
+              <div key={h} title={`${String(h).padStart(2, '0')}:00 UTC — ${count} views`}
+                style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                <div style={{
+                  width: '100%',
+                  height: `${Math.max(2, (count / maxHour) * 100)}%`,
+                  background: h === peakHour ? 'var(--sage)' : count > 0 ? 'var(--charcoal)' : 'var(--line)',
+                  borderRadius: '2px 2px 0 0',
+                  opacity: count > 0 ? 1 : 0.35,
+                }} />
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 9, color: 'var(--muted)' }}>
+            {['00:00', '06:00', '12:00', '18:00', '23:00'].map(l => <span key={l}>{l}</span>)}
+          </div>
+        </div>
+      )}
+
+      {/* Geographic breakdown */}
+      {sortedGeo.length > 0 && (
+        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
+          <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--line-2)', fontSize: 13.5, fontWeight: 500 }}>Where visitors come from</div>
+          <div style={{ padding: '8px 0' }}>
+            {sortedGeo.map(([code, { country, views: gv }], idx) => {
+              const pct = totalViews > 0 ? Math.round((gv / totalViews) * 100) : 0
+              return (
+                <div key={code} style={{ padding: '10px 22px', borderTop: idx === 0 ? 'none' : '1px solid var(--line-2)', display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ width: 30, fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--muted)', flexShrink: 0 }}>{code}</div>
+                  <div style={{ width: 160, fontSize: 13.5, color: 'var(--charcoal)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 }}>{country}</div>
+                  <div style={{ flex: 1, height: 6, background: 'var(--cream-2)', borderRadius: 99, overflow: 'hidden' }}>
+                    <div style={{ width: `${pct}%`, height: '100%', background: 'var(--charcoal)', borderRadius: 99 }} />
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', width: 80, textAlign: 'right' as const, flexShrink: 0 }}>{gv} ({pct}%)</div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
