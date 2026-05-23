@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: { title: `${card.display_name}`, description: card.welcome_headline ?? '' },
     manifest: `${appUrl}/api/card-manifest/${slug}`,
     icons: {
+      icon: `${appUrl}/api/card-icon/${slug}`,
       apple: `${appUrl}/api/card-icon/${slug}`,
     },
   }
