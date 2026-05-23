@@ -1,7 +1,7 @@
 # LeadCard — Handover Document
 
-**Last updated:** 2026-05-22 (Session 124 complete)  
-**Status:** ✅ Dashboard overview summaries + card welcome banner LIVE. Migrations 001+002 APPLIED. Migrations 003+004 READY TO APPLY. Last commits: `d7f0f8e` (dashboard overview + card polish) → `4111b25` (logo full-width banner).
+**Last updated:** 2026-05-23 (Session 126 complete)  
+**Status:** ✅ Admin subscribers page crash fixed. All migrations 001–004 + 007–008 APPLIED. Last commit: `6f78b3c`.
 
 ---
 
@@ -150,22 +150,24 @@ Supabase → Authentication → URL Configuration:
 `id, user_id, email, plan, payfast_customer_id, payfast_subscription_id, subscription_status (trialing/active/inactive/cancelled), trial_ends_at`
 
 ### cards
-`id, subscriber_id, slug, display_name, title, company, email, mobile, website, industry, welcome_headline, welcome_body, cta_primary_label, cta_primary_url, cta_secondary_label, cta_secondary_url, form_fields (JSONB), lead_destination_email, links (JSONB), theme_bg, theme_fg, theme_accent, theme_font, theme_font_size, photo_path, logo_path, video_path, is_published, is_owner_card`
+`id, subscriber_id, slug, display_name, title, company, email, mobile, website, industry, welcome_headline, welcome_body, cta_primary_label, cta_primary_url, cta_secondary_label, cta_secondary_url, form_fields (JSONB), lead_destination_email, links (JSONB), theme_bg, theme_fg, theme_accent, theme_font, theme_font_size, theme_banner_bg, theme_heading, theme_subtext, photo_path, logo_path, video_path, is_published, is_owner_card`
 
 ### leads
 `id, card_id, subscriber_id, first_name, last_name, email, org, role, mobile, message, source, consented_at, ip_address, user_agent`
 
 ### Storage buckets
 - `card-assets` — photos + logos (5MB limit, public read via signed URLs)
-- `card-videos` — intro videos (100MB limit, signed URLs)
+- `card-videos` — intro videos MP4/WebM/MOV/HTML (100MB limit, signed URLs)
 
 ### Migrations
 - `supabase/migrations/001_schema.sql` — tables + storage buckets + triggers
 - `supabase/migrations/002_rls.sql` — RLS policies
 - `supabase/migrations/003_theme_fonts.sql` — adds `theme_font` + `theme_font_size` to cards
 - `supabase/migrations/004_industry.sql` — adds `industry text` to cards
+- `supabase/migrations/007_theme_colours.sql` — adds `theme_banner_bg`, `theme_heading`, `theme_subtext` to cards
+- `supabase/migrations/008_bucket_html.sql` — adds `text/html` to `card-videos` allowed_mime_types
 
-**✅ Migrations 001 + 002 applied (Session 117). ⏳ Migrations 003 + 004 READY TO APPLY in Supabase SQL editor (project `vdrrpixgdgnxtvltglul`).**
+**✅ All migrations 001–004 + 007–008 APPLIED (project `vdrrpixgdgnxtvltglul`).**
 
 ---
 
@@ -236,7 +238,13 @@ Two separate email systems — don't confuse them:
 | `ad4fb97` | Dashboard phone preview + desktop card phone wrapper |
 | `d7f0f8e` | Dashboard overview (Analytics/Team/Leads summary) + card welcome polish |
 | `4111b25` | Card welcome: logo as full-width banner with photo overlap |
-| *(next)* | **Video tab: MP4 + HTML upload support** ← current commit |
+| `f4c053d` | Video tab: MP4 + HTML file upload support |
+| `9d9c612` | Theme: 6-colour system, logo delete, fix replace (upsert) |
+| `dc8ee49` | Fix HTML intro reel playback on public card |
+| `943c834` | CTA screen shows live video in background on skip/end |
+| `9f88731` | Fix font propagation, accent bleed, and real QR code |
+| `fc7b458` | Enable video sound on autoplay — remove muted attribute |
+| `6f78b3c` | Fix admin subscribers crash — extract table to SubscribersClient (server component had event handlers) |
 
 ---
 
@@ -249,8 +257,8 @@ Two separate email systems — don't confuse them:
 | **Session 121 ✅** | Industry field (onboarding + editor + public card). |
 | **Session 123 ✅** | Dashboard phone preview (iframe mockup). Desktop card rendered as phone shape. Commit `ad4fb97`. |
 | **Session 124 ✅** | Dashboard overview: removed card identity tile; right column = Analytics (3 stats) + Team summary + Recent leads. Card welcome screen: logo is now a full-width banner (124px) with photo circle overlapping its bottom. Email + phone stacked under industry pill. NFC hidden from sidebar. Commits `d7f0f8e` + `4111b25`. |
-| **Session 125 ✅** | Video tab: MP4 + HTML upload. `upload-url` API adds `text/html` MIME + extension allowlist. Editor detects HTML files and shows iframe preview. Public card `ScreenVideo` renders `<iframe sandbox>` for HTML, `<video>` for MP4. |
-| **⚠️ BEFORE NEXT SESSION** | Apply migrations 003 + 004 in Supabase SQL editor (`vdrrpixgdgnxtvltglul`). |
+| **Session 125 ✅** | Video tab: MP4 + HTML upload. 6-colour theme (bg, banner bg, heading, body, accent, subtext) with independent pickers. Logo delete + replace (upsert fix). HTML video blob URL workaround for Content-Disposition. Video persists on CTA skip via React reconciliation. Font propagation to all screens. Accent bleed removed. Real QR code (`qrcode` pkg). Video autoplay with sound on click. Migrations 003, 004, 007, 008 applied. Commits `f4c053d`→`fc7b458`. |
+| **Session 126 ✅** | Fix: admin subscribers page hard crash. Server component had `onMouseEnter`/`onMouseLeave` on `<tr>` rows. Extracted table to `SubscribersClient.tsx` (`"use client"`). Commit `6f78b3c`. |
 | **Next session** | PayFast ITN webhook `/api/webhooks/payfast` · Configure Supabase SMTP → Resend · Custom domain `card.healthprac.com` |
 | **Session +2** | Card editor: photo/video upload preview, image crop |
 | **Session +3** | Analytics: real view tracking, lead source attribution |

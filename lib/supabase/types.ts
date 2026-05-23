@@ -21,6 +21,12 @@ export type Database = {
         Update: Partial<Omit<Lead, 'id'>>
         Relationships: []
       }
+      card_events: {
+        Row: CardEvent
+        Insert: Omit<CardEvent, 'id' | 'occurred_at'>
+        Update: never
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -91,6 +97,21 @@ export interface Card {
   is_owner_card: boolean
   created_at: string
   updated_at: string
+}
+
+export interface CardEvent {
+  id: string
+  event_name: string
+  card_id: string | null
+  subscriber_id: string | null
+  session_id: string | null
+  share_source: string | null
+  cta_label: string | null
+  cta_type: string | null
+  device_type: string | null
+  referrer_domain: string | null
+  payload_json: Json | null
+  occurred_at: string
 }
 
 export interface Lead {

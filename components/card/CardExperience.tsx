@@ -13,6 +13,55 @@ interface Props {
   resolvedLogoUrl: string | null
 }
 
+// ── Tracking helpers ────────────────────────────────────────────────────────
+// All tracking is fire-and-forget. Errors are swallowed so tracking never
+// degrades the card experience. Session ID persists within the browser tab.
+
+function getOrCreateSessionId(cardId: string): string {
+  try {
+    const key = `lc_sid_${cardId}`
+    let sid = sessionStorage.getItem(key)
+    if (!sid) {
+      sid = typeof crypto !== 'undefined'
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2)
+      sessionStorage.setItem(key, sid)
+    }
+    return sid
+  } catch { return '' }
+}
+
+function detectDevice(): string {
+  try {
+    const ua = navigator.userAgent
+    if (/tablet|ipad/i.test(ua)) return 'tablet'
+    if (/mobile|iphone|android/i.test(ua)) return 'mobile'
+    return 'desktop'
+  } catch { return 'unknown' }
+}
+
+function trackEvent(cardId: string, eventName: string, extra?: Record<string, string>) {
+  if (typeof window === 'undefined') return
+  try {
+    const shareSource = new URLSearchParams(window.location.search).get('src') ?? 'direct'
+    let referrerDomain: string | undefined
+    try { if (document.referrer) referrerDomain = new URL(document.referrer).hostname } catch {}
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventName,
+        cardId,
+        sessionId: getOrCreateSessionId(cardId),
+        shareSource,
+        deviceType: detectDevice(),
+        referrerDomain,
+        ...extra,
+      }),
+    }).catch(() => {})
+  } catch {}
+}
+
 const FONT_FAMILIES: Record<string, string> = {
   serif:    '"Instrument Serif", Georgia, serif',
   playfair: '"Playfair Display", Georgia, serif',
@@ -33,6 +82,11 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const isHtml = card.video_path?.endsWith('.html') ?? false
+
+  // Fire card_view_started once per mount
+  useEffect(() => {
+    trackEvent(card.id, 'card_view_started')
+  }, [card.id])
 
   const t = {
     bg: card.theme_bg,
@@ -89,7 +143,8 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
           accent={t.accent}
           name={card.display_name}
           title={card.title}
-          onEnded={() => setScreen('cta')}
+          onPlay={() => trackEvent(card.id, 'video_play_started')}
+          onEnded={() => { trackEvent(card.id, 'video_completed'); setScreen('cta') }}
         />
       )}
 
@@ -210,7 +265,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
 // ── Video background (shared between Screen 2 and Screen 3) ─────────────────
 // Rendered at the same JSX position for both screens so React never unmounts it.
 // The video keeps playing / stays on last frame when CTA overlay appears.
-function VideoBackground({ videoUrl, blobUrl, isHtml, progress, accent, name, title, onEnded }: {
+function VideoBackground({ videoUrl, blobUrl, isHtml, progress, accent, name, title, onPlay, onEnded }: {
   videoUrl: string | null
   blobUrl: string | null
   isHtml: boolean
@@ -218,6 +273,7 @@ function VideoBackground({ videoUrl, blobUrl, isHtml, progress, accent, name, ti
   accent: string
   name: string | null
   title: string | null
+  onPlay?: () => void
   onEnded: () => void
 }) {
   return (
@@ -230,6 +286,7 @@ function VideoBackground({ videoUrl, blobUrl, isHtml, progress, accent, name, ti
         ) : (
           <video src={videoUrl} autoPlay playsInline
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onPlay={onPlay}
             onEnded={onEnded} />
         )
       ) : (
@@ -289,11 +346,15 @@ function ScreenCTA({ card, t, go }: SP) {
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10, animation: 'lc-rise 600ms ease-out', pointerEvents: 'auto' }}>
         <div style={{ fontFamily: t.headingFont, fontSize: 22, lineHeight: 1.1, marginBottom: 8 }}>Ready to take the next step?</div>
         {card.cta_primary_url && (
-          <a href={card.cta_primary_url} target="_blank" rel="noopener noreferrer" style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}>
+          <a href={card.cta_primary_url} target="_blank" rel="noopener noreferrer"
+            onClick={() => trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_primary_label ?? 'Visit the website', ctaType: 'primary' })}
+            style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}>
             🌐 {card.cta_primary_label ?? 'Visit the website'}
           </a>
         )}
-        <button onClick={() => go('form')} style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'rgba(255,255,255,0.10)', color: 'white', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
+        <button
+          onClick={() => { trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_secondary_label ?? 'Request a call', ctaType: 'secondary' }); go('form') }}
+          style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'rgba(255,255,255,0.10)', color: 'white', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
           📞 {card.cta_secondary_label ?? 'Request a call'}
         </button>
       </div>
@@ -307,6 +368,10 @@ function ScreenForm({ card, t, go }: SP) {
   const [consent, setConsent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  useEffect(() => {
+    trackEvent(card.id, 'lead_form_started')
+  }, [card.id])
 
   const fields = (card.form_fields as FormField[])
   const canSubmit = consent && !submitting && fields.filter(f => f.required).every(f => vals[f.id]?.trim())
@@ -322,6 +387,7 @@ function ScreenForm({ card, t, go }: SP) {
         body: JSON.stringify({ cardId: card.id, ...vals, source: getSource() }),
       })
       if (!res.ok) throw new Error('Submission failed')
+      trackEvent(card.id, 'lead_form_submitted')
       go('confirmed')
     } catch {
       setSubmitError('Something went wrong. Please try again.')

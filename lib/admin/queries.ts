@@ -9,25 +9,34 @@ import { createServiceClient } from '@/lib/supabase/server'
 export async function getAdminOverview() {
   const service = createServiceClient()
 
-  const [subscribersRes, cardsRes, leadsRes] = await Promise.all([
+  const [subscribersRes, cardsRes, leadsRes, eventsRes] = await Promise.all([
     service.from('subscribers').select('id, subscription_status, plan, country, created_at'),
     service.from('cards').select('id, subscriber_id, industry, is_owner_card'),
     service.from('leads').select('subscriber_id, source, created_at'),
+    service.from('card_events').select('id, event_name, subscriber_id, occurred_at').limit(50000),
   ])
 
   const subscribers = subscribersRes.data ?? []
   const cards = cardsRes.data ?? []
   const leads = leadsRes.data ?? []
+  const events = eventsRes.data ?? []
+
+  // Platform-wide event totals
+  const totalViews = events.filter(e => e.event_name === 'card_view_started').length
+  const totalFormSubmits = events.filter(e => e.event_name === 'lead_form_submitted').length
+  const platformConvRate = totalViews > 0 ? Number(((totalFormSubmits / totalViews) * 100).toFixed(1)) : 0
 
   // Summary
   const byStatus = (s: string) => subscribers.filter(x => x.subscription_status === s).length
   const summary = {
-    total:      subscribers.length,
-    active:     byStatus('active'),
-    trialing:   byStatus('trialing'),
-    churned:    byStatus('canceled') + byStatus('past_due'),
-    totalLeads: leads.length,
-    totalCards: cards.length,
+    total:           subscribers.length,
+    active:          byStatus('active'),
+    trialing:        byStatus('trialing'),
+    churned:         byStatus('canceled') + byStatus('past_due'),
+    totalLeads:      leads.length,
+    totalCards:      cards.length,
+    totalViews,
+    platformConvRate,
   }
 
   // Plans

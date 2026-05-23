@@ -33,16 +33,18 @@ export default async function AdminOverviewPage() {
       {/* Summary strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
         {[
-          { label: 'Total subscribers', value: summary.total,      sub: 'all time' },
-          { label: 'Active',            value: summary.active,     sub: 'paying' },
-          { label: 'Trialing',          value: summary.trialing,   sub: 'free trial' },
-          { label: 'Churned',           value: summary.churned,    sub: 'canceled / past due' },
-          { label: 'Total leads',       value: summary.totalLeads, sub: 'across all cards' },
-          { label: 'Cards in use',      value: summary.totalCards, sub: 'published cards' },
+          { label: 'Total subscribers', value: summary.total,           sub: 'all time' },
+          { label: 'Active',            value: summary.active,          sub: 'paying' },
+          { label: 'Trialing',          value: summary.trialing,        sub: 'free trial' },
+          { label: 'Churned',           value: summary.churned,         sub: 'canceled / past due' },
+          { label: 'Total leads',       value: summary.totalLeads,      sub: 'across all cards' },
+          { label: 'Cards in use',      value: summary.totalCards,      sub: 'published cards' },
+          { label: 'Card views',        value: summary.totalViews.toLocaleString(), sub: 'all time, all cards' },
+          { label: 'View → lead rate',  value: summary.platformConvRate > 0 ? `${summary.platformConvRate}%` : '—', sub: 'platform-wide conversion' },
         ].map(stat => (
           <div key={stat.label} style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 20px' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--charcoal)', lineHeight: 1 }}>
-              {stat.value.toLocaleString()}
+              {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
             </div>
             <div style={{ fontSize: 12.5, color: 'var(--charcoal)', marginTop: 6, fontWeight: 500 }}>{stat.label}</div>
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{stat.sub}</div>
