@@ -1,7 +1,7 @@
 # LeadCard — Handover Document
 
-**Last updated:** 2026-05-23 (Session 126 complete)  
-**Status:** ✅ Admin subscribers page crash fixed. All migrations 001–004 + 007–008 APPLIED. Last commit: `6f78b3c`.
+**Last updated:** 2026-05-23 (Session 127 complete)  
+**Status:** ✅ Phase 1 SaaS tracking LIVE. Migration 009 READY TO APPLY. Last commit: `eedd590`.
 
 ---
 
@@ -259,7 +259,8 @@ Two separate email systems — don't confuse them:
 | **Session 124 ✅** | Dashboard overview: removed card identity tile; right column = Analytics (3 stats) + Team summary + Recent leads. Card welcome screen: logo is now a full-width banner (124px) with photo circle overlapping its bottom. Email + phone stacked under industry pill. NFC hidden from sidebar. Commits `d7f0f8e` + `4111b25`. |
 | **Session 125 ✅** | Video tab: MP4 + HTML upload. 6-colour theme (bg, banner bg, heading, body, accent, subtext) with independent pickers. Logo delete + replace (upsert fix). HTML video blob URL workaround for Content-Disposition. Video persists on CTA skip via React reconciliation. Font propagation to all screens. Accent bleed removed. Real QR code (`qrcode` pkg). Video autoplay with sound on click. Migrations 003, 004, 007, 008 applied. Commits `f4c053d`→`fc7b458`. |
 | **Session 126 ✅** | Fix: admin subscribers page hard crash. Server component had `onMouseEnter`/`onMouseLeave` on `<tr>` rows. Extracted table to `SubscribersClient.tsx` (`"use client"`). Commit `6f78b3c`. |
-| **Next session** | PayFast ITN webhook `/api/webhooks/payfast` · Configure Supabase SMTP → Resend · Custom domain `card.healthprac.com` |
+| **Session 127 ✅** | Phase 1 SaaS tracking — `card_events` table (mig 009 ⏳ APPLY), `/api/events` ingest route, CardExperience client-side events (view/video/CTA/form), analytics page upgrade (views + conversion + CTA + device), admin overview platform views. Commit `eedd590`. |
+| **Next session** | Apply mig 009 in Supabase SQL editor · PayFast ITN webhook `/api/webhooks/payfast` · Configure Supabase SMTP → Resend · Custom domain `card.healthprac.com` |
 | **Session +2** | Card editor: photo/video upload preview, image crop |
-| **Session +3** | Analytics: real view tracking, lead source attribution |
+| **Session +3** | Phase 2 tracking: share_links propagation graph, forward attribution |
 | **Session +4** | NFC order flow, quarterly PDF report |
