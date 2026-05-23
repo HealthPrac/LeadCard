@@ -16,32 +16,9 @@ export async function GET(
     .eq('slug', slug)
     .single()
 
-  if (card?.logo_path) {
-    const { data: signedData } = await supabase.storage
-      .from('card-assets')
-      .createSignedUrl(card.logo_path, 3600, {
-        transform: {
-          format: 'png',
-          width: 512,
-          height: 512,
-          resize: 'contain',
-        },
-      })
-
-    if (signedData?.signedUrl) {
-      const imgRes = await fetch(signedData.signedUrl)
-      if (imgRes.ok) {
-        const buffer = await imgRes.arrayBuffer()
-        const contentType = imgRes.headers.get('content-type') ?? 'image/png'
-        return new NextResponse(buffer, {
-          headers: {
-            'Content-Type': contentType,
-            'Cache-Control': 'public, max-age=86400, stale-while-revalidate=3600',
-          },
-        })
-      }
-    }
-
+  // Only SVG logos are used as the tenant favicon/PWA icon — they scale cleanly at any size.
+  // JPEG/PNG uploads fall back to the AvantCard emblem.
+  if (card?.logo_path && card.logo_path.toLowerCase().endsWith('.svg')) {
     const { data: rawSignedData } = await supabase.storage
       .from('card-assets')
       .createSignedUrl(card.logo_path, 3600)
@@ -50,7 +27,7 @@ export async function GET(
       const imgRes = await fetch(rawSignedData.signedUrl)
       if (imgRes.ok) {
         const buffer = await imgRes.arrayBuffer()
-        const contentType = imgRes.headers.get('content-type') ?? 'image/png'
+        const contentType = imgRes.headers.get('content-type') ?? 'image/svg+xml'
         return new NextResponse(buffer, {
           headers: {
             'Content-Type': contentType,
