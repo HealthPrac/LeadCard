@@ -166,7 +166,7 @@ export interface Lead {
   subscriber_id: string
   first_name: string | null
   last_name: string | null
-  email: string
+  email: string | null
   org: string | null
   role: string | null
   mobile: string | null

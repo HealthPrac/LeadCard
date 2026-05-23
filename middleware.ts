@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ['/', '/sign-in', '/sign-up', '/forgot-password', '/reset-password']
-const PUBLIC_PREFIXES = ['/c/', '/api/leads', '/api/events', '/api/webhooks', '/auth/confirm', '/api/admin/market-intel', '/my-leads/', '/api/crm/', '/api/ratings']
+const PUBLIC_PREFIXES = ['/c/', '/api/leads', '/api/events', '/api/webhooks', '/auth/confirm', '/api/admin/market-intel', '/my-leads/', '/api/crm/', '/api/ratings', '/api/bookings']
 // Note: /api/billing/payfast-url requires auth — intentionally not public
 
 export async function middleware(request: NextRequest) {

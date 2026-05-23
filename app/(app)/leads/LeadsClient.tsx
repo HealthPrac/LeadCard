@@ -8,7 +8,7 @@ interface Lead {
   created_at: string
   first_name: string | null
   last_name: string | null
-  email: string
+  email: string | null
   org: string | null
   role: string | null
   mobile: string | null
@@ -166,7 +166,7 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
     return leads.filter(l => {
       const name = [l.first_name, l.last_name].filter(Boolean).join(' ').toLowerCase()
       const q = search.toLowerCase()
-      const matchesSearch = !q || name.includes(q) || l.email.toLowerCase().includes(q) || (l.org ?? '').toLowerCase().includes(q)
+      const matchesSearch = !q || name.includes(q) || (l.email ?? '').toLowerCase().includes(q) || (l.org ?? '').toLowerCase().includes(q)
       const matchesCard = cardFilter === 'all' || l.card_id === cardFilter
       const crm = crmMap[l.id]
       const matchesStatus = statusFilter === 'all' || (crm?.status ?? 'new') === statusFilter
@@ -182,7 +182,7 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
         return [
           l.first_name ?? '',
           l.last_name ?? '',
-          l.email,
+          l.email ?? '',
           l.org ?? '',
           l.role ?? '',
           l.mobile ?? '',
@@ -280,8 +280,16 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
                       onClick={() => setExpanded(expanded === l.id ? null : l.id)}
                     >
                       <td style={{ padding: '14px 18px' }}>
-                        <div style={{ fontWeight: 500 }}>{[l.first_name, l.last_name].filter(Boolean).join(' ') || '—'}</div>
-                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>{l.email}</div>
+                        <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          {[l.first_name, l.last_name].filter(Boolean).join(' ') || (l.source === 'booking' ? 'Booking click' : '—')}
+                          {l.source === 'booking' && (
+                            <span style={{ fontSize: 10, fontWeight: 600, background: '#EDE9FE', color: '#7C3AED', padding: '2px 6px', borderRadius: 4, letterSpacing: '0.04em' }}>BOOKING</span>
+                          )}
+                        </div>
+                        {l.email
+                          ? <div style={{ fontSize: 12, color: 'var(--muted)' }}>{l.email}</div>
+                          : <div style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}>No email captured</div>
+                        }
                         {l.mobile && <div style={{ fontSize: 12, color: 'var(--muted)' }}>{l.mobile}</div>}
                       </td>
                       <td style={{ padding: '14px 18px', color: 'var(--muted)' }}>
@@ -328,10 +336,12 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
                                 <div style={{ fontSize: 13.5, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{l.message}</div>
                               </div>
                             )}
-                            <div>
-                              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', marginBottom: 4 }}>Reply</div>
-                              <a href={`mailto:${l.email}`} style={{ fontSize: 13.5, color: 'var(--charcoal)', textDecoration: 'underline' }}>{l.email}</a>
-                            </div>
+                            {l.email && (
+                              <div>
+                                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', marginBottom: 4 }}>Reply</div>
+                                <a href={`mailto:${l.email}`} style={{ fontSize: 13.5, color: 'var(--charcoal)', textDecoration: 'underline' }}>{l.email}</a>
+                              </div>
+                            )}
                             {l.mobile && (
                               <div>
                                 <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', marginBottom: 4 }}>Call / WhatsApp</div>

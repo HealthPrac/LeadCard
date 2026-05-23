@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, CSSProperties } from 'react'
 import QRCode from 'qrcode'
 import type { Card, FormField } from '@/lib/supabase/types'
 
-type Screen = 'welcome' | 'video' | 'cta' | 'form' | 'confirmed' | 'share' | 'rating'
+type Screen = 'welcome' | 'video' | 'cta' | 'form' | 'booking' | 'confirmed' | 'share' | 'rating'
 
 interface Props {
   card: Card
@@ -201,6 +201,7 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
       {/* Screen 3: CTA overlay — sits on top of the still-live VideoBackground */}
       {screen === 'cta'       && <ScreenCTA       card={card} t={t} go={setScreen} />}
       {screen === 'form'      && <ScreenForm      card={card} t={t} go={setScreen} />}
+      {screen === 'booking'   && <ScreenBooking   card={card} t={t} go={setScreen} />}
       {screen === 'confirmed' && <ScreenConfirmed card={card} t={t} go={setScreen} />}
       {screen === 'share'     && <ScreenShare     card={card} t={t} go={setScreen} />}
       {screen === 'rating'    && <ScreenRating    card={card} t={t} go={setScreen} />}
@@ -479,37 +480,161 @@ function AnimatedPlaceholder({ progress, accent, name, title }: { progress: numb
 
 // ── Screen 3: CTA overlay (video background is provided by VideoBackground above) ──
 function ScreenCTA({ card, t, go }: SP) {
+  const bookingMode = (card.form_fields as FormField[]).length === 0
+  const ghostBtn: CSSProperties = {
+    padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 8, background: 'rgba(255,255,255,0.10)', color: 'white',
+    border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12,
+    fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', textDecoration: 'none',
+  }
+
   return (
     <div style={{ position: 'fixed', inset: 0, color: 'white', pointerEvents: 'none' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)' }} />
       <button onClick={() => go('welcome')} style={{ ...frostedBtn(18, 18), pointerEvents: 'auto' }}>←</button>
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10, animation: 'lc-rise 600ms ease-out', pointerEvents: 'auto' }}>
         <div style={{ fontFamily: t.headingFont, fontSize: 22, lineHeight: 1.1, marginBottom: 8 }}>Ready to take the next step?</div>
-        {card.cta_primary_url && (
-          <a href={card.cta_primary_url} target="_blank" rel="noopener noreferrer"
-            onClick={() => trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_primary_label ?? 'Visit the website', ctaType: 'primary' })}
-            style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}>
-            🌐 {card.cta_primary_label ?? 'Visit the website'}
-          </a>
+
+        {/* Booking mode: primary = booking (tracked), secondary = website */}
+        {bookingMode ? (
+          <>
+            {card.cta_primary_url && (
+              <a
+                href={card.cta_primary_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_primary_label ?? 'Make a booking', ctaType: 'primary' })
+                  go('booking')
+                }}
+                style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}
+              >
+                {card.cta_primary_label ?? 'Make a booking'}
+              </a>
+            )}
+            {card.cta_secondary_url && (
+              <a
+                href={card.cta_secondary_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_secondary_label ?? 'Visit our website', ctaType: 'secondary' })}
+                style={ghostBtn}
+              >
+                {card.cta_secondary_label ?? 'Visit our website'}
+              </a>
+            )}
+          </>
+        ) : (
+          /* Lead-form mode: primary = plain link, secondary = opens form */
+          <>
+            {card.cta_primary_url && (
+              <a
+                href={card.cta_primary_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_primary_label ?? 'Visit the website', ctaType: 'primary' })}
+                style={{ ...btnAccent(t), padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}
+              >
+                {card.cta_primary_label ?? 'Visit the website'}
+              </a>
+            )}
+            {(card.form_fields as FormField[]).length > 0 && (
+              <button
+                onClick={() => { trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_secondary_label ?? 'Request a call', ctaType: 'secondary' }); go('form') }}
+                style={ghostBtn}
+              >
+                {card.cta_secondary_label ?? 'Request a call'}
+              </button>
+            )}
+          </>
         )}
-        {/* Secondary CTA: if no form fields, link directly to booking URL; otherwise open form */}
-        {(card.form_fields as FormField[]).length === 0 && card.cta_secondary_url ? (
-          <a
-            href={card.cta_secondary_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_secondary_label ?? 'Make a booking', ctaType: 'secondary' })}
-            style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'rgba(255,255,255,0.10)', color: 'white', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>
-            📅 {card.cta_secondary_label ?? 'Make a booking'}
-          </a>
-        ) : (card.form_fields as FormField[]).length > 0 ? (
-          <button
-            onClick={() => { trackEvent(card.id, 'cta_clicked', { ctaLabel: card.cta_secondary_label ?? 'Request a call', ctaType: 'secondary' }); go('form') }}
-            style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'rgba(255,255,255,0.10)', color: 'white', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
-            📞 {card.cta_secondary_label ?? 'Request a call'}
-          </button>
-        ) : null}
       </div>
+    </div>
+  )
+}
+
+// ── Screen 4b: Booking — opens external page in new tab, captures details optionally ──
+function ScreenBooking({ card, t, go }: SP) {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [mobile, setMobile] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  async function recordBooking(withDetails: boolean) {
+    setSubmitting(true)
+    try {
+      await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: card.id,
+          firstName: withDetails && name.trim() ? name.trim().split(' ')[0] : undefined,
+          lastName: withDetails && name.trim().includes(' ') ? name.trim().split(' ').slice(1).join(' ') : undefined,
+          email: withDetails && email.trim() ? email.trim() : undefined,
+          mobile: withDetails && mobile.trim() ? mobile.trim() : undefined,
+        }),
+      })
+    } catch { /* non-blocking */ }
+    setSubmitting(false)
+    go('confirmed')
+  }
+
+  const inputStyle: CSSProperties = {
+    width: '100%', padding: '11px 14px', background: `${t.fg}12`, color: t.fg,
+    border: `1px solid ${t.fg}20`, borderRadius: 8, fontSize: 15,
+    fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+  }
+
+  return (
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', overflowY: 'auto', padding: '28px 22px 48px' }}>
+      <button onClick={() => go('cta')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.fg, opacity: 0.7, fontSize: 13, marginBottom: 22, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
+
+      <div style={{ fontSize: 36, marginBottom: 12 }}>📅</div>
+      <div style={{ fontFamily: t.headingFont, fontSize: 28, lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 8 }}>
+        Your booking page is open.
+      </div>
+      <p style={{ fontSize: 13.5, opacity: 0.7, lineHeight: 1.55, marginTop: 0, marginBottom: 28 }}>
+        Complete your booking in the new tab. Leave your details below and we&apos;ll be in touch before your appointment.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+        <input
+          type="text"
+          placeholder="Your name (optional)"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          style={inputStyle}
+        />
+        <input
+          type="email"
+          placeholder="Email (optional)"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          style={inputStyle}
+        />
+        <input
+          type="tel"
+          placeholder="Mobile / WhatsApp (optional)"
+          value={mobile}
+          onChange={e => setMobile(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <button
+        onClick={() => recordBooking(true)}
+        disabled={submitting}
+        style={{ width: '100%', padding: '14px 18px', background: t.accent, color: t.bg, border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', marginBottom: 10 }}
+      >
+        {submitting ? 'Saving…' : 'Send my details'}
+      </button>
+      <button
+        onClick={() => recordBooking(false)}
+        disabled={submitting}
+        style={{ width: '100%', padding: '12px 18px', background: 'transparent', color: t.fg, border: `1px solid ${t.fg}20`, borderRadius: 10, fontSize: 14, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: 0.6 }}
+      >
+        No thanks, just the booking
+      </button>
     </div>
   )
 }

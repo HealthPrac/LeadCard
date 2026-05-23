@@ -203,8 +203,8 @@ export default async function DashboardPage() {
                         {recentLeads.map(l => (
                           <tr key={l.id} style={{ borderTop: '1px solid var(--line-2)' }}>
                             <td style={{ padding: '11px 18px' }}>
-                              <div style={{ fontWeight: 500 }}>{[l.first_name, l.last_name].filter(Boolean).join(' ') || l.email}</div>
-                              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>{l.email}</div>
+                              <div style={{ fontWeight: 500 }}>{[l.first_name, l.last_name].filter(Boolean).join(' ') || l.email || 'Booking click'}</div>
+                              <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>{l.email ?? <em>No email</em>}</div>
                             </td>
                             <td style={{ padding: '11px 18px', color: 'var(--muted)' }}>{l.org ?? '—'}</td>
                             <td style={{ padding: '11px 18px', color: 'var(--muted)' }}>{l.source ?? '—'}</td>
