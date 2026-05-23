@@ -706,9 +706,6 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 12px', lineHeight: 1.5 }}>
               Appears in the banner strip at the top of your card.
             </p>
-            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '-4px 0 12px', lineHeight: 1.5, padding: '8px 10px', background: 'var(--cream-2)', borderRadius: 8, border: '1px solid var(--line)' }}>
-              <strong>Favicon &amp; home-screen icon:</strong> upload your logo as an <strong>SVG</strong> and it will appear as your branded favicon and thumbnail when visitors save your card to their home screen (e.g. leadcard.app/c/vera-retief). JPEG or PNG uploads will show the AvantCard icon instead.
-            </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
               {logoPreview && (
                 <img src={logoPreview} alt="Logo" style={{ height: 44, maxWidth: 120, objectFit: 'contain', borderRadius: 6, border: '1px solid var(--line)' }} />
