@@ -80,6 +80,7 @@ interface Card {
   logo_path: string | null
   video_path: string | null
   footer_note: string | null
+  google_review_url: string | null
   is_published: boolean
 }
 
@@ -110,6 +111,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
   const [website, setWebsite] = useState(card.website ?? '')
   const [footerNote, setFooterNote] = useState(card.footer_note ?? '')
+  const [googleReviewUrl, setGoogleReviewUrl] = useState(card.google_review_url ?? '')
 
   const storedIndustry = card.industry ?? ''
   const isStoredCustom = storedIndustry !== '' && !INDUSTRIES.includes(storedIndustry)
@@ -216,6 +218,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           lead_destination_email: leadEmail,
           links,
           footer_note: footerNote.trim() || null,
+          google_review_url: googleReviewUrl.trim() || null,
           theme_bg: themeBg,
           theme_fg: themeFg,
           theme_accent: themeAccent,
@@ -379,6 +382,22 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                   style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
                 />
                 <div style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'right' as const, marginTop: 4 }}>{footerNote.length}/120</div>
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 4, color: 'var(--charcoal)' }}>
+                  Google Reviews link
+                </label>
+                <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 8px', lineHeight: 1.5 }}>
+                  Paste your Google Business Profile review URL. Happy visitors (4–5 stars) will be invited to leave a Google review after rating your service.
+                </p>
+                <input
+                  value={googleReviewUrl}
+                  onChange={e => setGoogleReviewUrl(e.target.value)}
+                  placeholder="https://g.page/r/your-review-link"
+                  type="url"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
+                />
               </div>
             </div>
           </div>

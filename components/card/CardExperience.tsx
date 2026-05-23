@@ -829,13 +829,30 @@ function ScreenRating({ card, t, go }: SP) {
   }
 
   if (done) {
+    const showGooglePrompt = rating >= 4 && !!card.google_review_url
     return (
       <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 30px', textAlign: 'center' }}>
         <div style={{ fontSize: 52, marginBottom: 20 }}>{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</div>
         <div style={{ fontFamily: t.headingFont, fontSize: 32, lineHeight: 1.1 }}>Thank you!</div>
-        <p style={{ fontSize: 14, opacity: 0.7, lineHeight: 1.5, marginTop: 12, marginBottom: 32, maxWidth: 220 }}>
+        <p style={{ fontSize: 14, opacity: 0.7, lineHeight: 1.5, marginTop: 12, marginBottom: showGooglePrompt ? 20 : 32, maxWidth: 220 }}>
           Your feedback helps us improve.
         </p>
+        {showGooglePrompt && (
+          <div style={{ marginBottom: 28, padding: '16px 20px', borderRadius: 14, background: `${t.fg}0A`, border: `1px solid ${t.fg}14`, maxWidth: 280 }}>
+            <div style={{ fontSize: 22, marginBottom: 8 }}>⭐</div>
+            <p style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 14, opacity: 0.85 }}>
+              Love our service? Share your experience on Google — it means the world to us.
+            </p>
+            <a
+              href={card.google_review_url!}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-block', padding: '10px 20px', borderRadius: 999, background: t.accent, color: t.bg, fontSize: 13, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}
+            >
+              Leave a Google Review
+            </a>
+          </div>
+        )}
         <button onClick={() => go('welcome')} style={{ padding: '12px 22px', borderRadius: 999, background: 'transparent', color: t.fg, border: `1px solid ${t.fg}26`, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
           ← Back to card
         </button>

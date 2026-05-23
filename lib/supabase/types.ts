@@ -118,6 +118,7 @@ export interface Card {
   logo_path: string | null
   video_path: string | null
   footer_note: string | null
+  google_review_url: string | null
   is_published: boolean
   is_owner_card: boolean
   created_at: string
