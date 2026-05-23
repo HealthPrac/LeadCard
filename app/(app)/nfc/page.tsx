@@ -17,12 +17,12 @@ export default async function NfcPage() {
   return (
     <div style={{ maxWidth: 700 }}>
       <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, margin: '0 0 6px', letterSpacing: '-0.01em' }}>NFC card</h1>
-      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 32px' }}>Tap-to-share physical cards, pre-programmed with your LeadCard URL.</p>
+      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 32px' }}>Tap-to-share physical cards, pre-programmed with your AvantCard URL.</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
         {/* Card visual */}
         <div style={{ padding: 28, borderRadius: 16, background: 'var(--charcoal)', color: 'var(--cream)', minHeight: 180, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ fontSize: 12, opacity: 0.5, fontFamily: 'var(--font-mono)' }}>NFC · LeadCard</div>
+          <div style={{ fontSize: 12, opacity: 0.5, fontFamily: 'var(--font-mono)' }}>NFC · AvantCard</div>
           <div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, letterSpacing: '-0.01em', marginBottom: 4 }}>Physical card</div>
             {card && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: 0.6 }}>{appUrl}/c/{card.slug}</div>}

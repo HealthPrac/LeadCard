@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, CSSProperties } from 'react'
 import QRCode from 'qrcode'
 import type { Card, FormField } from '@/lib/supabase/types'
 
-type Screen = 'welcome' | 'video' | 'cta' | 'form' | 'confirmed' | 'share'
+type Screen = 'welcome' | 'video' | 'cta' | 'form' | 'confirmed' | 'share' | 'rating'
 
 interface Props {
   card: Card
@@ -203,6 +203,7 @@ export function CardExperience({ card, resolvedPhotoUrl, resolvedVideoUrl, resol
       {screen === 'form'      && <ScreenForm      card={card} t={t} go={setScreen} />}
       {screen === 'confirmed' && <ScreenConfirmed card={card} t={t} go={setScreen} />}
       {screen === 'share'     && <ScreenShare     card={card} t={t} go={setScreen} />}
+      {screen === 'rating'    && <ScreenRating    card={card} t={t} go={setScreen} />}
     </div>
   )
 }
@@ -289,14 +290,25 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
       )}
 
       {/* CTA buttons */}
-      <div style={{ position: 'relative', marginTop: 'auto', padding: '18px 26px 32px' }}>
+      <div style={{ position: 'relative', marginTop: 'auto', padding: '18px 26px 0' }}>
         <button onClick={() => go('video')} style={{ ...btnAccent(t), width: '100%', padding: '14px 18px', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           ▶ Watch my intro
         </button>
         <button onClick={() => go('share')} style={{ ...btnGhost(t), width: '100%', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           ↗ Share my card
         </button>
+        <button onClick={() => go('rating')} style={{ width: '100%', padding: '10px 18px', marginTop: 8, background: 'none', border: 'none', color: t.fg, opacity: 0.45, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          ★ Rate my service
+        </button>
       </div>
+
+      {/* Footer note — professional registration, credentials, etc. */}
+      {card.footer_note && (
+        <div style={{ position: 'relative', padding: '10px 26px 24px', textAlign: 'center' as const, fontSize: 10.5, opacity: 0.45, lineHeight: 1.4, letterSpacing: '0.02em', color: t.fg }}>
+          {card.footer_note}
+        </div>
+      )}
+      {!card.footer_note && <div style={{ height: 24 }} />}
     </div>
   )
 }
@@ -407,6 +419,7 @@ function ScreenForm({ card, t, go }: SP) {
   const [consent, setConsent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [showDisclaimer, setShowDisclaimer] = useState(false)
 
   useEffect(() => {
     trackEvent(card.id, 'lead_form_started')
@@ -452,17 +465,52 @@ function ScreenForm({ card, t, go }: SP) {
             />
           </div>
         ))}
-        <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 6, cursor: 'pointer' }}>
-          <span onClick={() => setConsent(c => !c)} style={{ width: 18, height: 18, borderRadius: 4, background: consent ? t.accent : 'transparent', border: `1px solid ${consent ? t.accent : t.fg + '40'}`, display: 'grid', placeItems: 'center', flexShrink: 0, marginTop: 1 }}>
-            {consent && <span style={{ color: t.bg, fontSize: 11, fontWeight: 700 }}>✓</span>}
-          </span>
-          <span style={{ fontSize: 13, opacity: 0.75, lineHeight: 1.4 }}>I consent to being contacted about my enquiry.</span>
-        </label>
+        <div>
+          <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 6, cursor: 'pointer' }}>
+            <span onClick={() => setConsent(c => !c)} style={{ width: 18, height: 18, borderRadius: 4, background: consent ? t.accent : 'transparent', border: `1px solid ${consent ? t.accent : t.fg + '40'}`, display: 'grid', placeItems: 'center', flexShrink: 0, marginTop: 1 }}>
+              {consent && <span style={{ color: t.bg, fontSize: 11, fontWeight: 700 }}>✓</span>}
+            </span>
+            <span style={{ fontSize: 13, opacity: 0.75, lineHeight: 1.4 }}>I consent to being contacted about my enquiry.</span>
+          </label>
+          <button
+            onClick={() => setShowDisclaimer(true)}
+            style={{ marginTop: 6, marginLeft: 28, background: 'none', border: 'none', padding: 0, fontSize: 11, color: t.accent, opacity: 0.8, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 2 }}
+          >
+            Disclaimer — we don&apos;t spam.
+          </button>
+        </div>
         {submitError && <div style={{ fontSize: 13, color: '#ff6b6b', marginTop: 4 }}>{submitError}</div>}
         <button disabled={!canSubmit} onClick={handleSubmit} style={{ marginTop: 12, padding: '14px 18px', borderRadius: 12, background: canSubmit ? t.accent : `${t.fg}1A`, color: canSubmit ? t.bg : `${t.fg}60`, fontSize: 15, fontWeight: 500, fontFamily: 'inherit', cursor: canSubmit ? 'pointer' : 'not-allowed', border: 'none', transition: '160ms' }}>
           {submitting ? 'Sending…' : 'Send request'}
         </button>
       </div>
+
+      {/* Disclaimer modal */}
+      {showDisclaimer && (
+        <div
+          onClick={() => setShowDisclaimer(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end', zIndex: 100 }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ width: '100%', background: t.bg, color: t.fg, borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', boxShadow: '0 -8px 40px rgba(0,0,0,0.25)' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <div style={{ fontFamily: t.headingFont, fontSize: 22, lineHeight: 1.1 }}>Privacy disclaimer</div>
+              <button onClick={() => setShowDisclaimer(false)} style={{ background: `${t.fg}14`, border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'grid', placeItems: 'center', cursor: 'pointer', fontSize: 16, color: t.fg, fontFamily: 'inherit' }}>×</button>
+            </div>
+            <p style={{ fontSize: 13.5, lineHeight: 1.65, opacity: 0.8, margin: '0 0 12px' }}>
+              This platform does not spam people who interact with a digital business card.
+            </p>
+            <p style={{ fontSize: 13.5, lineHeight: 1.65, opacity: 0.8, margin: '0 0 12px' }}>
+              Only card activity data is sent to the platform for analytics and dashboard reporting.
+            </p>
+            <p style={{ fontSize: 13.5, lineHeight: 1.65, opacity: 0.8, margin: 0 }}>
+              Any personal information you choose to share is securely stored on the card owner&apos;s dashboard and kept safe.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

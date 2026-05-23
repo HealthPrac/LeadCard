@@ -53,7 +53,7 @@ export function AddAdminForm() {
         <p style={{ marginTop: 8, fontSize: 12.5, color: '#16a34a' }}>✓ Admin added. They can now access /admin when signed in.</p>
       )}
       <p style={{ marginTop: 8, fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.5 }}>
-        The person must already have a LeadCard account. Once added, they access the admin console at{' '}
+        The person must already have an AvantCard account. Once added, they access the admin console at{' '}
         <code style={{ fontSize: 11, background: 'var(--cream-2)', padding: '1px 5px', borderRadius: 4 }}>
           leadcard.app/admin
         </code>

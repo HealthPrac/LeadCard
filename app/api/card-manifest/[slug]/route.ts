@@ -17,8 +17,8 @@ export async function GET(
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://leadcard.app'
   const name = card
     ? [card.display_name, card.company].filter(Boolean).join(' · ')
-    : 'LeadCard'
-  const shortName = card?.company ?? card?.display_name ?? 'LeadCard'
+    : 'AvantCard'
+  const shortName = card?.company ?? card?.display_name ?? 'AvantCard'
 
   const manifest = {
     name,

@@ -5,8 +5,8 @@ import crypto from 'crypto'
 const PAYFAST_URL = 'https://www.payfast.co.za/eng/process'
 
 const PLAN_AMOUNTS: Record<string, { amount: string; description: string }> = {
-  solo:  { amount: '69.00',  description: 'LeadCard Solo — monthly subscription' },
-  small: { amount: '199.00', description: 'LeadCard Small Business — monthly subscription' },
+  solo:  { amount: '69.00',  description: 'AvantCard Solo — monthly subscription' },
+  small: { amount: '199.00', description: 'AvantCard Small Business — monthly subscription' },
 }
 
 export async function POST(req: Request) {

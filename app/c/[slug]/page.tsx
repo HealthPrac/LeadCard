@@ -8,12 +8,12 @@ interface Props { params: { slug: string } }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params
   const card = await getPublicCard(slug)
-  if (!card) return { title: 'LeadCard' }
+  if (!card) return { title: 'AvantCard' }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://leadcard.app'
 
   return {
-    title: `${card.display_name ?? 'LeadCard'} — ${card.company ?? 'LeadCard'}`,
+    title: `${card.display_name ?? 'AvantCard'} — ${card.company ?? 'AvantCard'}`,
     description: card.welcome_headline ?? `Connect with ${card.display_name}`,
     openGraph: { title: `${card.display_name}`, description: card.welcome_headline ?? '' },
     manifest: `${appUrl}/api/card-manifest/${slug}`,

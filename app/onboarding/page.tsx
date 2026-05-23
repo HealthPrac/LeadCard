@@ -306,10 +306,10 @@ export default function OnboardingPage() {
     <div style={{ minHeight: '100vh', background: 'var(--cream)', padding: '40px 20px' }}>
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
 
-        {/* LeadCard logo — only visible during setup */}
+        {/* AvantCard logo — only visible during setup */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/leadcard-logo-light.svg" alt="LeadCard" height={34} style={{ display: 'inline-block' }} />
+          <img src="/AvantCard_logo.svg" alt="AvantCard" height={34} style={{ display: 'inline-block' }} />
         </div>
 
         {/* Progress */}

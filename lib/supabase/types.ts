@@ -45,6 +45,12 @@ export type Database = {
         Update: Partial<Omit<LeadCrm, 'id'>>
         Relationships: []
       }
+      service_ratings: {
+        Row: ServiceRating
+        Insert: Omit<ServiceRating, 'id' | 'created_at'>
+        Update: never
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -111,6 +117,7 @@ export interface Card {
   photo_path: string | null
   logo_path: string | null
   video_path: string | null
+  footer_note: string | null
   is_published: boolean
   is_owner_card: boolean
   created_at: string
@@ -179,6 +186,16 @@ export interface CardHolderToken {
   is_active: boolean
   created_at: string
   last_accessed_at: string | null
+}
+
+export interface ServiceRating {
+  id: string
+  card_id: string
+  subscriber_id: string
+  session_id: string | null
+  rating: number
+  comment: string | null
+  created_at: string
 }
 
 export type CrmStatus = 'new' | 'engaged' | 'prospect' | 'client' | 'lost'

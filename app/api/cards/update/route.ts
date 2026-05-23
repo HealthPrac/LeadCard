@@ -9,6 +9,7 @@ const ALLOWED_FIELDS = new Set([
   'links',
   'theme_bg', 'theme_fg', 'theme_accent', 'theme_banner_bg', 'theme_heading', 'theme_subtext', 'theme_font', 'theme_font_size',
   'photo_path', 'logo_path', 'video_path',
+  'footer_note',
   'is_published',
 ])
 

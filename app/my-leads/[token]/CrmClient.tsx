@@ -510,7 +510,7 @@ export function CrmClient({ token, card, leads, crmRows, cardUrl }: Props) {
 
         {/* Footer branding */}
         <div style={{ marginTop: 32, textAlign: 'center', fontSize: 12, color: '#D1D5DB' }}>
-          Powered by LeadCard · Your personal sales CRM
+          Powered by AvantCard · Your personal sales CRM
         </div>
       </div>
     </div>

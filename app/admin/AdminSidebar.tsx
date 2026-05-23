@@ -54,7 +54,7 @@ export function AdminSidebar({ adminEmail }: Props) {
       <div style={{ padding: '6px 12px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/leadcard-logo-light.svg" alt="LeadCard" height={22} style={{ display: 'block', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+          <img src="/AvantCard_logo.svg" alt="AvantCard" height={22} style={{ display: 'block', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
         </div>
         <span style={{
           display: 'inline-block', fontSize: 9.5, fontWeight: 700,

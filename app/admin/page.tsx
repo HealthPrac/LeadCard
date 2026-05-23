@@ -20,7 +20,7 @@ export default async function AdminOverviewPage() {
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--sage)', marginBottom: 6 }}>
-          LeadCard Admin Console
+          AvantCard Admin Console
         </p>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 34, fontWeight: 400, margin: '0 0 4px', letterSpacing: '-0.01em' }}>
           Overview

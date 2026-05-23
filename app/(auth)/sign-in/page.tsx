@@ -39,8 +39,7 @@ function SignInForm() {
         Welcome back
       </h1>
       <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--muted)', margin: '0 0 28px' }}>
-        Sign in to your LeadCard account
-      </p>
+          Sign in to your AvantCard account
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>

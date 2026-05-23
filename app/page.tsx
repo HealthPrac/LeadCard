@@ -49,8 +49,8 @@ export default function HomePage() {
       {/* Nav */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 40px', borderBottom: '1px solid var(--line)', background: 'var(--cream)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--charcoal)', display: 'grid', placeItems: 'center', color: 'var(--sage)', fontFamily: 'var(--font-serif)', fontSize: 20, lineHeight: 1 }}>L</div>
-          <span style={{ fontSize: 17, fontWeight: 500, letterSpacing: '-0.01em' }}>LeadCard</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/AvantCard_logo.svg" alt="AvantCard" height={28} style={{ display: 'block' }} />
         </div>
         <nav style={{ display: 'flex', alignItems: 'center', gap: 24, fontSize: 14 }}>
           <a href="#features" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Features</a>
@@ -169,15 +169,15 @@ export default function HomePage() {
       {/* Footer */}
       <footer style={{ padding: '28px 40px', borderTop: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, color: 'var(--muted)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 6, background: 'var(--charcoal)', display: 'grid', placeItems: 'center', color: 'var(--sage)', fontFamily: 'var(--font-serif)', fontSize: 15 }}>L</div>
-          <span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>LeadCard</span>
+          <div style={{ width: 22, height: 22, borderRadius: 6, background: 'var(--charcoal)', display: 'grid', placeItems: 'center', color: 'var(--sage)', fontFamily: 'var(--font-serif)', fontSize: 15 }}>A</div>
+          <span style={{ fontWeight: 500, color: 'var(--charcoal)' }}>AvantCard</span>
         </div>
         <div style={{ display: 'flex', gap: 20 }}>
           <a href="mailto:hello@leadcard.app" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Contact</a>
           <Link href="/sign-in" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Sign in</Link>
           <Link href="/sign-up" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Sign up</Link>
         </div>
-        <div>© {new Date().getFullYear()} LeadCard</div>
+        <div>© {new Date().getFullYear()} AvantCard</div>
       </footer>
     </div>
   )
