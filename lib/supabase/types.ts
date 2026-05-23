@@ -33,6 +33,18 @@ export type Database = {
         Update: Partial<Omit<ShareLink, 'id' | 'created_at'>>
         Relationships: []
       }
+      card_holder_tokens: {
+        Row: CardHolderToken
+        Insert: Omit<CardHolderToken, 'id' | 'token' | 'created_at'>
+        Update: Partial<Omit<CardHolderToken, 'id'>>
+        Relationships: []
+      }
+      lead_crm: {
+        Row: LeadCrm
+        Insert: Omit<LeadCrm, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<LeadCrm, 'id'>>
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -157,4 +169,35 @@ export interface Lead {
   ip_address: string | null
   user_agent: string | null
   created_at: string
+}
+
+export interface CardHolderToken {
+  id: string
+  card_id: string
+  subscriber_id: string
+  token: string
+  is_active: boolean
+  created_at: string
+  last_accessed_at: string | null
+}
+
+export type CrmStatus = 'new' | 'engaged' | 'prospect' | 'client' | 'lost'
+
+export interface LeadCrm {
+  id: string
+  lead_id: string
+  card_id: string
+  subscriber_id: string
+  status: CrmStatus
+  first_engaged_at: string | null
+  converted_to_prospect_at: string | null
+  converted_to_client_at: string | null
+  estimated_income_cents: number | null
+  actual_income_cents: number | null
+  satisfaction_score: number | null
+  industry: string | null
+  private_notes: string | null
+  experience_notes: string | null
+  created_at: string
+  updated_at: string
 }

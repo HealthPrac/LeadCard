@@ -21,5 +21,16 @@ export default async function LeadsPage() {
     .select('id, display_name, slug')
     .eq('subscriber_id', subscriber.id)
 
-  return <LeadsClient leads={leads ?? []} cards={cards ?? []} />
+  const leadIds = (leads ?? []).map(l => l.id)
+  const { data: crmRows } = leadIds.length > 0
+    ? await supabase.from('lead_crm').select('lead_id, status, estimated_income_cents, actual_income_cents, satisfaction_score, first_engaged_at').in('lead_id', leadIds)
+    : { data: [] }
+
+  return (
+    <LeadsClient
+      leads={leads ?? []}
+      cards={cards ?? []}
+      crmRows={crmRows ?? []}
+    />
+  )
 }
