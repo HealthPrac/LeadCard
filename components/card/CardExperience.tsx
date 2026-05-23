@@ -524,6 +524,12 @@ function ScreenConfirmed({ card, t, go }: SP) {
       <p style={{ fontSize: 15, opacity: 0.7, lineHeight: 1.5, marginTop: 14, marginBottom: 32, maxWidth: 240 }}>
         Your request is in. We&apos;ll reach out within one business day.
       </p>
+      <button
+        onClick={() => go('rating')}
+        style={{ ...btnAccent(t), padding: '13px 28px', marginBottom: 12, fontSize: 14 }}
+      >
+        ★ Rate my service
+      </button>
       <button onClick={() => go('welcome')} style={{ padding: '12px 22px', borderRadius: 999, background: 'transparent', color: t.fg, border: `1px solid ${t.fg}26`, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
         ← Back to card
       </button>
@@ -559,6 +565,123 @@ function ScreenShare({ card, t, go }: SP) {
       <a href={`data:text/vcard;charset=utf-8,${encodeURIComponent(buildVCard(card))}`} download={`${card.slug}.vcf`} style={{ ...btnGhost(t), width: '100%', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' }}>
         ↓ Save contact (.vcf)
       </a>
+    </div>
+  )
+}
+
+// ── Screen 7: Rate my service ────────────────────────────────────────────────
+function ScreenRating({ card, t, go }: SP) {
+  const [rating, setRating] = useState(0)
+  const [hovered, setHovered] = useState(0)
+  const [comment, setComment] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [done, setDone] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function submit() {
+    if (!rating || submitting) return
+    setSubmitting(true)
+    setErr(null)
+    try {
+      const res = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: card.id,
+          rating,
+          comment: comment.trim() || null,
+          sessionId: getOrCreateSessionId(card.id),
+        }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      trackEvent(card.id, 'service_rated', { ratingValue: String(rating) })
+      setDone(true)
+    } catch {
+      setErr('Something went wrong. Please try again.')
+    }
+    setSubmitting(false)
+  }
+
+  if (done) {
+    return (
+      <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 30px', textAlign: 'center' }}>
+        <div style={{ fontSize: 52, marginBottom: 20 }}>{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</div>
+        <div style={{ fontFamily: t.headingFont, fontSize: 32, lineHeight: 1.1 }}>Thank you!</div>
+        <p style={{ fontSize: 14, opacity: 0.7, lineHeight: 1.5, marginTop: 12, marginBottom: 32, maxWidth: 220 }}>
+          Your feedback helps us improve.
+        </p>
+        <button onClick={() => go('welcome')} style={{ padding: '12px 22px', borderRadius: 999, background: 'transparent', color: t.fg, border: `1px solid ${t.fg}26`, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer' }}>
+          ← Back to card
+        </button>
+      </div>
+    )
+  }
+
+  const active = hovered || rating
+
+  return (
+    <div style={{ minHeight: 'var(--card-screen-h, 100dvh)', overflowY: 'auto', padding: '24px 22px 40px' }}>
+      <button onClick={() => go('welcome')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: t.fg, opacity: 0.7, fontSize: 13, marginBottom: 18, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
+      <div style={{ fontFamily: t.headingFont, fontSize: 30, lineHeight: 1.05, letterSpacing: '-0.01em' }}>Rate my service</div>
+      <p style={{ fontSize: 13, opacity: 0.7, lineHeight: 1.5, marginTop: 10, marginBottom: 28 }}>
+        How would you rate your experience?
+      </p>
+
+      {/* Stars */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 10, justifyContent: 'center' }}>
+        {[1, 2, 3, 4, 5].map(n => (
+          <button
+            key={n}
+            onMouseEnter={() => setHovered(n)}
+            onMouseLeave={() => setHovered(0)}
+            onClick={() => setRating(n)}
+            style={{
+              fontSize: 40,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: n <= active ? t.accent : `${t.fg}28`,
+              transition: '120ms',
+              padding: '4px 2px',
+              lineHeight: 1,
+            }}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <div style={{ textAlign: 'center', fontSize: 12, opacity: 0.5, marginBottom: 28, minHeight: 18 }}>
+        {active === 1 && 'Poor'}
+        {active === 2 && 'Below average'}
+        {active === 3 && 'Good'}
+        {active === 4 && 'Very good'}
+        {active === 5 && 'Excellent!'}
+      </div>
+
+      {/* Optional comment */}
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 11, opacity: 0.65, display: 'block', marginBottom: 6 }}>
+          Leave a comment (optional)
+        </label>
+        <textarea
+          value={comment}
+          onChange={e => setComment(e.target.value.slice(0, 200))}
+          placeholder="Tell us more about your experience…"
+          rows={3}
+          style={{ width: '100%', padding: '10px 12px', background: `${t.fg}0E`, color: t.fg, border: `1px solid ${t.fg}1A`, borderRadius: 8, fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none', boxSizing: 'border-box' as const }}
+        />
+        <div style={{ fontSize: 11, opacity: 0.35, textAlign: 'right' as const, marginTop: 4 }}>{comment.length}/200</div>
+      </div>
+
+      {err && <div style={{ fontSize: 13, color: '#ff6b6b', marginBottom: 10 }}>{err}</div>}
+
+      <button
+        disabled={!rating || submitting}
+        onClick={submit}
+        style={{ width: '100%', padding: '14px 18px', borderRadius: 12, background: rating ? t.accent : `${t.fg}1A`, color: rating ? t.bg : `${t.fg}50`, fontSize: 15, fontWeight: 500, fontFamily: 'inherit', cursor: rating && !submitting ? 'pointer' : 'not-allowed', border: 'none', transition: '160ms' }}
+      >
+        {submitting ? 'Submitting…' : 'Submit rating'}
+      </button>
     </div>
   )
 }

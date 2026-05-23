@@ -69,6 +69,7 @@ interface Card {
   photo_path: string | null
   logo_path: string | null
   video_path: string | null
+  footer_note: string | null
   is_published: boolean
 }
 
@@ -98,6 +99,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const [mobileNumber, setMobileNumber] = useState(mobileParsed[1])
 
   const [website, setWebsite] = useState(card.website ?? '')
+  const [footerNote, setFooterNote] = useState(card.footer_note ?? '')
 
   const storedIndustry = card.industry ?? ''
   const isStoredCustom = storedIndustry !== '' && !INDUSTRIES.includes(storedIndustry)
@@ -202,6 +204,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           form_fields: formFields,
           lead_destination_email: leadEmail,
           links,
+          footer_note: footerNote.trim() || null,
           theme_bg: themeBg,
           theme_fg: themeFg,
           theme_accent: themeAccent,
@@ -347,6 +350,25 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
             <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18, marginTop: 4 }}>
               {fileUploader('photo', 'Profile photo', 'image/jpeg,image/png,image/webp', photoPreview, photoRef as React.RefObject<HTMLInputElement>)}
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18, marginTop: 4 }}>
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 4, color: 'var(--charcoal)' }}>
+                  Footer note
+                </label>
+                <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 8px', lineHeight: 1.5 }}>
+                  Tiny compliance line at the bottom of your card — e.g. &quot;PPRA registered · Member #12345&quot;, &quot;HPCSA registered&quot;, &quot;FPI Certified Financial Planner&quot;.
+                </p>
+                <input
+                  value={footerNote}
+                  onChange={e => setFooterNote(e.target.value)}
+                  placeholder="e.g. PPRA registered · Member #12345"
+                  maxLength={120}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const }}
+                />
+                <div style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'right' as const, marginTop: 4 }}>{footerNote.length}/120</div>
+              </div>
             </div>
           </div>
         )}

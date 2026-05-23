@@ -38,6 +38,17 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(5)
 
+  // Service ratings — most recent 5, aggregate stats
+  const { data: allRatings } = await supabase
+    .from('service_ratings')
+    .select('id, card_id, rating, comment, created_at, session_id')
+    .eq('subscriber_id', subscriber.id)
+    .order('created_at', { ascending: false })
+  const recentRatings = allRatings?.slice(0, 5) ?? []
+  const avgRating = allRatings && allRatings.length > 0
+    ? allRatings.reduce((s, r) => s + r.rating, 0) / allRatings.length
+    : null
+
   // Computed stats
   const totalLeads = allLeads?.length ?? 0
   const since7 = new Date(Date.now() - 7 * 86400000).toISOString()
@@ -214,6 +225,39 @@ export default async function DashboardPage() {
                   </div>
                 )}
               </div>
+              {/* ── Service ratings ── */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500 }}>Service ratings</span>
+                  {avgRating !== null && (
+                    <span style={{ fontSize: 13, color: 'var(--charcoal)', fontWeight: 600 }}>
+                      {'★'.repeat(Math.round(avgRating))}{'☆'.repeat(5 - Math.round(avgRating))} {avgRating.toFixed(1)} <span style={{ fontWeight: 400, color: 'var(--muted)' }}>({allRatings?.length})</span>
+                    </span>
+                  )}
+                </div>
+
+                {recentRatings.length > 0 ? (
+                  <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
+                    {recentRatings.map((r, idx) => (
+                      <div key={r.id} style={{ padding: '12px 20px', borderTop: idx === 0 ? 'none' : '1px solid var(--line-2)', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                        <div style={{ flexShrink: 0, paddingTop: 1 }}>
+                          <span style={{ fontSize: 16, color: 'var(--sage)' }}>{'★'.repeat(r.rating)}</span>
+                          <span style={{ fontSize: 16, color: 'var(--line)' }}>{'★'.repeat(5 - r.rating)}</span>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {r.comment && <div style={{ fontSize: 13, color: 'var(--charcoal)', lineHeight: 1.45, marginBottom: 2 }}>&ldquo;{r.comment}&rdquo;</div>}
+                          <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>{formatRelTime(r.created_at)}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ background: 'var(--cream-2)', borderRadius: 16, padding: '22px 24px', textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
+                    No ratings yet — the &ldquo;Rate my service&rdquo; button appears on your card.
+                  </div>
+                )}
+              </div>
+
             </>
           ) : (
             <div style={{ padding: 36, borderRadius: 16, background: 'var(--cream-2)', border: '2px dashed var(--line)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, textAlign: 'center', minHeight: 300 }}>
