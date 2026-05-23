@@ -15,6 +15,7 @@ interface Subscriber {
   plan: string
   subscription_status: string
   trial_ends_at: string | null
+  promo_code_id: string | null
 }
 
 interface Card {
@@ -39,6 +40,27 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
   const [newPassword, setNewPassword] = useState('')
   const [pwMsg, setPwMsg] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState('')
+  const [promoCode, setPromoCode] = useState('')
+  const [promoMsg, setPromoMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [promoOpen, setPromoOpen] = useState(false)
+  const [promoLoading, setPromoLoading] = useState(false)
+
+  async function applyPromo() {
+    if (!promoCode.trim()) return
+    setPromoLoading(true)
+    setPromoMsg(null)
+    const res = await fetch('/api/billing/apply-promo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: promoCode.trim() }),
+    })
+    const json = await res.json()
+    setPromoLoading(false)
+    if (!res.ok) { setPromoMsg({ type: 'err', text: json.error ?? 'Something went wrong.' }); return }
+    setPromoMsg({ type: 'ok', text: json.discount_type === 'free' ? 'Promo applied — your account is now active. Enjoy!' : `Promo applied — ${json.discount_percent}% discount active.` })
+    setPromoCode('')
+    router.refresh()
+  }
 
   const plan = PLANS[subscriber.plan as keyof typeof PLANS] ?? PLANS.solo
   const isTrialing = subscriber.subscription_status === 'trialing'
@@ -152,6 +174,42 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
                 ◈ Add payment method — R 69/mo
               </button>
               <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 10 }}>Powered by PayFast · Secure · Cancel anytime</div>
+            </div>
+          )}
+
+          {/* Promo code */}
+          {!subscriber.promo_code_id && (
+            <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+              <button
+                onClick={() => { setPromoOpen(v => !v); setPromoMsg(null) }}
+                style={{ fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, textDecoration: 'underline' }}
+              >
+                {promoOpen ? 'Hide promo code' : 'Have a promo code?'}
+              </button>
+              {promoOpen && (
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <input
+                      value={promoCode}
+                      onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                      placeholder="e.g. FRIEND2024"
+                      style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', letterSpacing: '0.05em' }}
+                    />
+                    <button
+                      onClick={applyPromo}
+                      disabled={promoLoading || !promoCode.trim()}
+                      style={{ padding: '9px 18px', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: promoLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: promoLoading || !promoCode.trim() ? 0.6 : 1 }}
+                    >
+                      {promoLoading ? 'Applying…' : 'Apply'}
+                    </button>
+                  </div>
+                  {promoMsg && (
+                    <div style={{ fontSize: 13, marginTop: 10, color: promoMsg.type === 'ok' ? '#16a34a' : '#EF4444' }}>
+                      {promoMsg.text}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

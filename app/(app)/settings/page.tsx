@@ -9,7 +9,7 @@ export default async function SettingsPage() {
 
   const { data: subscriber } = await supabase
     .from('subscribers')
-    .select('id, plan, subscription_status, trial_ends_at')
+    .select('id, plan, subscription_status, trial_ends_at, promo_code_id')
     .eq('user_id', user.id)
     .single()
   if (!subscriber) redirect('/onboarding')

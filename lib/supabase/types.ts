@@ -51,6 +51,18 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      promo_codes: {
+        Row: PromoCode
+        Insert: Omit<PromoCode, 'id' | 'uses_count' | 'created_at'>
+        Update: Partial<Omit<PromoCode, 'id'>>
+        Relationships: []
+      }
+      promo_code_redemptions: {
+        Row: PromoCodeRedemption
+        Insert: Omit<PromoCodeRedemption, 'id' | 'redeemed_at'>
+        Update: never
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -68,8 +80,30 @@ export interface Subscriber {
   payfast_subscription_id: string | null
   subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
   trial_ends_at: string | null
+  promo_code_id: string | null
   created_at: string
   updated_at: string
+}
+
+export interface PromoCode {
+  id: string
+  code: string
+  description: string | null
+  discount_type: 'free' | 'percent'
+  discount_percent: number | null
+  max_uses: number | null
+  uses_count: number
+  expires_at: string | null
+  is_active: boolean
+  created_by: string | null
+  created_at: string
+}
+
+export interface PromoCodeRedemption {
+  id: string
+  code_id: string
+  subscriber_id: string
+  redeemed_at: string
 }
 
 export interface FormField {
