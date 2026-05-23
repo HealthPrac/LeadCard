@@ -39,7 +39,8 @@ function SignInForm() {
         Welcome back
       </h1>
       <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--muted)', margin: '0 0 28px' }}>
-          Sign in to your AvantCard account
+        Sign in to your AvantCard account
+      </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
@@ -72,7 +73,7 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div>Loading...</div>}>
       <SignInForm />
     </Suspense>
   )
