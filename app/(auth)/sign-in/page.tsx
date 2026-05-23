@@ -12,7 +12,9 @@ function SignInForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get('error') === 'invalid_link' ? 'That reset link has expired or is invalid. Request a new one below.' : null
+  )
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -48,7 +50,10 @@ function SignInForm() {
           <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com" required autoFocus />
         </div>
         <div>
-          <label style={labelStyle}>Password</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+            <label style={labelStyle}>Password</label>
+            <Link href="/forgot-password" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'underline' }}>Forgot password?</Link>
+          </div>
           <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
         </div>
 
