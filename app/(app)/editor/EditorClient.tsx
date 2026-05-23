@@ -32,8 +32,9 @@ const FONT_SIZE_OPTIONS = [
 ]
 
 const LINK_ICONS: Record<string, string> = {
-  linkedin: '🔗', twitter: '🐦', instagram: '📸', website: '🌐',
-  calendly: '📅', github: '🐙', tiktok: '🎵', youtube: '▶️', other: '🔗',
+  instagram: '📸', facebook: '👤', linkedin: '🔗', twitter: '🐦',
+  whatsapp: '💬', tiktok: '🎵', youtube: '▶️', website: '🌐',
+  calendly: '📅', github: '🐙', other: '🔗',
 }
 
 interface FormField { id: string; label: string; type: string; required: boolean }
@@ -400,7 +401,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
         {tab === 'cta' && (
           <div>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
-              CTAs appear after the video. Use the primary CTA to drive a specific action (book a call, visit your site). Leave secondary blank if you only want one button.
+              CTAs appear after the video. Use the primary CTA to drive a specific action (book a call, visit your site). Leave secondary blank if you only want one button. If you add a URL but no lead form fields, the secondary button links directly to that URL (e.g. a booking page).
             </p>
             <div style={{ background: 'var(--cream-2)', borderRadius: 10, padding: '16px 18px', marginBottom: 22 }}>
               <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>Primary CTA</div>
@@ -418,7 +419,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
         {tab === 'form' && (
           <div>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
-              Customise which fields appear on the lead capture form. Email is always required.
+              The lead form is optional. If you add fields here, the secondary CTA opens this form. If you leave it empty, the secondary CTA links directly to your booking URL instead.
             </p>
             <div style={{ marginBottom: 20 }}>
               {formFields.map((f, i) => (
