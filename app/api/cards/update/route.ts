@@ -42,8 +42,8 @@ export async function POST(req: Request) {
 
   const { error } = await supabase.from('cards').update(update).eq('id', cardId)
   if (error) {
-    console.error('Card update error:', error.message)
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 })
+    console.error('Card update error:', error.code, error.message, error.details, error.hint)
+    return NextResponse.json({ error: 'Update failed', detail: error.message }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })

@@ -40,6 +40,15 @@ const LINK_ICONS: Record<string, string> = {
 interface FormField { id: string; label: string; type: string; required: boolean }
 interface CardLink { id: string; type: string; label: string; url: string }
 
+const DEFAULT_FORM_FIELDS: FormField[] = [
+  { id: 'firstName', label: 'First name', required: true,  type: 'text' },
+  { id: 'lastName',  label: 'Last name',  required: true,  type: 'text' },
+  { id: 'email',     label: 'Email',      required: true,  type: 'email' },
+  { id: 'org',       label: 'Company',    required: false, type: 'text' },
+  { id: 'role',      label: 'Role',       required: false, type: 'text' },
+  { id: 'mobile',    label: 'Mobile',     required: false, type: 'tel' },
+]
+
 interface Card {
   id: string
   slug: string
@@ -115,6 +124,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const [ctaSecondaryLabel, setCtaSecondaryLabel] = useState(card.cta_secondary_label ?? '')
   const [ctaSecondaryUrl, setCtaSecondaryUrl] = useState(card.cta_secondary_url ?? '')
   const [formFields, setFormFields] = useState<FormField[]>(card.form_fields ?? [])
+  const [leadFormEnabled, setLeadFormEnabled] = useState((card.form_fields ?? []).length > 0)
   const [leadEmail, setLeadEmail] = useState(card.lead_destination_email ?? '')
   const [links, setLinks] = useState<CardLink[]>(card.links ?? [])
 
@@ -418,33 +428,75 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
 
         {tab === 'form' && (
           <div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 20px', lineHeight: 1.6 }}>
-              The lead form is optional. If you add fields here, the secondary CTA opens this form. If you leave it empty, the secondary CTA links directly to your booking URL instead.
-            </p>
-            <div style={{ marginBottom: 20 }}>
-              {formFields.map((f, i) => (
-                <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--cream-2)', borderRadius: 8, marginBottom: 8 }}>
-                  <span style={{ flex: 1, fontSize: 13.5 }}>{f.label}</span>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, cursor: f.id === 'email' ? 'not-allowed' : 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={f.required}
-                      disabled={f.id === 'email'}
-                      onChange={e => setFormFields(formFields.map((ff, j) => j === i ? { ...ff, required: e.target.checked } : ff))}
-                    />
-                    Required
-                  </label>
-                  {f.id !== 'email' && (
-                    <button onClick={() => setFormFields(formFields.filter((_, j) => j !== i))}
-                      style={{ fontSize: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', lineHeight: 1 }}>×</button>
-                  )}
+            {/* Lead form toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'var(--cream-2)', borderRadius: 10, marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 13.5, fontWeight: 500 }}>Enable lead capture form</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                  {leadFormEnabled
+                    ? 'Secondary CTA opens this form to collect visitor details.'
+                    : 'Secondary CTA links directly to your booking URL (Calendly, PickTime, etc.).'}
                 </div>
-              ))}
+              </div>
+              <button
+                onClick={() => {
+                  const next = !leadFormEnabled
+                  setLeadFormEnabled(next)
+                  if (next && formFields.length === 0) setFormFields(DEFAULT_FORM_FIELDS)
+                  if (!next) setFormFields([])
+                }}
+                style={{
+                  width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', flexShrink: 0,
+                  background: leadFormEnabled ? 'var(--charcoal)' : '#CBD5E1',
+                  position: 'relative', transition: 'background 200ms',
+                }}
+              >
+                <span style={{
+                  position: 'absolute', top: 3, width: 18, height: 18, borderRadius: '50%', background: 'white',
+                  left: leadFormEnabled ? 23 : 3, transition: 'left 200ms', display: 'block',
+                }} />
+              </button>
             </div>
-            <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18 }}>
-              <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10 }}>Lead notification email</div>
-              {field('Send new leads to', leadEmail, setLeadEmail, 'you@company.com (leave blank to use account email)', 'email')}
-            </div>
+
+            {leadFormEnabled && (
+              <>
+                <div style={{ marginBottom: 20 }}>
+                  {formFields.map((f, i) => (
+                    <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--cream-2)', borderRadius: 8, marginBottom: 8 }}>
+                      <span style={{ flex: 1, fontSize: 13.5 }}>{f.label}</span>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, cursor: f.id === 'email' ? 'not-allowed' : 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={f.required}
+                          disabled={f.id === 'email'}
+                          onChange={e => setFormFields(formFields.map((ff, j) => j === i ? { ...ff, required: e.target.checked } : ff))}
+                        />
+                        Required
+                      </label>
+                      {f.id !== 'email' && (
+                        <button onClick={() => setFormFields(formFields.filter((_, j) => j !== i))}
+                          style={{ fontSize: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', lineHeight: 1 }}>×</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 18 }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 10 }}>Lead notification email</div>
+                  {field('Send new leads to', leadEmail, setLeadEmail, 'you@company.com (leave blank to use account email)', 'email')}
+                </div>
+              </>
+            )}
+
+            {!leadFormEnabled && ctaSecondaryUrl && (
+              <div style={{ padding: '12px 16px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 13, color: '#1E40AF' }}>
+                Visitors clicking your secondary CTA will go directly to: <strong>{ctaSecondaryUrl}</strong>
+              </div>
+            )}
+            {!leadFormEnabled && !ctaSecondaryUrl && (
+              <div style={{ padding: '12px 16px', background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, fontSize: 13, color: '#854D0E' }}>
+                Set a secondary CTA URL in the <button onClick={() => setTab('cta')} style={{ background: 'none', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 13, color: '#854D0E', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>CTA tab</button> so visitors know where to book.
+              </div>
+            )}
           </div>
         )}
 
