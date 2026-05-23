@@ -27,6 +27,12 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      share_links: {
+        Row: ShareLink
+        Insert: Omit<ShareLink, 'id' | 'view_count' | 'lead_count' | 'created_at'>
+        Update: Partial<Omit<ShareLink, 'id' | 'created_at'>>
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -99,12 +105,29 @@ export interface Card {
   updated_at: string
 }
 
+export interface ShareLink {
+  id: string
+  share_token: string
+  card_id: string
+  subscriber_id: string
+  parent_link_id: string | null
+  root_link_id: string | null
+  channel_type: string
+  source_context: string
+  forward_depth: number
+  view_count: number
+  lead_count: number
+  created_at: string
+  expires_at: string | null
+}
+
 export interface CardEvent {
   id: string
   event_name: string
   card_id: string | null
   subscriber_id: string | null
   session_id: string | null
+  share_link_id: string | null
   share_source: string | null
   cta_label: string | null
   cta_type: string | null

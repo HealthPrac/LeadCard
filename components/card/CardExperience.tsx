@@ -43,7 +43,9 @@ function detectDevice(): string {
 function trackEvent(cardId: string, eventName: string, extra?: Record<string, string>) {
   if (typeof window === 'undefined') return
   try {
-    const shareSource = new URLSearchParams(window.location.search).get('src') ?? 'direct'
+    const params = new URLSearchParams(window.location.search)
+    const shareSource     = params.get('src') ?? 'direct'
+    const shareLinkToken  = params.get('lc')  ?? undefined
     let referrerDomain: string | undefined
     try { if (document.referrer) referrerDomain = new URL(document.referrer).hostname } catch {}
     fetch('/api/events', {
@@ -54,6 +56,7 @@ function trackEvent(cardId: string, eventName: string, extra?: Record<string, st
         cardId,
         sessionId: getOrCreateSessionId(cardId),
         shareSource,
+        shareLinkToken,
         deviceType: detectDevice(),
         referrerDomain,
         ...extra,

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const {
       eventName, cardId, sessionId,
-      shareSource, ctaLabel, ctaType,
+      shareSource, shareLinkToken, ctaLabel, ctaType,
       deviceType, referrerDomain, payload,
     } = body
 
@@ -42,12 +42,31 @@ export async function POST(req: Request) {
 
     if (!card) return NextResponse.json({ ok: true })
 
+    // Resolve share_link_id from token and increment counters atomically
+    let shareLinkId: string | null = null
+    if (shareLinkToken) {
+      const { data: link } = await service
+        .from('share_links')
+        .select('id')
+        .eq('share_token', shareLinkToken)
+        .single()
+      if (link) {
+        shareLinkId = link.id
+        if (eventName === 'card_view_started') {
+          await service.rpc('increment_share_link_view', { p_token: shareLinkToken })
+        } else if (eventName === 'lead_form_submitted') {
+          await service.rpc('increment_share_link_lead', { p_token: shareLinkToken })
+        }
+      }
+    }
+
     await service.from('card_events').insert({
       event_name:      eventName,
       card_id:         cardId,
       subscriber_id:   card.subscriber_id,
       session_id:      sessionId      ?? null,
       share_source:    shareSource    ?? null,
+      share_link_id:   shareLinkId,
       cta_label:       ctaLabel       ?? null,
       cta_type:        ctaType        ?? null,
       device_type:     deviceType     ?? null,

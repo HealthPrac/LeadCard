@@ -66,10 +66,11 @@ export function AdminSidebar({ adminEmail }: Props) {
         </span>
       </div>
 
-      {navItem('/admin',            'Overview',    '⊞')}
-      {navItem('/admin/subscribers','Subscribers', '◎')}
-      {navItem('/admin/leads',      'Leads',       '↗')}
-      {navItem('/admin/team',       'Admin team',  '⊕')}
+      {navItem('/admin',              'Overview',    '⊞')}
+      {navItem('/admin/subscribers', 'Subscribers', '◎')}
+      {navItem('/admin/analytics',   'Analytics',   '↯')}
+      {navItem('/admin/leads',       'Leads',       '↗')}
+      {navItem('/admin/team',        'Admin team',  '⊕')}
 
       {/* Divider */}
       <div style={{ margin: '10px 12px', height: 1, background: 'rgba(255,255,255,0.07)' }} />

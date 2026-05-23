@@ -210,6 +210,100 @@ export async function getLeadIntel() {
   }
 }
 
+// ── Platform analytics (30-day engagement + share channels) ──────────────────
+
+export async function getAdminAnalytics() {
+  const service = createServiceClient()
+
+  const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+  const [eventsRes, shareLinksRes, cardsRes] = await Promise.all([
+    service
+      .from('card_events')
+      .select('id, event_name, card_id, device_type, occurred_at')
+      .gte('occurred_at', since30)
+      .limit(100000),
+    service
+      .from('share_links')
+      .select('id, card_id, channel_type, view_count, lead_count'),
+    service
+      .from('cards')
+      .select('id, slug, display_name'),
+  ])
+
+  const events     = eventsRes.data     ?? []
+  const shareLinks = shareLinksRes.data ?? []
+  const cards      = cardsRes.data      ?? []
+
+  // Daily views — last 30 days
+  const dailyMap = new Map<string, number>()
+  for (const e of events) {
+    if (e.event_name === 'card_view_started') {
+      const day = (e.occurred_at as string).slice(0, 10)
+      dailyMap.set(day, (dailyMap.get(day) ?? 0) + 1)
+    }
+  }
+  const now = new Date()
+  const dailyViews = Array.from({ length: 30 }, (_, i) => {
+    const d   = new Date(now.getTime() - (29 - i) * 24 * 60 * 60 * 1000)
+    const key = d.toISOString().slice(0, 10)
+    return {
+      date:  key,
+      label: d.toLocaleDateString('en-ZA', { month: 'short', day: 'numeric' }),
+      views: dailyMap.get(key) ?? 0,
+    }
+  })
+
+  // Engagement funnel
+  const count = (name: string) => events.filter(e => e.event_name === name).length
+  const funnel = {
+    views30:      count('card_view_started'),
+    videoStarts:  count('video_play_started'),
+    ctaClicks:    count('cta_clicked'),
+    formStarts:   count('lead_form_started'),
+    formSubmits:  count('lead_form_submitted'),
+  }
+
+  // Device split (from view events only)
+  const deviceMap = new Map<string, number>()
+  for (const e of events) {
+    if (e.event_name === 'card_view_started' && e.device_type) {
+      deviceMap.set(e.device_type, (deviceMap.get(e.device_type) ?? 0) + 1)
+    }
+  }
+  const deviceSplit = Array.from(deviceMap.entries())
+    .map(([device, count]) => ({ device, count }))
+    .sort((a, b) => b.count - a.count)
+
+  // Share channel breakdown (from share_links row-level counters)
+  const channelMap = new Map<string, { views: number; leads: number }>()
+  for (const l of shareLinks) {
+    const cur = channelMap.get(l.channel_type) ?? { views: 0, leads: 0 }
+    channelMap.set(l.channel_type, { views: cur.views + l.view_count, leads: cur.leads + l.lead_count })
+  }
+  const shareChannels = Array.from(channelMap.entries())
+    .map(([channel, { views, leads }]) => ({ channel, views, leads }))
+    .sort((a, b) => b.views - a.views)
+
+  // Top 10 cards by total tracked views
+  const cardViewMap = new Map<string, number>()
+  for (const l of shareLinks) {
+    cardViewMap.set(l.card_id, (cardViewMap.get(l.card_id) ?? 0) + l.view_count)
+  }
+  const cardMap  = new Map(cards.map(c => [c.id, c]))
+  const topCards = Array.from(cardViewMap.entries())
+    .map(([cardId, views]) => {
+      const c = cardMap.get(cardId)
+      return { cardId, views, displayName: c?.display_name ?? null, slug: c?.slug ?? null }
+    })
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 10)
+
+  return { dailyViews, funnel, deviceSplit, shareChannels, topCards }
+}
+
+export type AdminAnalytics = Awaited<ReturnType<typeof getAdminAnalytics>>
+
 // ── Admin team ────────────────────────────────────────────────────────────────
 
 export async function getAdminTeam() {
