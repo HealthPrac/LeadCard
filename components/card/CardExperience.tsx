@@ -394,11 +394,25 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
 
       {/* Footer note — professional registration, credentials, etc. */}
       {card.footer_note && (
-        <div style={{ position: 'relative', padding: '10px 26px 24px', textAlign: 'center' as const, fontSize: 10.5, opacity: 0.45, lineHeight: 1.4, letterSpacing: '0.02em', color: t.fg }}>
+        <div style={{ position: 'relative', padding: '10px 26px 0', textAlign: 'center' as const, fontSize: 10.5, opacity: 0.45, lineHeight: 1.4, letterSpacing: '0.02em', color: t.fg }}>
           {card.footer_note}
         </div>
       )}
-      {!card.footer_note && <div style={{ height: 24 }} />}
+
+      {/* Legal links */}
+      <div style={{ position: 'relative', padding: '10px 26px 24px', display: 'flex', justifyContent: 'center', gap: 16 }}>
+        {(['Terms', 'Privacy', 'Disclaimer'] as const).map((label) => (
+          <a
+            key={label}
+            href={`/${label.toLowerCase()}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 10.5, color: t.fg, opacity: 0.35, textDecoration: 'none', letterSpacing: '0.02em' }}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
     </div>
   )
 }
