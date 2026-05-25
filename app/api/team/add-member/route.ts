@@ -14,12 +14,13 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const { name, title, email, mobile, slug } = body as {
+    const { name, title, email, mobile, slug, isAdmin } = body as {
       name: string
       title?: string
       email?: string
       mobile?: string
       slug: string
+      isAdmin?: boolean
     }
 
     if (!name?.trim() || !slug?.trim()) {
@@ -83,6 +84,7 @@ export async function POST(req: Request) {
         mobile: mobile ?? null,
         lead_destination_email: ownerCard?.lead_destination_email ?? subscriber.email,
         is_published: true,
+        is_account_admin: isAdmin === true,
         // Inherit shared brand
         theme_bg: ownerCard?.theme_bg ?? '#17181C',
         theme_fg: ownerCard?.theme_fg ?? '#F6F7F3',

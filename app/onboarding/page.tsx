@@ -77,6 +77,7 @@ interface PersonEntry {
   slug: string
   slugAvailable: boolean | null
   checkingSlug: boolean
+  isAdmin: boolean
 }
 
 function emptyPerson(): PersonEntry {
@@ -85,6 +86,7 @@ function emptyPerson(): PersonEntry {
     name: '', title: '', email: '',
     mobileCode: '+27', mobileNumber: '',
     slug: '', slugAvailable: null, checkingSlug: false,
+    isAdmin: false,
   }
 }
 
@@ -246,6 +248,7 @@ export default function OnboardingPage() {
               mobile: joinPhone(p.mobileCode, p.mobileNumber),
               email: p.email.trim() || user.email,
               slug: p.slug.trim(),
+              isAdmin: p.isAdmin,
             })),
         }
 
@@ -319,7 +322,7 @@ export default function OnboardingPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 500,
-                  background: i < stepIdx ? 'var(--sage)' : i === stepIdx ? 'var(--charcoal)' : 'var(--cream-2)',
+                  background: i < stepIdx ? 'var(--copper)' : i === stepIdx ? 'var(--charcoal)' : 'var(--cream-2)',
                   color: i < stepIdx ? 'var(--charcoal)' : i === stepIdx ? 'var(--cream)' : 'var(--muted)',
                 }}>
                   {i < stepIdx ? '✓' : i + 1}
@@ -332,12 +335,12 @@ export default function OnboardingPage() {
         </div>
 
         {/* Card */}
-        <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', padding: '36px 40px', minHeight: 360 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--line)', padding: '36px 40px', minHeight: 360 }}>
 
           {/* ── Step: Plan ── */}
           {step === 'plan' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 1</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--copper)', fontWeight: 500, margin: '0 0 8px' }}>Step 1</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 8px', letterSpacing: '-0.01em' }}>Choose your plan.</h2>
               <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 28px' }}>Pick the experience that fits your business.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -349,7 +352,7 @@ export default function OnboardingPage() {
                       display: 'flex', alignItems: 'center', gap: 20,
                       padding: '18px 22px', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit',
                       border: `2px solid ${plan === p.id ? 'var(--charcoal)' : 'var(--line)'}`,
-                      background: plan === p.id ? 'var(--cream-2)' : 'white',
+                      background: plan === p.id ? 'var(--cream-2)' : 'var(--bg-surface)',
                       textAlign: 'left', width: '100%', transition: '120ms',
                     }}
                   >
@@ -357,7 +360,7 @@ export default function OnboardingPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
                         <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--charcoal)' }}>{p.name}</span>
                         {p.id === 'small' && (
-                          <span style={{ fontSize: 10, padding: '2px 8px', background: 'var(--sage)', color: 'var(--charcoal)', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>POPULAR</span>
+                          <span style={{ fontSize: 10, padding: '2px 8px', background: 'var(--copper)', color: 'var(--charcoal)', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>POPULAR</span>
                         )}
                       </div>
                       <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 10 }}>{p.tagline}</div>
@@ -380,7 +383,7 @@ export default function OnboardingPage() {
           {/* ── Step: Company Brand (Small / Enterprise only) ── */}
           {step === 'brand' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step 2 of {steps.length}</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--copper)', fontWeight: 500, margin: '0 0 8px' }}>Step 2 of {steps.length}</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 6px', letterSpacing: '-0.01em' }}>Brand your cards.</h2>
               <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 28px', lineHeight: 1.5 }}>
                 All team cards share these settings. Your account owner can update them any time from the editor.
@@ -389,7 +392,7 @@ export default function OnboardingPage() {
               {/* Company details */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 24 }}>
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={labelStyle}>Company name <span style={{ color: 'var(--sage)' }}>*</span></label>
+                  <label style={labelStyle}>Company name <span style={{ color: 'var(--copper)' }}>*</span></label>
                   <input
                     style={inputStyle}
                     value={companyName}
@@ -403,7 +406,7 @@ export default function OnboardingPage() {
                   <input style={inputStyle} value={companyWebsite} onChange={e => setCompanyWebsite(e.target.value)} placeholder="https://acmecorp.com" />
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={labelStyle}>Industry <span style={{ color: 'var(--sage)' }}>*</span></label>
+                  <label style={labelStyle}>Industry <span style={{ color: 'var(--copper)' }}>*</span></label>
                   <IndustrySelect
                     selection={industrySelection}
                     otherText={industryOther}
@@ -412,7 +415,7 @@ export default function OnboardingPage() {
                   />
                 </div>
                 <div>
-                  <label style={labelStyle}>Country <span style={{ color: 'var(--sage)' }}>*</span></label>
+                  <label style={labelStyle}>Country <span style={{ color: 'var(--copper)' }}>*</span></label>
                   <select style={{ ...inputStyle, cursor: 'pointer' }} value={brandCountry} onChange={e => setBrandCountry(e.target.value)}>
                     {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -466,7 +469,7 @@ export default function OnboardingPage() {
                     style={{
                       padding: '10px 8px', borderRadius: 9, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
                       border: `2px solid ${themeFont === f.value ? 'var(--charcoal)' : 'var(--line)'}`,
-                      background: themeFont === f.value ? 'var(--cream-2)' : 'white',
+                      background: themeFont === f.value ? 'var(--cream-2)' : 'var(--bg-surface)',
                     }}
                   >
                     <div style={{ fontFamily: f.fontFamily, fontSize: 20, lineHeight: 1, marginBottom: 4, color: 'var(--charcoal)' }}>Aa</div>
@@ -528,7 +531,7 @@ export default function OnboardingPage() {
           {/* ── Step: Identity ── */}
           {step === 'identity' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step {stepIdx + 1} of {steps.length}</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--copper)', fontWeight: 500, margin: '0 0 8px' }}>Step {stepIdx + 1} of {steps.length}</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
                 {plan === 'solo' ? "Who's on the card?" : "Who's on the team?"}
               </h2>
@@ -553,7 +556,7 @@ export default function OnboardingPage() {
               {plan === 'solo' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <div>
-                    <label style={labelStyle}>Display name <span style={{ color: 'var(--sage)' }}>*</span></label>
+                    <label style={labelStyle}>Display name <span style={{ color: 'var(--copper)' }}>*</span></label>
                     <input style={inputStyle} value={soloName} onChange={e => { setSoloName(e.target.value); setSoloSlug(toSlug(e.target.value)); setSoloSlugAvailable(null) }} placeholder="Avery Quinn" autoFocus />
                   </div>
                   <div>
@@ -573,7 +576,7 @@ export default function OnboardingPage() {
                     <input style={inputStyle} value={soloWebsite} onChange={e => setSoloWebsite(e.target.value)} placeholder="https://yoursite.com" />
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={labelStyle}>Industry <span style={{ color: 'var(--sage)' }}>*</span></label>
+                    <label style={labelStyle}>Industry <span style={{ color: 'var(--copper)' }}>*</span></label>
                     <IndustrySelect
                       selection={soloIndustrySelection}
                       otherText={soloIndustryOther}
@@ -582,7 +585,7 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div>
-                    <label style={labelStyle}>Country <span style={{ color: 'var(--sage)' }}>*</span></label>
+                    <label style={labelStyle}>Country <span style={{ color: 'var(--copper)' }}>*</span></label>
                     <select style={{ ...inputStyle, cursor: 'pointer' }} value={soloCountry} onChange={e => setSoloCountry(e.target.value)}>
                       {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -633,7 +636,7 @@ export default function OnboardingPage() {
           {/* ── Step: URLs ── */}
           {step === 'slug' && (
             <div>
-              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', fontWeight: 500, margin: '0 0 8px' }}>Step {stepIdx + 1} of {steps.length}</p>
+              <p style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--copper)', fontWeight: 500, margin: '0 0 8px' }}>Step {stepIdx + 1} of {steps.length}</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
                 {plan === 'solo' ? 'Claim your URL.' : 'Claim your URLs.'}
               </h2>
@@ -731,7 +734,7 @@ export default function OnboardingPage() {
             <button
               onClick={handleFinish}
               disabled={saving || !canPublish}
-              style={{ padding: '12px 24px', background: 'var(--sage)', color: 'var(--charcoal)', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: !canPublish ? 0.4 : 1 }}
+              style={{ padding: '12px 24px', background: 'var(--copper)', color: '#fff', borderRadius: 10, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', opacity: !canPublish ? 0.4 : 1 }}
             >
               {saving ? 'Publishing…' : plan === 'solo' ? 'Publish my card ✦' : `Publish ${activePeople.length} cards ✦`}
             </button>
@@ -753,7 +756,7 @@ function SlugRow({ label, slug, available, checking, onChange }: {
   return (
     <div>
       <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 6, color: 'var(--charcoal)' }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 10, background: 'white', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 10, background: 'var(--bg-surface)', overflow: 'hidden' }}>
         <span style={{ padding: '11px 0 11px 14px', fontSize: 13.5, color: 'var(--muted)', whiteSpace: 'nowrap' as const }}>leadcard.app/c/</span>
         <input
           style={{ ...inputStyle, border: 'none', borderRadius: 0, paddingLeft: 0 }}
@@ -792,7 +795,7 @@ function PersonBlock({ person, index, isOwner, canRemove, onRemove, onChange }: 
           </div>
           <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--charcoal)' }}>Person {index + 1}</span>
           {isOwner && (
-            <span style={{ fontSize: 10, padding: '2px 8px', background: 'var(--sage)', color: 'var(--charcoal)', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>ACCOUNT OWNER</span>
+            <span style={{ fontSize: 10, padding: '2px 8px', background: 'var(--copper)', color: '#fff', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>ACCOUNT OWNER</span>
           )}
         </div>
         {canRemove && (
@@ -801,7 +804,7 @@ function PersonBlock({ person, index, isOwner, canRemove, onRemove, onChange }: 
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div>
-          <label style={labelStyle}>Display name{isOwner && <span style={{ color: 'var(--sage)', marginLeft: 3 }}>*</span>}</label>
+          <label style={labelStyle}>Display name{isOwner && <span style={{ color: 'var(--copper)', marginLeft: 3 }}>*</span>}</label>
           <input style={inputStyle} value={person.name} onChange={e => onChange({ name: e.target.value })} placeholder="Sarah Johnson" autoFocus={index === 0} />
         </div>
         <div>
@@ -810,7 +813,7 @@ function PersonBlock({ person, index, isOwner, canRemove, onRemove, onChange }: 
         </div>
         <div>
           <label style={labelStyle}>Mobile</label>
-          <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden', background: 'white' }}>
+          <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden', background: 'var(--bg-surface)' }}>
             <select value={person.mobileCode} onChange={e => onChange({ mobileCode: e.target.value })}
               style={{ padding: '11px 8px', border: 'none', borderRight: '1px solid var(--line)', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: 'var(--cream-2)', cursor: 'pointer', flexShrink: 0 }}>
               {COUNTRY_CODES.map(cc => <option key={cc.code} value={cc.code}>{cc.label}</option>)}
@@ -824,6 +827,37 @@ function PersonBlock({ person, index, isOwner, canRemove, onRemove, onChange }: 
           <input style={inputStyle} type="email" value={person.email} onChange={e => onChange({ email: e.target.value })} placeholder="sarah@company.com" />
         </div>
       </div>
+
+      {/* Admin toggle — not shown for account owner (index 0 is always the owner/admin) */}
+      {!isOwner && (
+        <button
+          type="button"
+          onClick={() => onChange({ isAdmin: !person.isAdmin })}
+          style={{
+            marginTop: 12, display: 'flex', alignItems: 'center', gap: 10,
+            width: '100%', padding: '10px 12px', borderRadius: 9, cursor: 'pointer',
+            border: `1px solid ${person.isAdmin ? 'var(--copper)' : 'var(--line)'}`,
+            background: person.isAdmin ? 'rgba(184,116,62,0.07)' : 'transparent',
+            fontFamily: 'inherit', textAlign: 'left',
+          }}
+        >
+          <div style={{
+            width: 34, height: 18, borderRadius: 9, flexShrink: 0, position: 'relative',
+            background: person.isAdmin ? 'var(--copper)' : 'var(--line)',
+            transition: 'background 160ms',
+          }}>
+            <div style={{
+              position: 'absolute', top: 2, left: person.isAdmin ? 16 : 2,
+              width: 14, height: 14, borderRadius: '50%', background: '#fff',
+              transition: 'left 160ms', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+            }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--charcoal)' }}>Account admin</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)' }}>Can manage team members, leads, and account settings</div>
+          </div>
+        </button>
+      )}
     </div>
   )
 }
@@ -831,7 +865,7 @@ function PersonBlock({ person, index, isOwner, canRemove, onRemove, onChange }: 
 // ── Phone field ───────────────────────────────────────────────────────────────
 function PhoneField({ code, number, onCode, onNumber }: { code: string; number: string; onCode: (v: string) => void; onNumber: (v: string) => void }) {
   return (
-    <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden', background: 'white' }}>
+    <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden', background: 'var(--bg-surface)' }}>
       <select value={code} onChange={e => onCode(e.target.value)}
         style={{ padding: '11px 8px', border: 'none', borderRight: '1px solid var(--line)', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: 'var(--cream-2)', cursor: 'pointer', flexShrink: 0 }}>
         {COUNTRY_CODES.map(cc => <option key={cc.code} value={cc.code}>{cc.label}</option>)}
@@ -849,6 +883,6 @@ const labelStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '11px 14px', border: '1px solid var(--line)',
-  borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'white',
+  borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'var(--bg-surface)',
   outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box',
 }

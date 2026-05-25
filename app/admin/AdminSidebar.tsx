@@ -6,9 +6,10 @@ import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   adminEmail: string
+  cardSlug?: string | null
 }
 
-export function AdminSidebar({ adminEmail }: Props) {
+export function AdminSidebar({ adminEmail, cardSlug }: Props) {
   const pathname = usePathname()
   const router   = useRouter()
 
@@ -76,16 +77,29 @@ export function AdminSidebar({ adminEmail }: Props) {
       {/* Divider */}
       <div style={{ margin: '10px 12px', height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
-      <Link
-        href="/dashboard"
-        style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '9px 12px', borderRadius: 8, fontSize: 13,
-          color: 'rgba(246,247,243,0.45)', textDecoration: 'none',
-        }}
-      >
-        <span style={{ fontSize: 13 }}>←</span> Back to my card
-      </Link>
+      {cardSlug ? (
+        <Link
+          href="/dashboard"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '9px 12px', borderRadius: 8, fontSize: 13,
+            color: 'rgba(246,247,243,0.45)', textDecoration: 'none',
+          }}
+        >
+          <span style={{ fontSize: 13 }}>←</span> Back to my card
+        </Link>
+      ) : (
+        <Link
+          href="/onboarding"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '9px 12px', borderRadius: 8, fontSize: 13,
+            color: 'rgba(184,116,62,0.8)', textDecoration: 'none',
+          }}
+        >
+          <span style={{ fontSize: 13 }}>✦</span> Set up AvantCard account
+        </Link>
+      )}
 
       {/* Footer */}
       <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)' }}>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { AddMemberModal } from '@/components/ui/AddMemberModal'
 import { ShareDashboardButton } from './ShareDashboardButton'
+import { ToggleAdminButton } from './ToggleAdminButton'
 import type { LeadCrm } from '@/lib/supabase/types'
 
 function formatZar(cents: number): string {
@@ -31,7 +32,7 @@ export default async function TeamPage() {
 
   const { data: cards } = await supabase
     .from('cards')
-    .select('id, display_name, title, company, slug, email, mobile, is_published, created_at')
+    .select('id, display_name, title, company, slug, email, mobile, is_published, is_account_admin, created_at')
     .eq('subscriber_id', subscriber.id)
     .order('created_at', { ascending: true })
 
@@ -143,10 +144,13 @@ export default async function TeamPage() {
                     {initials}
                   </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' as const }}>
                       <span style={{ fontSize: 14, fontWeight: 500 }}>{card.display_name ?? '—'}</span>
                       {idx === 0 && (
-                        <span style={{ fontSize: 10, padding: '1px 7px', background: 'var(--sage)', color: 'var(--charcoal)', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>OWNER</span>
+                        <span style={{ fontSize: 10, padding: '1px 7px', background: 'var(--copper)', color: '#fff', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em' }}>OWNER</span>
+                      )}
+                      {card.is_account_admin && (
+                        <span style={{ fontSize: 10, padding: '1px 7px', background: 'rgba(184,116,62,0.15)', color: 'var(--copper)', borderRadius: 999, fontWeight: 600, letterSpacing: '0.04em', border: '1px solid rgba(184,116,62,0.3)' }}>ADMIN</span>
                       )}
                       {!card.is_published && (
                         <span style={{ fontSize: 10, padding: '1px 7px', background: 'var(--cream-2)', color: 'var(--muted)', borderRadius: 999 }}>Draft</span>
@@ -186,6 +190,9 @@ export default async function TeamPage() {
 
                 {/* Actions */}
                 <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
+                  {idx > 0 && subscriber.plan !== 'solo' && (
+                    <ToggleAdminButton cardId={card.id} isAdmin={card.is_account_admin ?? false} />
+                  )}
                   <Link
                     href={`/editor?card=${card.id}`}
                     style={{ fontSize: 12.5, color: 'var(--charcoal)', textDecoration: 'none', padding: '5px 12px', border: '1px solid var(--line)', borderRadius: 7, whiteSpace: 'nowrap' as const }}

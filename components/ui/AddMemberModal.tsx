@@ -30,6 +30,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
   const [slug, setSlug] = useState('')
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null)
   const [checkingSlug, setCheckingSlug] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -39,7 +40,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
     setName(''); setTitleVal(''); setEmail('')
     setMobileCode('+27'); setMobileNumber('')
     setSlug(''); setSlugAvailable(null); setCheckingSlug(false)
-    setError(null)
+    setIsAdmin(false); setError(null)
   }
 
   function handleOpen() { resetForm(); setOpen(true) }
@@ -76,6 +77,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
         email: email.trim() || undefined,
         mobile: joinPhone(mobileCode, mobileNumber) || undefined,
         slug: slug.trim(),
+        isAdmin,
       }),
     })
     const json = await res.json()
@@ -94,7 +96,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 14px', border: '1px solid var(--line)',
     borderRadius: 9, fontSize: 13.5, fontFamily: 'inherit', outline: 'none',
-    background: 'white', color: 'var(--charcoal)', boxSizing: 'border-box',
+    background: 'var(--bg-surface)', color: 'var(--charcoal)', boxSizing: 'border-box',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 5, color: 'var(--charcoal)',
@@ -126,7 +128,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
         }}>
           <div style={{
-            background: 'white', borderRadius: 16, padding: '32px 36px', width: '100%',
+            background: 'var(--bg-surface)', borderRadius: 16, padding: '32px 36px', width: '100%',
             maxWidth: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -157,7 +159,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Mobile</label>
-                <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 9, overflow: 'hidden', background: 'white' }}>
+                <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 9, overflow: 'hidden', background: 'var(--bg-surface)' }}>
                   <select value={mobileCode} onChange={e => setMobileCode(e.target.value)}
                     style={{ padding: '10px 8px', border: 'none', borderRight: '1px solid var(--line)', fontSize: 13, fontFamily: 'inherit', outline: 'none', background: 'var(--cream-2)', cursor: 'pointer', flexShrink: 0 }}>
                     {COUNTRY_CODES.map(cc => <option key={cc.code} value={cc.code}>{cc.label}</option>)}
@@ -168,7 +170,7 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Card URL <span style={{ color: 'var(--sage)' }}>*</span></label>
-                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 9, background: 'white', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 9, background: 'var(--bg-surface)', overflow: 'hidden' }}>
                   <span style={{ padding: '10px 0 10px 14px', fontSize: 13, color: 'var(--muted)', whiteSpace: 'nowrap' }}>leadcard.app/c/</span>
                   <input
                     style={{ ...inputStyle, border: 'none', borderRadius: 0, paddingLeft: 0 }}
@@ -189,6 +191,37 @@ export function AddMemberModal({ plan, cardCount, companySlug }: Props) {
                 </div>
               </div>
             </div>
+
+            {/* Admin toggle */}
+            <button
+              type="button"
+              onClick={() => setIsAdmin(v => !v)}
+              style={{
+                marginTop: 18, display: 'flex', alignItems: 'center', gap: 12,
+                width: '100%', padding: '12px 14px', borderRadius: 10, cursor: 'pointer',
+                border: `1px solid ${isAdmin ? 'var(--copper)' : 'var(--line)'}`,
+                background: isAdmin ? 'rgba(184,116,62,0.07)' : 'transparent',
+                fontFamily: 'inherit', textAlign: 'left',
+              }}
+            >
+              <div style={{
+                width: 36, height: 20, borderRadius: 10, flexShrink: 0, position: 'relative',
+                background: isAdmin ? 'var(--copper)' : 'var(--line)',
+                transition: 'background 160ms',
+              }}>
+                <div style={{
+                  position: 'absolute', top: 2, left: isAdmin ? 18 : 2,
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transition: 'left 160ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--charcoal)' }}>Account admin</div>
+                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>
+                  Can manage team members, leads, and account settings
+                </div>
+              </div>
+            </button>
 
             {error && (
               <div style={{ marginTop: 14, background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#B91C1C' }}>

@@ -23,6 +23,7 @@ interface PersonPayload {
   email?: string
   slug: string
   industry?: string
+  isAdmin?: boolean
 }
 
 export async function POST(req: Request) {
@@ -106,6 +107,7 @@ export async function POST(req: Request) {
       mobile: p.mobile ?? null,
       lead_destination_email: email ?? null,
       is_published: true,
+      is_account_admin: p.isAdmin === true,
       industry: brand?.industry ?? p.industry ?? null,
       ...sharedTheme,
     }))
