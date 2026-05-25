@@ -42,10 +42,13 @@
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+  /* Nav glass tint — responds to theme */
+  --nav-glass: rgba(249,247,243,0.92);
 }
 
 /* ─── DARK MODE ─────────────────────────────────────────────────────── */
 html[data-theme="dark"] {
+  --nav-glass: rgba(23,23,28,0.94);
   --cream:      #17171C;
   --cream-2:    #1E1E26;
   --bg-surface: #23232A;

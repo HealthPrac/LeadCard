@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react'
 
-export function ThemeToggle() {
+interface Props {
+  compact?: boolean  // icon-only mode for nav bar
+}
+
+export function ThemeToggle({ compact }: Props) {
   const [dark, setDark] = useState(false)
 
   useEffect(() => {
@@ -17,6 +21,24 @@ export function ThemeToggle() {
     setDark(next)
     document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
     localStorage.setItem('theme', next ? 'dark' : 'light')
+  }
+
+  if (compact) {
+    return (
+      <button
+        onClick={toggle}
+        title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+        style={{
+          width: 32, height: 32, borderRadius: 6,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'transparent', border: '1px solid var(--line)',
+          cursor: 'pointer', fontSize: 15, color: 'var(--muted)',
+          transition: '120ms',
+        }}
+      >
+        {dark ? '☀' : '◑'}
+      </button>
+    )
   }
 
   return (
