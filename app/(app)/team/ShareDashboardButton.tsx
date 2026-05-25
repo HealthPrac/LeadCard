@@ -49,7 +49,7 @@ export function ShareDashboardButton({ cardId, existingUrl }: Props) {
         <button
           onClick={async () => { await copyToClipboard(url); setShowUrl(true) }}
           style={{
-            padding: '5px 12px', background: 'white', border: '1px solid var(--line)',
+            padding: '5px 12px', background: 'var(--bg-surface)', border: '1px solid var(--line)',
             borderRadius: 7, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit',
             color: 'var(--charcoal)', whiteSpace: 'nowrap',
           }}
@@ -110,7 +110,7 @@ export function ShareDashboardButton({ cardId, existingUrl }: Props) {
       onClick={generate}
       disabled={loading}
       style={{
-        padding: '5px 12px', background: 'white', border: '1px solid var(--line)',
+        padding: '5px 12px', background: 'var(--bg-surface)', border: '1px solid var(--line)',
         borderRadius: 7, fontSize: 12.5, cursor: loading ? 'wait' : 'pointer',
         fontFamily: 'inherit', color: 'var(--charcoal)', whiteSpace: 'nowrap',
       }}

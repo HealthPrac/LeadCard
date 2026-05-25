@@ -145,7 +145,7 @@ export default function ShareClient({ card, appUrl }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
 
         {/* Card URL */}
-        <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+        <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 12 }}>Your card URL</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, background: 'var(--cream-2)', padding: '10px 14px', borderRadius: 8, marginBottom: 14, wordBreak: 'break-all', color: 'var(--charcoal)' }}>
             {baseUrl}
@@ -161,7 +161,7 @@ export default function ShareClient({ card, appUrl }: Props) {
         </div>
 
         {/* QR code — encodes tracked URL once qrToken resolves */}
-        <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+        <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)' }}>QR code</div>
             {qrToken && <div style={{ fontSize: 10, color: 'var(--sage)', letterSpacing: '0.05em' }}>✓ Tracked</div>}
@@ -176,7 +176,7 @@ export default function ShareClient({ card, appUrl }: Props) {
       </div>
 
       {/* vCard download */}
-      <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)', marginBottom: 16 }}>
+      <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)', marginBottom: 16 }}>
         <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 6 }}>Contact file (.vcf)</div>
         <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px' }}>Let people save you to their phone contacts in one tap.</p>
         <button onClick={downloadVcard} style={{ padding: '9px 18px', background: 'var(--cream-2)', color: 'var(--charcoal)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -185,7 +185,7 @@ export default function ShareClient({ card, appUrl }: Props) {
       </div>
 
       {/* Email signature */}
-      <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+      <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
         <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 6 }}>Email signature</div>
         <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px' }}>Paste into Gmail, Outlook, or Apple Mail settings.</p>
         <div style={{ background: 'var(--cream-2)', borderRadius: 8, padding: '14px 16px', marginBottom: 12, fontSize: 13 }}>

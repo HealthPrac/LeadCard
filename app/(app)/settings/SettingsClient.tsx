@@ -124,7 +124,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
 
       {section === 'account' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 14 }}>Email address</div>
             <div style={{ display: 'flex', gap: 10 }}>
               <input value={newEmail} onChange={e => setNewEmail(e.target.value)} type="email"
@@ -134,7 +134,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
             {emailMsg && <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 8 }}>{emailMsg}</div>}
           </div>
 
-          <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 14 }}>Password</div>
             <div style={{ display: 'flex', gap: 10 }}>
               <input value={newPassword} onChange={e => setNewPassword(e.target.value)} type="password" placeholder="New password (min 8 chars)"
@@ -149,7 +149,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
       {section === 'billing' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Current plan */}
-          <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Current plan</div>
@@ -179,7 +179,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
 
           {/* Promo code */}
           {!subscriber.promo_code_id && (
-            <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+            <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
               <button
                 onClick={() => { setPromoOpen(v => !v); setPromoMsg(null) }}
                 style={{ fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, textDecoration: 'underline' }}
@@ -215,7 +215,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
 
           {/* Active */}
           {subscriber.subscription_status === 'active' && (
-            <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+            <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
               <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Subscription</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
@@ -229,7 +229,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
 
       {section === 'data' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Your data</div>
             <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 16px', lineHeight: 1.6 }}>
               You own all data captured through your card. Your leads are stored securely in South Africa (POPIA-compliant). Download a copy at any time.
@@ -244,7 +244,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
             </div>
           </div>
 
-          <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line-danger, #FEE2E2)' }}>
+          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line-danger, #FEE2E2)' }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#EF4444', marginBottom: 8 }}>Danger zone</div>
             <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px' }}>
               Deleting your account permanently removes your card, all leads, and cancels your subscription. This cannot be undone.

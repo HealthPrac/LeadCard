@@ -319,7 +319,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
         {tabButton('links', 'Links')}
       </div>
 
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: 28 }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: 28 }}>
 
         {tab === 'identity' && (
           <div>
@@ -331,7 +331,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
             {/* Mobile with country code */}
             <div style={{ marginBottom: 18 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 500, marginBottom: 6, color: 'var(--charcoal)' }}>Mobile / WhatsApp</label>
-              <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 8, overflow: 'hidden', background: 'white' }}>
+              <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 8, overflow: 'hidden', background: 'var(--bg-surface)' }}>
                 <select
                   value={mobileCode}
                   onChange={e => setMobileCode(e.target.value)}
@@ -471,7 +471,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                 }}
               >
                 <span style={{
-                  position: 'absolute', top: 3, width: 18, height: 18, borderRadius: '50%', background: 'white',
+                  position: 'absolute', top: 3, width: 18, height: 18, borderRadius: '50%', background: 'var(--bg-surface)',
                   left: leadFormEnabled ? 23 : 3, transition: 'left 200ms', display: 'block',
                 }} />
               </button>
@@ -672,7 +672,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                   style={{
                     padding: '12px 10px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
                     border: `2px solid ${themeFont === f.value ? 'var(--charcoal)' : 'var(--line)'}`,
-                    background: themeFont === f.value ? 'var(--cream-2)' : 'white',
+                    background: themeFont === f.value ? 'var(--cream-2)' : 'var(--bg-surface)',
                   }}
                 >
                   <div style={{ fontFamily: f.fontFamily, fontSize: 22, lineHeight: 1, marginBottom: 5, color: 'var(--charcoal)' }}>Aa</div>
@@ -691,7 +691,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
                   style={{
                     flex: 1, padding: '12px 8px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
                     border: `2px solid ${themeFontSize === s.value ? 'var(--charcoal)' : 'var(--line)'}`,
-                    background: themeFontSize === s.value ? 'var(--cream-2)' : 'white',
+                    background: themeFontSize === s.value ? 'var(--cream-2)' : 'var(--bg-surface)',
                     textAlign: 'center' as const,
                   }}
                 >
@@ -718,7 +718,7 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
               </button>
               {logoPreview && (
                 <button onClick={deleteLogo}
-                  style={{ padding: '8px 16px', background: 'white', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '8px 16px', background: 'var(--bg-surface)', color: '#DC2626', border: '1px solid #FECACA', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Remove
                 </button>
               )}

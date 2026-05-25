@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 interface Props {
   plan: string
@@ -48,59 +49,70 @@ export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
 
   return (
     <aside style={{
-      background: 'var(--charcoal)',
+      background: '#17171C',
       borderRight: '1px solid rgba(255,255,255,0.07)',
-      padding: '24px 14px',
+      padding: '0 0 24px',
       display: 'flex', flexDirection: 'column', gap: 2,
       position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
     }}>
-      {/* Brand / tenant logo */}
-      <div style={{ padding: '4px 12px 22px' }}>
+      {/* Brand / tenant logo — always white block */}
+      <div style={{
+        background: '#ffffff',
+        padding: '20px 14px 18px',
+        borderBottom: '1px solid rgba(0,0,0,0.08)',
+        marginBottom: 8,
+      }}>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="Logo" height={30} style={{ display: 'block', maxWidth: 160, objectFit: 'contain' }} />
         ) : (
           <div style={{ height: 30, display: 'flex', alignItems: 'center', gap: 8 }}>
             <svg width="22" height="22" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
-              <rect width="40" height="40" rx="8" fill="#27272f"/>
+              <rect width="40" height="40" rx="8" fill="#F2EDE5"/>
               <path d="M20 8 L28 24 H12 Z" fill="none" stroke="#B8743E" strokeWidth="1.5" strokeLinejoin="round"/>
               <path d="M14 24 L26 24" stroke="#B8743E" strokeWidth="1.5" strokeLinecap="round"/>
-              <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.6"/>
+              <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.8"/>
             </svg>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 16, fontWeight: 500, color: 'rgba(249,247,243,0.82)', letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
-              Avant<span style={{ color: 'var(--copper)' }}>Card</span>
+            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 16, fontWeight: 500, color: '#17171C', letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
+              Avant<span style={{ color: '#B8743E' }}>Card</span>
             </span>
           </div>
         )}
       </div>
 
       {/* Section label */}
-      <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(249,247,243,0.28)', padding: '2px 12px 8px', fontWeight: 600 }}>My Card</div>
+      <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(249,247,243,0.28)', padding: '2px 26px 8px', fontWeight: 600 }}>My Card</div>
 
-      {navItem('/dashboard', 'Overview', '⊞')}
-      {navItem('/editor', 'My experience', '✦')}
-      {isTeamPlan && navItem('/team', 'Team', '⊕')}
-      {navItem('/analytics', 'Analytics', '↗')}
-      {navItem('/leads', 'Leads', '◎')}
-      {navItem('/share', 'Share & QR', '⊡')}
+      <div style={{ padding: '0 14px' }}>
+        {navItem('/dashboard', 'Overview', '⊞')}
+        {navItem('/editor', 'My experience', '✦')}
+        {isTeamPlan && navItem('/team', 'Team', '⊕')}
+        {navItem('/analytics', 'Analytics', '↗')}
+        {navItem('/leads', 'Leads', '◎')}
+        {navItem('/share', 'Share & QR', '⊡')}
+      </div>
 
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 12px' }} />
-      <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(249,247,243,0.28)', padding: '2px 12px 8px', fontWeight: 600 }}>Account</div>
-      {navItem('/settings', 'Settings', '◈')}
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 14px' }} />
+      <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(249,247,243,0.28)', padding: '2px 26px 8px', fontWeight: 600 }}>Account</div>
+      <div style={{ padding: '0 14px' }}>
+        {navItem('/settings', 'Settings', '◈')}
 
-      {cardSlug && (
-        <a href={`/c/${cardSlug}`} target="_blank" rel="noopener noreferrer" style={{
-          display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 4,
-          fontSize: 13, color: 'rgba(249,247,243,0.35)', textDecoration: 'none',
-          borderLeft: '2px solid transparent',
-        }}>
-          <span style={{ fontSize: 13, width: 16, textAlign: 'center' }}>↗</span>
-          View live card
-        </a>
-      )}
+        {cardSlug && (
+          <a href={`/c/${cardSlug}`} target="_blank" rel="noopener noreferrer" style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 4,
+            fontSize: 13, color: 'rgba(249,247,243,0.35)', textDecoration: 'none',
+            borderLeft: '2px solid transparent',
+          }}>
+            <span style={{ fontSize: 13, width: 16, textAlign: 'center' }}>↗</span>
+            View live card
+          </a>
+        )}
+      </div>
 
       {/* Footer */}
-      <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+      <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)', padding: '16px 14px 0' }}>
+        <ThemeToggle />
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0 8px' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 12px' }}>
           <div style={{
             width: 28, height: 28, borderRadius: '50%',

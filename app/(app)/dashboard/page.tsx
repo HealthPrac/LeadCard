@@ -125,17 +125,17 @@ export default async function DashboardPage() {
                   <Link href="/analytics" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all →</Link>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
                     <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>All-time</div>
                     <div style={{ fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1, color: 'var(--charcoal)' }}>{totalLeads}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>leads captured</div>
                   </div>
-                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
                     <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>Last 7 days</div>
                     <div style={{ fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1, color: 'var(--charcoal)' }}>{last7Leads}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>new leads</div>
                   </div>
-                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+                  <div style={{ padding: '18px 20px', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
                     <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>
                       {isTeamPlan ? 'Team members' : 'Sources'}
                     </div>
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
                     <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500 }}>Team</span>
                     <Link href="/team" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all →</Link>
                   </div>
-                  <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
                     {cards.slice(0, 4).map((c, idx) => {
                       const name = (c.display_name ?? '?') as string
                       const initials = name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
                 </div>
 
                 {recentLeads && recentLeads.length > 0 ? (
-                  <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                       <thead>
                         <tr style={{ background: 'var(--cream-2)' }}>
@@ -237,7 +237,7 @@ export default async function DashboardPage() {
                 </div>
 
                 {recentRatings.length > 0 ? (
-                  <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
                     {recentRatings.map((r, idx) => (
                       <div key={r.id} style={{ padding: '12px 20px', borderTop: idx === 0 ? 'none' : '1px solid var(--line-2)', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                         <div style={{ flexShrink: 0, paddingTop: 1 }}>

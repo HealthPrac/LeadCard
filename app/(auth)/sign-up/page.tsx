@@ -62,7 +62,7 @@ export default function SignUpPage() {
           Click the link in the email to verify your address and activate your account.
           It only takes a second.
         </p>
-        <div style={{ padding: '14px 18px', background: 'white', borderRadius: 10, border: '1px solid var(--line)', fontSize: 13, color: 'var(--muted)', marginBottom: 24 }}>
+        <div style={{ padding: '14px 18px', background: 'var(--bg-surface)', borderRadius: 10, border: '1px solid var(--line)', fontSize: 13, color: 'var(--muted)', marginBottom: 24 }}>
           Didn&apos;t get it? Check your spam folder or{' '}
           <button
             onClick={() => setCheckInbox(false)}
@@ -122,5 +122,5 @@ export default function SignUpPage() {
 }
 
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 500, letterSpacing: '0.03em', marginBottom: 7 }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 14px', border: '1px solid var(--line)', borderRadius: 4, fontSize: 14, fontFamily: 'inherit', background: 'white', outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box' }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 14px', border: '1px solid var(--line)', borderRadius: 4, fontSize: 14, fontFamily: 'inherit', background: 'var(--bg-surface)', outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box' }
 const btnPrimaryStyle: React.CSSProperties = { width: '100%', padding: '14px 20px', background: 'var(--copper)', color: '#fff', borderRadius: 4, fontSize: 13, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'inherit', cursor: 'pointer', border: 'none', marginTop: 6 }

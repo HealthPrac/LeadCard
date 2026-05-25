@@ -129,7 +129,7 @@ function QuickCrm({ leadId, initial, onSaved }: {
           placeholder="Est. value (ZAR)"
           value={income}
           onChange={e => setIncome(e.target.value)}
-          style={{ padding: '5px 10px', border: '1px solid var(--line)', borderRadius: 7, fontSize: 12.5, fontFamily: 'inherit', width: 160, background: 'white', outline: 'none' }}
+          style={{ padding: '5px 10px', border: '1px solid var(--line)', borderRadius: 7, fontSize: 12.5, fontFamily: 'inherit', width: 160, background: 'var(--bg-surface)', outline: 'none' }}
         />
         <button
           onClick={save}
@@ -221,12 +221,12 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search name, email, company…"
-          style={{ flex: 1, minWidth: 200, padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, background: 'white', fontFamily: 'inherit', outline: 'none' }}
+          style={{ flex: 1, minWidth: 200, padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, background: 'var(--bg-surface)', fontFamily: 'inherit', outline: 'none' }}
         />
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, background: 'white', fontFamily: 'inherit', color: 'var(--charcoal)', outline: 'none' }}
+          style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, background: 'var(--bg-surface)', fontFamily: 'inherit', color: 'var(--charcoal)', outline: 'none' }}
         >
           <option value="all">All statuses</option>
           {STATUSES.map(s => <option key={s} value={s}>{STATUS_META[s].label}</option>)}
@@ -235,7 +235,7 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
           <select
             value={cardFilter}
             onChange={e => setCardFilter(e.target.value)}
-            style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, background: 'white', fontFamily: 'inherit', color: 'var(--charcoal)', outline: 'none' }}
+            style={{ padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, background: 'var(--bg-surface)', fontFamily: 'inherit', color: 'var(--charcoal)', outline: 'none' }}
           >
             <option value="all">All cards</option>
             {cards.map(c => (
@@ -256,7 +256,7 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
           </p>
         </div>
       ) : (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
             <thead>
               <tr style={{ background: 'var(--cream-2)' }}>
@@ -276,7 +276,7 @@ export default function LeadsClient({ leads, cards, crmRows }: Props) {
                   <>
                     <tr
                       key={l.id}
-                      style={{ borderTop: '1px solid var(--line-2)', cursor: 'pointer', background: expanded === l.id ? 'var(--cream-2)' : 'white' }}
+                      style={{ borderTop: '1px solid var(--line-2)', cursor: 'pointer', background: expanded === l.id ? 'var(--cream-2)' : 'var(--bg-surface)' }}
                       onClick={() => setExpanded(expanded === l.id ? null : l.id)}
                     >
                       <td style={{ padding: '14px 18px' }}>

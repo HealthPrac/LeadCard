@@ -30,6 +30,8 @@
   --copper-pale: #F0DCC9;
   --cream: #F9F7F3;
   --cream-2: #F2EDE5;
+  /* surface var — white in light, dark panel in dark */
+  --bg-surface: #ffffff;
   /* Legacy aliases — pages that reference --sage / --sage-tint get copper */
   --sage: #B8743E;
   --sage-tint: #F0DCC9;
@@ -42,6 +44,23 @@
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
 }
 
+/* ─── DARK MODE ─────────────────────────────────────────────────────── */
+html[data-theme="dark"] {
+  --cream:      #17171C;
+  --cream-2:    #1E1E26;
+  --bg-surface: #23232A;
+  /* Flip charcoal to near-white for text in dark mode */
+  --charcoal:   #F0EDE8;
+  --charcoal-2: #E0DBD5;
+  /* Legacy aliases update alongside */
+  --sage-tint:  #2A1E14;
+  --line:   rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.05);
+  --muted:  rgba(240, 237, 232, 0.55);
+  --muted-2: rgba(240, 237, 232, 0.38);
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -52,6 +71,7 @@ html, body {
   background: var(--cream);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s, color 0.2s;
 }
 
 ::selection { background: var(--copper-pale); color: var(--charcoal); }

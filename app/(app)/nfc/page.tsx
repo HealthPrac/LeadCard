@@ -34,7 +34,7 @@ export default async function NfcPage() {
         </div>
 
         {/* Order info */}
-        <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 6 }}>What you get</div>
             <ul style={{ margin: 0, padding: '0 0 0 18px', fontSize: 13.5, lineHeight: 2, color: 'var(--charcoal)' }}>
@@ -57,14 +57,14 @@ export default async function NfcPage() {
         <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 6 }}>Already have an NFC tag or card?</div>
         <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 12px' }}>
           Use any NFC writer app (NFC Tools, TagWriter) and program it to open your card URL:<br />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, background: 'white', padding: '2px 8px', borderRadius: 4, display: 'inline-block', marginTop: 4 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, background: 'var(--bg-surface)', padding: '2px 8px', borderRadius: 4, display: 'inline-block', marginTop: 4 }}>
             {card ? `${appUrl}/c/${card.slug}` : 'Create your card first'}
           </span>
         </p>
       </div>
 
       {/* CTA */}
-      <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 18 }}>
+      <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 18 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 4 }}>Order your NFC card</div>
           <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>NFC card ordering is coming very soon. Join the waitlist to be first.</p>

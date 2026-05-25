@@ -140,7 +140,7 @@ export default async function AnalyticsPage() {
   }
 
   const statBox = (label: string, value: string | number, sub?: string) => (
-    <div style={{ padding: 24, borderRadius: 14, background: 'white', border: '1px solid var(--line)' }}>
+    <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
       <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 44, lineHeight: 1 }}>{value}</div>
       {sub && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>{sub}</div>}
@@ -163,7 +163,7 @@ export default async function AnalyticsPage() {
 
       {/* Monthly views chart */}
       {totalViews > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 28 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', margin: 0 }}>Views — last 6 months</p>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>{last6Months.reduce((s, m) => s + m.count, 0)} total</span>
@@ -184,7 +184,7 @@ export default async function AnalyticsPage() {
 
       {/* CTA performance */}
       {sortedCtas.length > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
           <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--line-2)', fontSize: 13.5, fontWeight: 500 }}>CTA clicks</div>
           <div style={{ padding: '8px 0' }}>
             {sortedCtas.map(([label, count], idx) => {
@@ -205,7 +205,7 @@ export default async function AnalyticsPage() {
 
       {/* Device split */}
       {sortedDevices.length > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 22px', marginBottom: 28, display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 22px', marginBottom: 28, display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'center' }}>
           <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', flexShrink: 0 }}>Device split</span>
           {sortedDevices.map(([device, count]) => {
             const pct = totalViews > 0 ? Math.round((count / totalViews) * 100) : 0
@@ -221,7 +221,7 @@ export default async function AnalyticsPage() {
 
       {/* Time of day */}
       {totalViews > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 28 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', margin: 0 }}>When visitors arrive (UTC)</p>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>Peak: {String(peakHour).padStart(2, '0')}:00 UTC</span>
@@ -248,7 +248,7 @@ export default async function AnalyticsPage() {
 
       {/* Geographic breakdown */}
       {sortedGeo.length > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
           <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--line-2)', fontSize: 13.5, fontWeight: 500 }}>Where visitors come from</div>
           <div style={{ padding: '8px 0' }}>
             {sortedGeo.map(([code, { country, views: gv }], idx) => {
@@ -278,7 +278,7 @@ export default async function AnalyticsPage() {
 
       {/* Per-card breakdown */}
       {sortedCards.length > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
           <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--line-2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13.5, fontWeight: 500 }}>{isTeamPlan ? 'Leads per team member' : 'Leads per card'}</span>
             {isTeamPlan && (
@@ -313,7 +313,7 @@ export default async function AnalyticsPage() {
 
       {/* Source breakdown */}
       {sortedSources.length > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
           <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid var(--line-2)', fontSize: 13.5, fontWeight: 500 }}>Lead sources</div>
           <div style={{ padding: '8px 0' }}>
             {sortedSources.map(([source, count]) => {

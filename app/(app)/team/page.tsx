@@ -107,7 +107,7 @@ export default async function TeamPage() {
             { label: 'Pipeline value',   value: formatZar(totalPipeline) },
             { label: 'Avg satisfaction', value: avgSatisfaction(allCrmRows) },
           ].map(({ label, value }) => (
-            <div key={label} style={{ padding: '16px 18px', background: 'white', borderRadius: 12, border: '1px solid var(--line)' }}>
+            <div key={label} style={{ padding: '16px 18px', background: 'var(--bg-surface)', borderRadius: 12, border: '1px solid var(--line)' }}>
               <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', fontWeight: 500, marginBottom: 4 }}>{label}</div>
               <div style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--charcoal)', lineHeight: 1 }}>{value}</div>
             </div>
@@ -116,7 +116,7 @@ export default async function TeamPage() {
       )}
 
       {/* Cards table */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
         <div style={{ padding: '14px 22px 12px', borderBottom: '1px solid var(--line-2)', display: 'grid', gridTemplateColumns: '1fr auto auto auto auto', gap: 16, alignItems: 'center' }}>
           {['Team member', 'Leads', 'Pipeline', 'Card URL', ''].map((h, i) => (
             <div key={i} style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)', fontWeight: 500, textAlign: i > 0 ? 'right' as const : 'left' as const }}>{h}</div>
