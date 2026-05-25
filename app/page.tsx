@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
@@ -15,7 +16,8 @@ const FEATURES = [
 const PLANS = [
   {
     name: 'Solo',
-    price: 'R 69',
+    zarPrice: 'R 69',
+    usdPrice: '$ 4',
     period: '/mo',
     description: 'For individuals and freelancers',
     features: ['1 digital card', 'Unlimited leads', 'Analytics dashboard', 'QR code', 'NFC card (add-on)', 'Email signature generator'],
@@ -25,7 +27,8 @@ const PLANS = [
   },
   {
     name: 'Small Business',
-    price: 'R 199',
+    zarPrice: 'R 199',
+    usdPrice: '$ 12',
     period: '/mo',
     description: 'For teams up to 5 people',
     features: ['Up to 5 cards', 'Team management', 'Everything in Solo', 'Shared lead inbox', 'Priority support', 'Custom domain (soon)'],
@@ -35,7 +38,8 @@ const PLANS = [
   },
   {
     name: 'Enterprise',
-    price: 'Custom',
+    zarPrice: 'Custom',
+    usdPrice: 'Custom',
     period: '',
     description: 'For large organisations',
     features: ['Unlimited cards', 'SSO / SAML', 'Dedicated account manager', 'SLA & uptime guarantee', 'API access', 'Custom integrations'],
@@ -51,6 +55,8 @@ const DARK_BG  = '#17171C'
 const DARK_TEXT = '#F9F7F3'
 
 export default function HomePage() {
+  const [currency, setCurrency] = useState<'ZAR' | 'USD'>('ZAR')
+
   return (
     <div style={{ fontFamily: 'var(--font-sans)', color: 'var(--charcoal)', background: 'var(--cream)', minHeight: '100vh' }}>
 
@@ -136,37 +142,105 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Card mockup — hardcoded dark, unaffected by theme */}
+          {/* Card mockup — realistic ScreenWelcome replica */}
           <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 340, height: 340, background: 'radial-gradient(ellipse, rgba(184,116,62,0.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ width: 260, borderRadius: 36, background: '#111115', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(184,116,62,0.14), inset 0 0 0 8px #1a1a22', overflow: 'hidden', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', width: 88, height: 6, background: '#111115', borderRadius: 3, zIndex: 10 }} />
-              <div style={{ height: 110, background: 'linear-gradient(135deg, #2A1810 0%, #1A1210 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, letterSpacing: '0.1em', color: '#F0DCC9', fontWeight: 300 }}>AVANT CARD</span>
+            {/* Glow behind phone */}
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 420, height: 420, background: 'radial-gradient(ellipse, rgba(184,116,62,0.18) 0%, transparent 68%)', pointerEvents: 'none' }} />
+
+            {/* Phone shell */}
+            <div style={{
+              width: 310,
+              borderRadius: 44,
+              background: '#0E0E12',
+              border: '1px solid rgba(255,255,255,0.09)',
+              boxShadow: '0 48px 120px rgba(0,0,0,0.75), 0 0 0 1px rgba(184,116,62,0.12), inset 0 0 0 9px #18181F',
+              overflow: 'hidden',
+              position: 'relative',
+              flexShrink: 0,
+            }}>
+              {/* Dynamic island */}
+              <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', width: 100, height: 28, background: '#0E0E12', borderRadius: 14, zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#222228' }} />
+                <div style={{ width: 38, height: 10, borderRadius: 5, background: '#1C1C22' }} />
               </div>
-              <div style={{ width: 68, height: 68, borderRadius: '50%', background: 'linear-gradient(135deg, #3A2015, #281810)', border: '2.5px solid #111115', margin: '-34px auto 0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-serif)', fontSize: 22, color: '#D4975A', position: 'relative', zIndex: 2, boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}>A</div>
-              <div style={{ padding: '12px 20px 0', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontWeight: 500, color: DARK_TEXT, marginBottom: 2 }}>Alexandra Voss</div>
-                <div style={{ fontSize: 10.5, color: 'rgba(249,247,243,0.48)', marginBottom: 2, letterSpacing: '0.04em' }}>Principal Strategist</div>
-                <div style={{ fontSize: 10, color: '#D4975A', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>Meridian Advisory</div>
-              </div>
-              <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                {['a.voss@meridian.co', '+27 82 450 9210'].map(c => (
-                  <div key={c} style={{ fontSize: 10, color: 'rgba(249,247,243,0.48)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ opacity: 0.5 }}>•</span>{c}
-                  </div>
-                ))}
-              </div>
-              <div style={{ margin: '14px 16px 0', background: '#1e1e28', borderRadius: 8, height: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#B8743E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none"><path d="M2 2l7 3.5L2 9V2z" fill="white"/></svg>
+
+              {/* Card content — dark theme (bg #17171C, fg #F9F7F3, accent #B8743E) */}
+              <div style={{ background: '#17171C', minHeight: 640, display: 'flex', flexDirection: 'column', color: '#F9F7F3', fontFamily: 'var(--font-sans)', paddingTop: 46 }}>
+
+                {/* Banner */}
+                <div style={{
+                  height: 108,
+                  background: 'linear-gradient(135deg, rgba(184,116,62,0.18) 0%, rgba(184,116,62,0.06) 100%)',
+                  borderBottom: '1px solid rgba(249,247,243,0.06)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  <span style={{ fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#D4975A', fontWeight: 300, opacity: 0.8 }}>Meridian Advisory</span>
                 </div>
-                <span style={{ fontSize: 10, color: 'rgba(249,247,243,0.45)', letterSpacing: '0.04em' }}>Watch Introduction</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, padding: '12px 16px 20px' }}>
-                {['Save Contact', 'Connect', 'Website'].map(a => (
-                  <div key={a} style={{ flex: 1, padding: '8px 4px', background: 'rgba(184,116,62,0.1)', border: '1px solid rgba(184,116,62,0.18)', borderRadius: 4, fontSize: 9, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#D4975A', textAlign: 'center' }}>{a}</div>
-                ))}
+
+                {/* Avatar — overlaps banner */}
+                <div style={{ padding: '0 22px', marginTop: -42, flexShrink: 0 }}>
+                  <div style={{
+                    width: 84, height: 84, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, rgba(184,116,62,0.3) 0%, rgba(184,116,62,0.12) 100%)',
+                    border: '3px solid #17171C',
+                    boxShadow: '0 2px 14px rgba(0,0,0,0.45)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--font-serif)', fontSize: 30, color: '#D4975A',
+                  }}>AV</div>
+                </div>
+
+                {/* Identity */}
+                <div style={{ padding: '0 22px', marginTop: 12 }}>
+                  <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#F9F7F3', opacity: 0.5, marginBottom: 6 }}>Hello —</div>
+                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 36, lineHeight: 0.98, letterSpacing: '-0.015em', color: '#F9F7F3' }}>Alexandra Voss</div>
+                  <div style={{ fontSize: 13, marginTop: 9, color: '#F9F7F3', opacity: 0.68 }}>Principal Strategist · Meridian Advisory</div>
+                  {/* Industry pill */}
+                  <div style={{ marginTop: 9, display: 'inline-block', padding: '4px 11px', background: 'rgba(184,116,62,0.18)', color: '#D4975A', borderRadius: 999, fontSize: 11, fontWeight: 500, letterSpacing: '0.03em' }}>
+                    Management Consulting
+                  </div>
+                  {/* Contact */}
+                  <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 7, color: '#F9F7F3', opacity: 0.62 }}>
+                      <span style={{ opacity: 0.55, fontSize: 11 }}>✉</span>
+                      <span>a.voss@meridian.co</span>
+                    </div>
+                    <div style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 7, color: '#F9F7F3', opacity: 0.62 }}>
+                      <span style={{ opacity: 0.55, fontSize: 11 }}>✆</span>
+                      <span>+27 82 450 9210</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bio */}
+                <p style={{ padding: '0 22px', margin: '14px 0 0', fontSize: 12.5, lineHeight: 1.55, color: '#F9F7F3', opacity: 0.58 }}>
+                  15 years of executive strategy consulting, specialising in African market entry and organisational transformation.
+                </p>
+
+                {/* Social icons */}
+                <div style={{ padding: '14px 22px 0', display: 'flex', gap: 8 }}>
+                  {['in', 'tw', 'gh'].map(s => (
+                    <div key={s} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(184,116,62,0.14)', border: '1px solid rgba(184,116,62,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#D4975A', letterSpacing: '0.04em' }}>{s}</div>
+                  ))}
+                </div>
+
+                {/* CTA buttons */}
+                <div style={{ marginTop: 'auto', padding: '18px 22px 0' }}>
+                  <div style={{ background: '#B8743E', color: '#fff', padding: '13px 18px', borderRadius: 2, fontSize: 12, fontWeight: 500, letterSpacing: '0.07em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, marginBottom: 8 }}>
+                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none"><path d="M2 2l7 3.5L2 9V2z" fill="white"/></svg>
+                    Watch my intro
+                  </div>
+                  <div style={{ border: '1px solid rgba(249,247,243,0.18)', color: 'rgba(249,247,243,0.72)', padding: '12px 18px', borderRadius: 2, fontSize: 12, fontWeight: 400, letterSpacing: '0.07em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+                    ↗ Share my card
+                  </div>
+                </div>
+
+                {/* Footer legal */}
+                <div style={{ padding: '12px 22px 24px', display: 'flex', justifyContent: 'center', gap: 14, marginTop: 8 }}>
+                  {['Terms', 'Privacy', 'Disclaimer'].map(l => (
+                    <span key={l} style={{ fontSize: 9.5, color: '#F9F7F3', opacity: 0.28, letterSpacing: '0.02em' }}>{l}</span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -228,7 +302,26 @@ export default function HomePage() {
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--copper)', marginBottom: 14 }}>Pricing</div>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px,4vw,44px)', fontWeight: 300, margin: '0 0 14px', letterSpacing: '-0.01em', color: 'var(--charcoal)' }}>Simple, honest pricing</h2>
-            <p style={{ fontSize: 15, color: 'var(--muted)', margin: 0 }}>7-day free trial on all plans. No credit card to start.</p>
+            <p style={{ fontSize: 15, color: 'var(--muted)', margin: '0 0 28px' }}>7-day free trial on all plans. No credit card to start.</p>
+            {/* Currency toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 0, border: '1px solid var(--line)', borderRadius: 4, overflow: 'hidden', background: 'var(--bg-surface)' }}>
+              {(['ZAR', 'USD'] as const).map(c => (
+                <button
+                  key={c}
+                  onClick={() => setCurrency(c)}
+                  style={{
+                    padding: '8px 22px',
+                    fontSize: 12, fontWeight: 500, letterSpacing: '0.07em',
+                    background: currency === c ? 'var(--copper)' : 'transparent',
+                    color: currency === c ? '#fff' : 'var(--muted)',
+                    border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                    transition: 'background 150ms, color 150ms',
+                  }}
+                >
+                  {c === 'ZAR' ? '🇿🇦 ZAR' : '🌍 USD'}
+                </button>
+              ))}
+            </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, alignItems: 'start' }}>
             {PLANS.map(p => (
@@ -243,7 +336,7 @@ export default function HomePage() {
                 {p.featured && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: '#B8743E' }} />}
                 <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.55, marginBottom: 10 }}>{p.name}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 4 }}>
-                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: 44, fontWeight: 300 }}>{p.price}</span>
+                  <span style={{ fontFamily: 'var(--font-serif)', fontSize: 44, fontWeight: 300 }}>{currency === 'ZAR' ? p.zarPrice : p.usdPrice}</span>
                   <span style={{ fontSize: 13, opacity: 0.55 }}>{p.period}</span>
                 </div>
                 <div style={{ fontSize: 13, opacity: 0.55, marginBottom: 28 }}>{p.description}</div>
@@ -291,7 +384,7 @@ export default function HomePage() {
             </Link>
           </div>
           <p style={{ fontSize: 12, color: 'rgba(249,247,243,0.3)', marginTop: 20 }}>
-            From R 69/month after trial · Cancel anytime
+            From {currency === 'ZAR' ? 'R 69' : '$ 4'}/month after trial · Cancel anytime
           </p>
         </div>
       </section>
