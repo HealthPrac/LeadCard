@@ -233,7 +233,7 @@ export default function HomePage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
             {FEATURES.map(f => (
-              <div key={f.title} style={{ padding: '28px 24px', background: '#fff', borderTop: '2px solid transparent', border: '1px solid var(--line)', position: 'relative', transition: 'border-color 0.2s' }}>
+              <div key={f.title} style={{ padding: '28px 24px', background: 'var(--bg-surface)', borderTop: '2px solid transparent', border: '1px solid var(--line)', position: 'relative', transition: 'border-color 0.2s' }}>
                 <div style={{ width: 36, height: 36, border: '1px solid rgba(184,116,62,0.25)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--copper)', fontSize: 16, marginBottom: 16 }}>
                   {f.icon}
                 </div>

@@ -42,7 +42,7 @@ export default async function AdminOverviewPage() {
           { label: 'Card views',        value: summary.totalViews.toLocaleString(), sub: 'all time, all cards' },
           { label: 'View → lead rate',  value: summary.platformConvRate > 0 ? `${summary.platformConvRate}%` : '—', sub: 'platform-wide conversion' },
         ].map(stat => (
-          <div key={stat.label} style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 20px' }}>
+          <div key={stat.label} style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 20px' }}>
             <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--charcoal)', lineHeight: 1 }}>
               {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
             </div>
@@ -53,7 +53,7 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* Plan split */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 20 }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 20 }}>
         <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 14 }}>Plan distribution</p>
         <div style={{ display: 'flex', gap: 24 }}>
           {[
@@ -74,7 +74,7 @@ export default async function AdminOverviewPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
 
         {/* Industry breakdown */}
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 16 }}>
             Industries — subscribers
           </p>
@@ -103,7 +103,7 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Countries */}
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 16 }}>
             Top markets — country
           </p>
@@ -128,7 +128,7 @@ export default async function AdminOverviewPage() {
 
       {/* Lead sources */}
       {leadSources.length > 0 && (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 20 }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 20 }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 14 }}>
             Lead sources
           </p>
@@ -144,7 +144,7 @@ export default async function AdminOverviewPage() {
       )}
 
       {/* Monthly growth */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)' }}>
             Monthly growth — last 6 months

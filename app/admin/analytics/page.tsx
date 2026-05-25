@@ -60,7 +60,7 @@ export default async function AdminAnalyticsPage() {
           { label: 'Conversion rate',    value: funnel.views30 ? `${Math.round(funnel.formSubmits / funnel.views30 * 100)}%` : '—' },
           { label: 'Avg time on card',   value: avgDurationSeconds !== null ? fmtDuration(avgDurationSeconds) : '—' },
         ].map(s => (
-          <div key={s.label} style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 12, padding: '18px 20px' }}>
+          <div key={s.label} style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 12, padding: '18px 20px' }}>
             <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 6 }}>{s.label}</div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: 34, lineHeight: 1 }}>{s.value}</div>
           </div>
@@ -68,7 +68,7 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       {/* ── Daily views bar chart ── */}
-      <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
         <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Daily card views — last 30 days</div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 120 }}>
           {dailyViews.map(d => (
@@ -91,7 +91,7 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       {/* ── Time of day ── */}
-      <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)' }}>Time of day (UTC) — peak: {peakHour?.label}</div>
           <div style={{ fontSize: 11, color: 'var(--muted)' }}>Hover bar for count</div>
@@ -118,7 +118,7 @@ export default async function AdminAnalyticsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
 
         {/* ── Engagement funnel ── */}
-        <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Engagement funnel</div>
           {funnelRows.map(row => (
             <div key={row.label} style={{ marginBottom: 14 }}>
@@ -136,7 +136,7 @@ export default async function AdminAnalyticsPage() {
         </div>
 
         {/* ── Share channels ── */}
-        <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Share channels</div>
           {shareChannels.length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>No tracked share links yet.</p>
@@ -167,7 +167,7 @@ export default async function AdminAnalyticsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
 
         {/* ── Geographic breakdown ── */}
-        <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Geography (top 20 countries)</div>
           {geoBreakdown.length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>No geo data yet — starts populating once visitors arrive via tracked cards.</p>
@@ -198,7 +198,7 @@ export default async function AdminAnalyticsPage() {
         </div>
 
         {/* ── Industry breakdown ── */}
-        <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Industry breakdown</div>
           {industryBreakdown.length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>No industry data yet — set industries on subscriber cards in the editor.</p>
@@ -225,7 +225,7 @@ export default async function AdminAnalyticsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
 
         {/* ── Device split ── */}
-        <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Device split</div>
           {deviceSplit.length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>No data yet.</p>
@@ -249,7 +249,7 @@ export default async function AdminAnalyticsPage() {
         </div>
 
         {/* ── Top cards ── */}
-        <div style={{ background: 'white', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 14, padding: 24 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Top cards by tracked views</div>
           {topCards.length === 0
             ? <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>No tracked views yet.</p>

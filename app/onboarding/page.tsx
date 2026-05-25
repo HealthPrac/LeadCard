@@ -366,7 +366,7 @@ export default function OnboardingPage() {
                       <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 10 }}>{p.tagline}</div>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                         {p.features.map(f => (
-                          <span key={f} style={{ fontSize: 11, padding: '2px 9px', background: plan === p.id ? '#e8f0ec' : 'var(--cream)', borderRadius: 999, color: 'var(--charcoal)' }}>{f}</span>
+                          <span key={f} style={{ fontSize: 11, padding: '2px 9px', background: plan === p.id ? 'rgba(184,116,62,0.12)' : 'var(--cream-2)', borderRadius: 999, color: 'var(--charcoal)' }}>{f}</span>
                         ))}
                       </div>
                     </div>

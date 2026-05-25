@@ -27,7 +27,7 @@ export default async function AdminTeamPage() {
       </div>
 
       {/* Current admins */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden', marginBottom: 28 }}>
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--line-2)' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)' }}>
             Current admins — {admins.length}
@@ -87,7 +87,7 @@ export default async function AdminTeamPage() {
       </div>
 
       {/* Add admin */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '22px 24px' }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '22px 24px' }}>
         <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 14 }}>
           Add admin
         </p>

@@ -512,8 +512,8 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
               </div>
             )}
             {!leadFormEnabled && !ctaSecondaryUrl && (
-              <div style={{ padding: '12px 16px', background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, fontSize: 13, color: '#854D0E' }}>
-                Set a secondary CTA URL in the <button onClick={() => setTab('cta')} style={{ background: 'none', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 13, color: '#854D0E', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>CTA tab</button> so visitors know where to book.
+              <div style={{ padding: '12px 16px', background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, fontSize: 13, color: 'var(--copper)' }}>
+                Set a secondary CTA URL in the <button onClick={() => setTab('cta')} style={{ background: 'none', border: 'none', padding: 0, fontFamily: 'inherit', fontSize: 13, color: 'var(--copper)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>CTA tab</button> so visitors know where to book.
               </div>
             )}
           </div>

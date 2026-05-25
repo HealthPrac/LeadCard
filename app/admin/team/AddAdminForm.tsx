@@ -30,7 +30,7 @@ export function AddAdminForm() {
           style={{
             flex: 1, minWidth: 220, padding: '10px 14px', border: '1px solid var(--line)',
             borderRadius: 10, fontSize: 13.5, fontFamily: 'inherit',
-            background: 'white', outline: 'none', color: 'var(--charcoal)',
+            background: 'var(--bg-surface)', outline: 'none', color: 'var(--charcoal)',
           }}
         />
         <button

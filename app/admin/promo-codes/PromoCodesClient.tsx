@@ -74,7 +74,7 @@ export default function PromoCodesClient({ codes }: { codes: PromoCodeRow[] }) {
 
       {/* Create form */}
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: 24, marginBottom: 24 }}>
+        <form onSubmit={handleSubmit} style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: 24, marginBottom: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <div>
               <label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Code</label>
@@ -123,11 +123,11 @@ export default function PromoCodesClient({ codes }: { codes: PromoCodeRow[] }) {
 
       {/* Table */}
       {codes.length === 0 ? (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: 48, textAlign: 'center' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: 48, textAlign: 'center' }}>
           <p style={{ fontSize: 14, color: 'var(--muted)' }}>No promo codes yet. Create one above.</p>
         </div>
       ) : (
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>

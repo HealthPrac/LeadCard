@@ -23,14 +23,14 @@ function fmtDate(d: string) {
 export default function SubscribersClient({ subscribers }: { subscribers: SubscriberRow[] }) {
   if (subscribers.length === 0) {
     return (
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: 48, textAlign: 'center' }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: 48, textAlign: 'center' }}>
         <p style={{ fontSize: 14, color: 'var(--muted)' }}>No subscribers yet.</p>
       </div>
     )
   }
 
   return (
-    <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', overflow: 'hidden' }}>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>

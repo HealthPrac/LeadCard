@@ -83,7 +83,7 @@ export function IndustrySelect({ selection, otherText, onSelection, onOther }: {
         onClick={() => setOpen(o => !o)}
         style={{
           width: '100%', padding: '10px 14px', border: '1px solid var(--line)',
-          borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'white',
+          borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'var(--bg-surface)',
           outline: 'none', boxSizing: 'border-box' as const,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           cursor: 'pointer', textAlign: 'left' as const,
@@ -97,7 +97,7 @@ export function IndustrySelect({ selection, otherText, onSelection, onOther }: {
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
-          background: 'white', border: '1px solid var(--line)', borderRadius: 10,
+          background: 'var(--bg-surface)', border: '1px solid var(--line)', borderRadius: 10,
           boxShadow: '0 8px 24px rgba(0,0,0,0.10)', zIndex: 200, overflow: 'hidden',
         }}>
           <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--line-2)' }}>
@@ -141,7 +141,7 @@ export function IndustrySelect({ selection, otherText, onSelection, onOther }: {
             autoFocus
             style={{
               width: '100%', padding: '10px 14px', border: '1px solid var(--line)',
-              borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'white',
+              borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'var(--bg-surface)',
               outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box' as const,
             }}
             value={otherText}

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 interface Props {
   adminEmail: string
@@ -119,6 +120,7 @@ export function AdminSidebar({ adminEmail, cardSlug }: Props) {
             <div style={{ fontSize: 10.5, color: 'rgba(246,247,243,0.4)', marginTop: 1 }}>Administrator</div>
           </div>
         </div>
+        <ThemeToggle />
         <button
           onClick={handleSignOut}
           style={{

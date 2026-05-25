@@ -35,7 +35,7 @@ export default async function LeadsPage() {
           { label: 'Total leads captured', value: intel.total,      note: 'all time' },
           { label: 'This month',           value: intel.thisMonth,  note: new Date().toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' }) },
         ].map(stat => (
-          <div key={stat.label} style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 22px' }}>
+          <div key={stat.label} style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '18px 22px' }}>
             <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--charcoal)', lineHeight: 1 }}>{stat.value.toLocaleString()}</div>
             <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--charcoal)', marginTop: 6 }}>{stat.label}</div>
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{stat.note}</div>
@@ -47,7 +47,7 @@ export default async function LeadsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
 
         {/* By industry */}
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 16 }}>
             Leads by industry
           </p>
@@ -73,7 +73,7 @@ export default async function LeadsPage() {
         </div>
 
         {/* By source */}
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
+        <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 16 }}>
             Leads by source
           </p>
@@ -94,7 +94,7 @@ export default async function LeadsPage() {
       </div>
 
       {/* By country */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 20 }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px', marginBottom: 20 }}>
         <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)', marginBottom: 16 }}>
           Leads by market (subscriber country)
         </p>
@@ -117,7 +117,7 @@ export default async function LeadsPage() {
       </div>
 
       {/* Monthly trend */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
+      <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--sage)' }}>
             Monthly lead trend — last 6 months
