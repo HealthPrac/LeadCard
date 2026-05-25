@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AvantCard — Your Business Card Is an Experience</title>
+  <meta name="description" content="AvantCard is a premium digital business card platform. Combine elegant presentation, intro video, QR access, and measurable lead intelligence in one card." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --coal:        #17171C;
+      --coal-90:     #1f1f26;
+      --coal-80:     #27272f;
+      --copper:      #B8743E;
+      --copper-lt:   #D4975A;
+      --copper-pale: #EDD5B3;
+      --ivory:       #F9F7F3;
+      --linen:       #F2EDE5;
+      --stone:       #C8C1B7;
+      --graphite:    #6D6870;
+      --mist:        #E8E3DB;
+      --serif:       'Cormorant Garamond', Georgia, serif;
+      --sans:        'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--coal);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── UTILITIES ─────────────────────────────────────────────── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+    .serif { font-family: var(--serif); }
+    .copper { color: var(--copper); }
+    .flex { display: flex; }
+    .flex-center { align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-16 { gap: 16px; }
+    .gap-24 { gap: 24px; }
+
+    /* ─── BUTTONS ────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--copper);
+      color: #fff;
+      padding: 12px 28px;
+    }
+    .btn-primary:hover { background: var(--copper-lt); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--coal);
+      padding: 11px 24px;
+      border: 1px solid rgba(23,23,28,0.22);
+    }
+    .btn-ghost:hover { border-color: var(--copper); color: var(--copper); }
+    .btn-ghost-light {
+      background: transparent;
+      color: var(--ivory);
+      padding: 11px 24px;
+      border: 1px solid rgba(249,247,243,0.30);
+    }
+    .btn-ghost-light:hover { border-color: var(--copper-pale); color: var(--copper-pale); }
+    .btn-copper-outline {
+      background: transparent;
+      color: var(--copper);
+      padding: 11px 24px;
+      border: 1px solid var(--copper);
+    }
+    .btn-copper-outline:hover { background: var(--copper); color: #fff; }
+    .btn-lg { font-size: 14px; padding: 16px 36px; letter-spacing: 0.07em; }
+
+    /* ─── NAV ────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(249,247,243,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,193,183,0.35);
+      transition: background 0.3s;
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo-mark {
+      width: 30px;
+      height: 30px;
+    }
+    .nav-logo-text {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--coal);
+    }
+    .nav-logo-text span { color: var(--copper); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 12.5px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--graphite);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--coal); }
+    .nav-ctas {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-login {
+      font-family: var(--sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--graphite);
+      transition: color 0.2s;
+      padding: 8px 4px;
+    }
+    .nav-login:hover { color: var(--coal); }
+    .nav-signup {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #fff;
+      background: var(--coal);
+      padding: 9px 20px;
+      transition: background 0.2s;
+    }
+    .nav-signup:hover { background: var(--copper); }
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--coal);
+      transition: all 0.2s;
+    }
+
+    /* ─── HERO ───────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: var(--coal);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 120px 0 80px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -60px;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(ellipse at center, rgba(184,116,62,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -80px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(ellipse at center, rgba(184,116,62,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-overline {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-overline::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--copper);
+    }
+    .hero-headline {
+      font-family: var(--serif);
+      font-size: clamp(42px, 5vw, 66px);
+      font-weight: 300;
+      line-height: 1.12;
+      letter-spacing: -0.01em;
+      color: var(--ivory);
+      margin-bottom: 28px;
+    }
+    .hero-headline em {
+      font-style: italic;
+      color: var(--copper-lt);
+    }
+    .hero-sub {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: rgba(249,247,243,0.6);
+      margin-bottom: 44px;
+      max-width: 440px;
+    }
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .hero-trust {
+      margin-top: 56px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .trust-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(249,247,243,0.45);
+      letter-spacing: 0.04em;
+    }
+    .trust-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--copper);
+      flex-shrink: 0;
+    }
+
+    /* ─── CARD PHONE MOCKUP ──────────────────────────────────────── */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .phone-frame {
+      width: 260px;
+      border-radius: 36px;
+      background: #111115;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(184,116,62,0.15), inset 0 0 0 8px #1a1a22;
+      overflow: hidden;
+      position: relative;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 6px;
+      background: #111115;
+      border-radius: 3px;
+      z-index: 10;
+    }
+    .card-screen {
+      padding: 0;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-banner {
+      height: 110px;
+      background: linear-gradient(135deg, #2A1810 0%, #1A1210 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .card-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(184,116,62,0.15) 0%, transparent 100%);
+    }
+    .card-banner-initials {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 300;
+      color: var(--copper-pale);
+      letter-spacing: 0.08em;
+      z-index: 1;
+    }
+    .card-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3A2015, #281810);
+      border: 2.5px solid #111115;
+      margin: -34px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--copper-lt);
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .card-identity {
+      padding: 12px 20px 0;
+      text-align: center;
+    }
+    .card-name {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ivory);
+      letter-spacing: 0.02em;
+      margin-bottom: 3px;
+    }
+    .card-title {
+      font-size: 10.5px;
+      color: rgba(249,247,243,0.5);
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .card-company {
+      font-size: 10px;
+      color: var(--copper-lt);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .card-contact {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 0 20px;
+    }
+    .card-contact-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10px;
+      color: rgba(249,247,243,0.55);
+    }
+    .contact-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+    .card-video-module {
+      margin: 14px 16px 0;
+      background: #1e1e28;
+      border-radius: 8px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .video-play {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--copper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .video-play svg { margin-left: 2px; }
+    .video-label {
+      font-size: 10px;
+      color: rgba(249,247,243,0.5);
+      letter-spacing: 0.04em;
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px 20px;
+    }
+    .card-action-btn {
+      flex: 1;
+      padding: 8px 6px;
+      background: rgba(184,116,62,0.12);
+      border: 1px solid rgba(184,116,62,0.2);
+      border-radius: 4px;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--copper-lt);
+      text-align: center;
+    }
+    .phone-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(ellipse, rgba(184,116,62,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ─── SECTION BASE ───────────────────────────────────────────── */
+    section { padding: 110px 0; }
+    .section-overline {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-overline::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--copper);
+    }
+    .section-headline {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 300;
+      line-height: 1.18;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+    }
+    .section-headline em { font-style: italic; color: var(--copper); }
+    .section-sub {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--graphite);
+      max-width: 500px;
+    }
+
+    /* ─── CARD EXPERIENCE SECTION ────────────────────────────────── */
+    #experience {
+      background: var(--linen);
+      position: relative;
+      overflow: hidden;
+    }
+    #experience::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(184,116,62,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .experience-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 36px;
+    }
+    .feature-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(184,116,62,0.25);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--copper);
+    }
+    .feature-text h4 {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 3px;
+      color: var(--coal);
+    }
+    .feature-text p {
+      font-size: 13px;
+      color: var(--graphite);
+      line-height: 1.6;
+    }
+
+    /* ─── CARD PREVIEW (LIGHT VERSION) ──────────────────────────── */
+    .card-preview-light {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(23,23,28,0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
+      overflow: hidden;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .cpl-banner {
+      height: 90px;
+      background: linear-gradient(135deg, var(--coal) 0%, var(--coal-80) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cpl-banner-text {
+      font-family: var(--serif);
+      font-size: 20px;
+      letter-spacing: 0.12em;
+      color: var(--copper-pale);
+      font-weight: 300;
+    }
+    .cpl-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--coal);
+      margin: -30px auto 0;
+      border: 3px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 20px;
+      color: var(--copper-lt);
+    }
+    .cpl-body { padding: 14px 24px 20px; text-align: center; }
+    .cpl-name {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--coal);
+      margin-bottom: 2px;
+    }
+    .cpl-title { font-size: 11px; color: var(--graphite); margin-bottom: 1px; }
+    .cpl-company { font-size: 10.5px; color: var(--copper); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 14px; }
+    .cpl-divider { height: 1px; background: var(--mist); margin: 12px 0; }
+    .cpl-contact-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--graphite);
+      padding: 5px 0;
+    }
+    .cpl-contact-row svg { flex-shrink: 0; color: var(--copper); }
+    .cpl-video {
+      margin: 8px 0;
+      background: var(--linen);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cpl-play {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--copper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cpl-video-label { font-size: 11px; color: var(--graphite); }
+    .cpl-qr-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+      padding: 10px 14px;
+      background: var(--linen);
+      border-radius: 8px;
+    }
+    .qr-mini {
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid var(--stone);
+      border-radius: 4px;
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      grid-template-rows: repeat(4,1fr);
+      gap: 2px;
+      padding: 4px;
+    }
+    .qr-dot { background: var(--coal); border-radius: 1px; }
+    .qr-dot.empty { background: transparent; }
+    .qr-label { font-size: 11px; color: var(--graphite); }
+    .cpl-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .cpl-action {
+      flex: 1;
+      padding: 8px 4px;
+      background: var(--coal);
+      border-radius: 4px;
+      font-size: 9.5px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #fff;
+      text-align: center;
+      font-weight: 500;
+    }
+    .cpl-action.secondary {
+      background: transparent;
+      border: 1px solid rgba(23,23,28,0.2);
+      color: var(--coal);
+    }
+
+    /* ─── PERSONALISATION SECTION ────────────────────────────────── */
+    #personalisation { background: var(--ivory); }
+    .personalisation-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .theme-swatch {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(23,23,28,0.08);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .theme-swatch:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(23,23,28,0.14); }
+    .swatch-top {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 13px;
+      letter-spacing: 0.06em;
+    }
+    .swatch-bottom { height: 28px; }
+    .swatch-label {
+      padding: 6px 10px;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--graphite);
+      background: #fff;
+      text-align: center;
+    }
+    .theme-a .swatch-top { background: #17171C; color: #D4975A; }
+    .theme-a .swatch-bottom { background: #1f1f26; }
+    .theme-b .swatch-top { background: #1A2234; color: #8BAACD; }
+    .theme-b .swatch-bottom { background: #141929; }
+    .theme-c .swatch-top { background: #1C1A10; color: #C8A461; }
+    .theme-c .swatch-bottom { background: #141200; }
+    .theme-d .swatch-top { background: #F9F7F3; color: #B8743E; border-bottom: 1px solid #E8E3DB; }
+    .theme-d .swatch-bottom { background: #F2EDE5; }
+    .theme-e .swatch-top { background: #14261C; color: #7AAF8A; }
+    .theme-e .swatch-bottom { background: #0F1E14; }
+    .theme-f .swatch-top { background: #231520; color: #C88BAE; }
+    .theme-f .swatch-bottom { background: #180E1A; }
+
+    /* ─── LEAD INTELLIGENCE SECTION ─────────────────────────────── */
+    #intelligence {
+      background: var(--coal);
+      color: var(--ivory);
+      position: relative;
+      overflow: hidden;
+    }
+    #intelligence::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(184,116,62,0.4), transparent);
+    }
+    .intelligence-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .intelligence-inner .section-sub { color: rgba(249,247,243,0.55); }
+    .metric-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .metric-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .metric-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--copper);
+      flex-shrink: 0;
+    }
+    .metric-item span {
+      font-size: 14px;
+      color: rgba(249,247,243,0.7);
+    }
+
+    /* ─── DASHBOARD MOCKUP ───────────────────────────────────────── */
+    .dashboard-mockup {
+      background: #1A1A22;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .dash-titlebar {
+      background: #141418;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dash-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dash-dot.red { background: #FF5F57; }
+    .dash-dot.yellow { background: #FFBD2E; }
+    .dash-dot.green { background: #28C840; }
+    .dash-title {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.06em;
+      margin-left: 8px;
+      flex: 1;
+      text-align: center;
+    }
+    .dash-body { padding: 20px; }
+    .dash-headline {
+      font-family: var(--serif);
+      font-size: 13px;
+      color: rgba(249,247,243,0.5);
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+    .dash-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .dash-kpi {
+      background: #21212C;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .dash-kpi-num {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--ivory);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .dash-kpi-label {
+      font-size: 8.5px;
+      color: rgba(249,247,243,0.35);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .dash-kpi-delta {
+      font-size: 9px;
+      color: var(--copper-lt);
+      margin-top: 3px;
+    }
+    .dash-chart-area {
+      background: #21212C;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .dash-chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .dash-chart-title { font-size: 11px; color: rgba(249,247,243,0.5); letter-spacing: 0.04em; }
+    .dash-chart-badge {
+      font-size: 9px;
+      color: var(--copper);
+      background: rgba(184,116,62,0.12);
+      border: 1px solid rgba(184,116,62,0.2);
+      border-radius: 20px;
+      padding: 2px 8px;
+    }
+    .dash-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 50px;
+    }
+    .dash-bar {
+      flex: 1;
+      background: rgba(184,116,62,0.25);
+      border-radius: 2px 2px 0 0;
+      transition: background 0.2s;
+    }
+    .dash-bar.active { background: var(--copper); }
+    .dash-bar:hover { background: var(--copper-lt); }
+    .dash-lead-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .dash-lead-row:last-child { border-bottom: none; }
+    .dash-lead-name { font-size: 11px; color: rgba(249,247,243,0.7); }
+    .dash-lead-source { font-size: 9.5px; color: rgba(249,247,243,0.3); }
+    .dash-lead-status {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      letter-spacing: 0.04em;
+    }
+    .status-new { background: rgba(184,116,62,0.15); color: var(--copper-lt); }
+    .status-open { background: rgba(139,170,205,0.15); color: #8BAACD; }
+    .status-closed { background: rgba(120,204,120,0.12); color: #78CC78; }
+
+    /* ─── HOW IT WORKS ───────────────────────────────────────────── */
+    #how { background: var(--linen); }
+    .how-inner { text-align: center; }
+    .how-inner .section-overline { justify-content: center; }
+    .how-inner .section-overline::before { display: none; }
+    .how-headline { text-align: center; margin: 0 auto 16px; }
+    .how-sub { text-align: center; margin: 0 auto 64px; }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(16.6% + 20px);
+      right: calc(16.6% + 20px);
+      height: 1px;
+      background: linear-gradient(90deg, var(--copper), transparent 50%, var(--copper));
+      opacity: 0.3;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .step-num {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid rgba(184,116,62,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--copper);
+      margin-bottom: 24px;
+      background: var(--ivory);
+      position: relative;
+      z-index: 1;
+    }
+    .step-title {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--coal);
+      margin-bottom: 10px;
+    }
+    .step-body {
+      font-size: 14px;
+      color: var(--graphite);
+      line-height: 1.7;
+    }
+
+    /* ─── WHY AVANTCARD ──────────────────────────────────────────── */
+    #why { background: var(--ivory); }
+    .why-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .why-card {
+      padding: 28px 24px;
+      background: var(--linen);
+      border-radius: 2px;
+      border-top: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .why-card:hover { border-color: var(--copper); }
+    .why-card-num {
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 300;
+      color: rgba(184,116,62,0.25);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .why-card-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--coal);
+      margin-bottom: 8px;
+    }
+    .why-card-body { font-size: 13px; color: var(--graphite); line-height: 1.65; }
+
+    /* ─── FINAL CTA ──────────────────────────────────────────────── */
+    #cta {
+      background: var(--coal);
+      padding: 130px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(184,116,62,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #cta::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(184,116,62,0.35), transparent);
+    }
+    .cta-overline { justify-content: center; }
+    .cta-overline::before { display: none; }
+    .cta-headline {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 300;
+      line-height: 1.18;
+      color: var(--ivory);
+      max-width: 640px;
+      margin: 0 auto 20px;
+    }
+    .cta-headline em { font-style: italic; color: var(--copper-lt); }
+    .cta-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(249,247,243,0.55);
+      margin: 0 auto 44px;
+      max-width: 460px;
+      line-height: 1.75;
+    }
+    .cta-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────── */
+    footer {
+      background: #111115;
+      padding: 64px 0 32px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 32px;
+    }
+    .footer-brand { }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      text-decoration: none;
+    }
+    .footer-logo-text {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 400;
+      color: rgba(249,247,243,0.8);
+      letter-spacing: 0.04em;
+    }
+    .footer-logo-text span { color: var(--copper); }
+    .footer-tagline {
+      font-size: 13px;
+      color: rgba(249,247,243,0.35);
+      line-height: 1.7;
+      max-width: 240px;
+    }
+    .footer-col-title {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(249,247,243,0.45);
+      margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+      font-size: 13px;
+      color: rgba(249,247,243,0.45);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: rgba(249,247,243,0.8); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-legal {
+      font-size: 11.5px;
+      color: rgba(249,247,243,0.25);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-legal a {
+      color: rgba(249,247,243,0.25);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(249,247,243,0.5); }
+    .footer-powered {
+      font-size: 11px;
+      color: rgba(249,247,243,0.2);
+      letter-spacing: 0.04em;
+    }
+    .footer-powered span { color: rgba(184,116,62,0.5); }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .hero-inner,
+      .experience-inner,
+      .personalisation-inner,
+      .intelligence-inner,
+      .why-inner { grid-template-columns: 1fr; gap: 48px; }
+      .steps { grid-template-columns: 1fr; gap: 40px; }
+      .steps::before { display: none; }
+      .dash-kpi-row { grid-template-columns: repeat(2,1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .hero-visual { order: -1; }
+      .why-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 20px; }
+      section { padding: 72px 0; }
+      .hero { padding: 100px 0 60px; }
+      .hero-ctas { flex-direction: column; align-items: flex-start; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .phone-frame { width: 220px; }
+    }
+
+    /* ─── ANIMATIONS ─────────────────────────────────────────────── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fade-up 0.7s ease both; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.22s; }
+    .delay-3 { animation-delay: 0.36s; }
+    .delay-4 { animation-delay: 0.5s; }
+
+    /* ─── MOBILE NAV OVERLAY ─────────────────────────────────────── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--ivory);
+      z-index: 99;
+      padding: 80px 32px 40px;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--coal);
+      text-decoration: none;
+      border-bottom: 1px solid var(--mist);
+      padding-bottom: 24px;
+    }
+    .mobile-nav-ctas {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .mobile-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: var(--coal);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─────────────────────────────────────────── -->
+  <nav id="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          <svg class="nav-logo-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="8" fill="#17171C"/>
+            <path d="M20 8 L28 24 H12 Z" fill="none" stroke="#B8743E" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M14 24 L26 24" stroke="#B8743E" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.6"/>
+          </svg>
+          <span class="nav-logo-text">Avant<span>Card</span></span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#experience">Product</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#intelligence">Insights</a></li>
+          <li><a href="#cta">Pricing</a></li>
+          <li><a href="#cta">Contact</a></li>
+        </ul>
+        <div class="nav-ctas">
+          <a class="nav-login" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-in">Log In</a>
+          <a class="nav-signup" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">Sign Up</a>
+          <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── MOBILE NAV ────────────────────────────────────── -->
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">&#x2715;</button>
+    <a href="#experience" onclick="closeMobileNav()">Product</a>
+    <a href="#experience" onclick="closeMobileNav()">Experience</a>
+    <a href="#intelligence" onclick="closeMobileNav()">Insights</a>
+    <a href="#cta" onclick="closeMobileNav()">Pricing</a>
+    <a href="#cta" onclick="closeMobileNav()">Contact</a>
+    <div class="mobile-nav-ctas">
+      <a class="btn btn-ghost" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-in" style="justify-content:center;">Log In</a>
+      <a class="btn btn-primary" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up" style="justify-content:center;">Sign Up Free</a>
+    </div>
+  </div>
+
+  <!-- ─── HERO ──────────────────────────────────────────── -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <p class="hero-overline fade-up">Premium Digital Identity</p>
+          <h1 class="hero-headline fade-up delay-1">
+            Your business card<br>is <em>an experience.</em>
+          </h1>
+          <p class="hero-sub fade-up delay-2">
+            AvantCard blends premium digital identity, rich media, QR access,
+            and lead intelligence into one elegant card layer — built for
+            professionals who leave a lasting impression.
+          </p>
+          <div class="hero-ctas fade-up delay-3">
+            <a class="btn btn-primary btn-lg" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">
+              Create Your Card
+            </a>
+            <a class="btn btn-ghost-light btn-lg" href="#experience">
+              See How It Works
+            </a>
+          </div>
+          <div class="hero-trust fade-up delay-4">
+            <div class="trust-pill">
+              <span class="trust-dot"></span>
+              Premium presentation
+            </div>
+            <div class="trust-pill">
+              <span class="trust-dot"></span>
+              Intro video &amp; QR
+            </div>
+            <div class="trust-pill">
+              <span class="trust-dot"></span>
+              Lead intelligence
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone mockup -->
+        <div class="hero-visual fade-up delay-2">
+          <div class="phone-glow"></div>
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="card-screen">
+              <div class="card-banner">
+                <span class="card-banner-initials">AVANT CARD</span>
+              </div>
+              <div class="card-avatar">A</div>
+              <div class="card-identity">
+                <div class="card-name">Alexandra Voss</div>
+                <div class="card-title">Principal Strategist</div>
+                <div class="card-company">Meridian Advisory</div>
+              </div>
+              <div class="card-contact">
+                <div class="card-contact-row">
+                  <svg class="contact-icon" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 4h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2"/>
+                    <path d="M2 5l6 4.5L14 5" stroke="currentColor" stroke-width="1.2"/>
+                  </svg>
+                  a.voss@meridian.co
+                </div>
+                <div class="card-contact-row">
+                  <svg class="contact-icon" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 2h2l1 3-1.5 1.5a10 10 0 0 0 3 3L10 8l3 1v2a1 1 0 0 1-1 1A11 11 0 0 1 3 3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.2"/>
+                  </svg>
+                  +27 82 450 9210
+                </div>
+              </div>
+              <div class="card-video-module">
+                <div class="video-play">
+                  <svg width="10" height="11" viewBox="0 0 10 11" fill="none">
+                    <path d="M2 2l7 3.5L2 9V2z" fill="white"/>
+                  </svg>
+                </div>
+                <div class="video-label">Watch Introduction</div>
+              </div>
+              <div class="card-actions">
+                <div class="card-action-btn">Save Contact</div>
+                <div class="card-action-btn">Connect</div>
+                <div class="card-action-btn">Website</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CARD EXPERIENCE ───────────────────────────────── -->
+  <section id="experience">
+    <div class="container">
+      <div class="experience-inner">
+        <div>
+          <p class="section-overline">The Card Experience</p>
+          <h2 class="section-headline">Every detail,<br><em>crafted to impress.</em></h2>
+          <p class="section-sub">
+            AvantCard is not a contact file — it is a curated digital identity.
+            Profile, video, QR, and action layer, delivered in a single premium card experience
+            your contacts remember.
+          </p>
+          <ul class="feature-list">
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>Profile Identity</h4>
+                <p>Name, title, company, photo, and contact details — all in one elegant surface.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 3h12v10H2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                  <path d="M6 6l5 2.5L6 11V6z" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>Intro Video Module</h4>
+                <p>Embed a short video introduction. Move from cold contact to warm connection immediately.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/>
+                  <rect x="9" y="2" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/>
+                  <rect x="2" y="9" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/>
+                  <rect x="10" y="10" width="3" height="3" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>QR Code Access</h4>
+                <p>Instant card sharing via a unique QR code. No app download required for your contacts.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v10M4 8l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 13h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>Save &amp; Connect Actions</h4>
+                <p>One-tap contact save, LinkedIn connect, website visit, and lead form — all in reach.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Light card preview -->
+        <div>
+          <div class="card-preview-light">
+            <div class="cpl-banner">
+              <span class="cpl-banner-text">MERIDIAN</span>
+            </div>
+            <div class="cpl-avatar">A</div>
+            <div class="cpl-body">
+              <div class="cpl-name">Alexandra Voss</div>
+              <div class="cpl-title">Principal Strategist</div>
+              <div class="cpl-company">Meridian Advisory</div>
+              <div class="cpl-divider"></div>
+              <div class="cpl-contact-row">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 4h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" stroke="#B8743E" stroke-width="1.3"/>
+                  <path d="M2 5l6 4.5L14 5" stroke="#B8743E" stroke-width="1.3"/>
+                </svg>
+                a.voss@meridian.co
+              </div>
+              <div class="cpl-contact-row">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 2h2l1 3-1.5 1.5a10 10 0 0 0 3 3L10 8l3 1v2a1 1 0 0 1-1 1A11 11 0 0 1 3 3a1 1 0 0 1 1-1z" stroke="#B8743E" stroke-width="1.3"/>
+                </svg>
+                +27 82 450 9210
+              </div>
+              <div class="cpl-divider"></div>
+              <div class="cpl-video">
+                <div class="cpl-play">
+                  <svg width="9" height="10" viewBox="0 0 10 11" fill="none">
+                    <path d="M2 2l7 3.5L2 9V2z" fill="white"/>
+                  </svg>
+                </div>
+                <span class="cpl-video-label">Watch Introduction · 0:45</span>
+              </div>
+              <div class="cpl-qr-row">
+                <div class="qr-mini">
+                  <div class="qr-dot"></div><div class="qr-dot"></div><div class="qr-dot empty"></div><div class="qr-dot"></div>
+                  <div class="qr-dot empty"></div><div class="qr-dot"></div><div class="qr-dot"></div><div class="qr-dot empty"></div>
+                  <div class="qr-dot"></div><div class="qr-dot empty"></div><div class="qr-dot"></div><div class="qr-dot"></div>
+                  <div class="qr-dot"></div><div class="qr-dot"></div><div class="qr-dot empty"></div><div class="qr-dot"></div>
+                </div>
+                <span class="qr-label">Scan to share this card</span>
+              </div>
+              <div class="cpl-actions">
+                <div class="cpl-action">Save Contact</div>
+                <div class="cpl-action secondary">Visit Website</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PERSONALISATION ───────────────────────────────── -->
+  <section id="personalisation">
+    <div class="container">
+      <div class="personalisation-inner">
+        <div>
+          <div class="theme-grid">
+            <div class="theme-swatch theme-a">
+              <div class="swatch-top">AV</div>
+              <div class="swatch-bottom"></div>
+              <div class="swatch-label">Midnight</div>
+            </div>
+            <div class="theme-swatch theme-b">
+              <div class="swatch-top">AV</div>
+              <div class="swatch-bottom"></div>
+              <div class="swatch-label">Sapphire</div>
+            </div>
+            <div class="theme-swatch theme-c">
+              <div class="swatch-top">AV</div>
+              <div class="swatch-bottom"></div>
+              <div class="swatch-label">Cognac</div>
+            </div>
+            <div class="theme-swatch theme-d">
+              <div class="swatch-top">AV</div>
+              <div class="swatch-bottom"></div>
+              <div class="swatch-label">Ivory</div>
+            </div>
+            <div class="theme-swatch theme-e">
+              <div class="swatch-top">AV</div>
+              <div class="swatch-bottom"></div>
+              <div class="swatch-label">Forest</div>
+            </div>
+            <div class="theme-swatch theme-f">
+              <div class="swatch-top">AV</div>
+              <div class="swatch-bottom"></div>
+              <div class="swatch-label">Dusk</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="section-overline">Design Control</p>
+          <h2 class="section-headline">Your card.<br><em>Your identity.</em></h2>
+          <p class="section-sub">
+            Every AvantCard is a direct expression of who you are. Choose from curated
+            colour palettes, refined font pairings, and layout styles. Or go fully custom
+            with your brand colours and logo — for individuals, teams, and enterprise.
+          </p>
+          <ul class="feature-list" style="margin-top:28px;">
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M5 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>Curated Palettes</h4>
+                <p>6 premium themes. Custom hex override for exact brand matching.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 12V4l3 4 2-4 2 4 3-4v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>Font Pairings</h4>
+                <p>Serif display meets modern sans. Hierarchy by design.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="4" width="5" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/>
+                  <rect x="9" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/>
+                  <rect x="9" y="10" width="5" height="2" rx="0.5" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+              </div>
+              <div class="feature-text">
+                <h4>Team Branding</h4>
+                <p>One brand. Multiple cards. Consistent identity across every team member.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LEAD INTELLIGENCE ─────────────────────────────── -->
+  <section id="intelligence">
+    <div class="container">
+      <div class="intelligence-inner">
+        <div>
+          <p class="section-overline">Lead Intelligence</p>
+          <h2 class="section-headline" style="color:var(--ivory);">Not just shared.<br><em>Measured.</em></h2>
+          <p class="section-sub">
+            Track views, scans, saves, and follow-up opportunities from every card interaction.
+            AvantCard's intelligence layer turns each introduction into a measurable lead signal.
+          </p>
+          <ul class="metric-list">
+            <li class="metric-item"><span class="metric-dot"></span><span>Card opens and repeat views</span></li>
+            <li class="metric-item"><span class="metric-dot"></span><span>QR scans with source attribution</span></li>
+            <li class="metric-item"><span class="metric-dot"></span><span>Contact saves and link clicks</span></li>
+            <li class="metric-item"><span class="metric-dot"></span><span>Lead capture from form submissions</span></li>
+            <li class="metric-item"><span class="metric-dot"></span><span>Follow-up status and pipeline visibility</span></li>
+          </ul>
+          <div style="margin-top:36px; display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn btn-primary" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">Start Tracking</a>
+            <a class="btn btn-ghost-light" href="#how">See How It Works</a>
+          </div>
+        </div>
+
+        <!-- Dashboard mockup -->
+        <div>
+          <div class="dashboard-mockup">
+            <div class="dash-titlebar">
+              <div class="dash-dot red"></div>
+              <div class="dash-dot yellow"></div>
+              <div class="dash-dot green"></div>
+              <div class="dash-title">avantcard.app — Dashboard</div>
+            </div>
+            <div class="dash-body">
+              <div class="dash-headline">Alexandra Voss · 30 days</div>
+              <div class="dash-kpi-row">
+                <div class="dash-kpi">
+                  <div class="dash-kpi-num">248</div>
+                  <div class="dash-kpi-label">Card Opens</div>
+                  <div class="dash-kpi-delta">↑ 18%</div>
+                </div>
+                <div class="dash-kpi">
+                  <div class="dash-kpi-num">94</div>
+                  <div class="dash-kpi-label">QR Scans</div>
+                  <div class="dash-kpi-delta">↑ 32%</div>
+                </div>
+                <div class="dash-kpi">
+                  <div class="dash-kpi-num">31</div>
+                  <div class="dash-kpi-label">Saves</div>
+                  <div class="dash-kpi-delta">↑ 9%</div>
+                </div>
+                <div class="dash-kpi">
+                  <div class="dash-kpi-num">12</div>
+                  <div class="dash-kpi-label">Leads</div>
+                  <div class="dash-kpi-delta">↑ 50%</div>
+                </div>
+              </div>
+              <div class="dash-chart-area">
+                <div class="dash-chart-header">
+                  <span class="dash-chart-title">Card Views — last 14 days</span>
+                  <span class="dash-chart-badge">↑ Trending</span>
+                </div>
+                <div class="dash-bars">
+                  <div class="dash-bar" style="height:30%"></div>
+                  <div class="dash-bar" style="height:45%"></div>
+                  <div class="dash-bar" style="height:38%"></div>
+                  <div class="dash-bar" style="height:55%"></div>
+                  <div class="dash-bar" style="height:42%"></div>
+                  <div class="dash-bar" style="height:70%"></div>
+                  <div class="dash-bar" style="height:58%"></div>
+                  <div class="dash-bar" style="height:80%"></div>
+                  <div class="dash-bar" style="height:65%"></div>
+                  <div class="dash-bar active" style="height:90%"></div>
+                  <div class="dash-bar" style="height:75%"></div>
+                  <div class="dash-bar" style="height:88%"></div>
+                  <div class="dash-bar" style="height:78%"></div>
+                  <div class="dash-bar active" style="height:100%"></div>
+                </div>
+              </div>
+              <div class="dash-headline">Recent Leads</div>
+              <div class="dash-lead-row">
+                <div>
+                  <div class="dash-lead-name">James Hartley</div>
+                  <div class="dash-lead-source">QR scan · Cape Town</div>
+                </div>
+                <div class="dash-lead-status status-new">New</div>
+              </div>
+              <div class="dash-lead-row">
+                <div>
+                  <div class="dash-lead-name">Priya Naidoo</div>
+                  <div class="dash-lead-source">Form submit · Johannesburg</div>
+                </div>
+                <div class="dash-lead-status status-open">In Progress</div>
+              </div>
+              <div class="dash-lead-row">
+                <div>
+                  <div class="dash-lead-name">Marcus de Villiers</div>
+                  <div class="dash-lead-source">Email signature</div>
+                </div>
+                <div class="dash-lead-status status-closed">Closed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ──────────────────────────────────── -->
+  <section id="how">
+    <div class="container">
+      <div class="how-inner">
+        <p class="section-overline" style="justify-content:center;">
+          <span style="width:24px;height:1px;background:var(--copper);display:inline-block;margin-right:10px;"></span>
+          Simple by Design
+        </p>
+        <h2 class="section-headline how-headline">How it works</h2>
+        <p class="section-sub how-sub">
+          From setup to first lead, AvantCard is designed for professionals —
+          not developers. Three steps, no friction.
+        </p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <h3 class="step-title">Design your card</h3>
+            <p class="step-body">
+              Choose your theme, upload your photo, add your video, and craft
+              your identity in minutes using our premium card editor.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <h3 class="step-title">Share your experience</h3>
+            <p class="step-body">
+              Share via QR code, link, email signature, or NFC. Your card
+              is a living experience — not a static file that goes out of date.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <h3 class="step-title">Track every lead</h3>
+            <p class="step-body">
+              Monitor views, scans, saves, and form submissions from your
+              private dashboard. Follow up with the right people at the right time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WHY AVANTCARD ─────────────────────────────────── -->
+  <section id="why">
+    <div class="container">
+      <div class="why-inner">
+        <div>
+          <p class="section-overline">Why AvantCard</p>
+          <h2 class="section-headline">A card that works<br><em>as hard as you do.</em></h2>
+          <p class="section-sub">
+            Built for founders, executives, sales leaders, and personal brands who
+            understand that first impressions are not just moments — they are
+            measurable opportunities.
+          </p>
+          <div style="margin-top:36px;">
+            <a class="btn btn-primary" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">Create Your AvantCard</a>
+          </div>
+        </div>
+        <div class="why-grid">
+          <div class="why-card">
+            <div class="why-card-num">01</div>
+            <div class="why-card-title">Stronger brand presence</div>
+            <p class="why-card-body">Every interaction reflects your brand — not a generic app template.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-card-num">02</div>
+            <div class="why-card-title">Richer first interactions</div>
+            <p class="why-card-body">Video, design, and context transform a contact exchange into a conversation.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-card-num">03</div>
+            <div class="why-card-title">Measurable engagement</div>
+            <p class="why-card-body">Know exactly who viewed your card, when, and how they found you.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-card-num">04</div>
+            <div class="why-card-title">Better follow-up clarity</div>
+            <p class="why-card-body">Track leads from introduction to outcome. No more lost connections.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─────────────────────────────────────── -->
+  <section id="cta">
+    <div class="container">
+      <p class="section-overline cta-overline">Get Started</p>
+      <h2 class="cta-headline">
+        Turn every introduction into a<br><em>trackable opportunity.</em>
+      </h2>
+      <p class="cta-sub">
+        Your next client, partner, or opportunity is one introduction away.
+        Make it memorable. Make it measurable.
+      </p>
+      <div class="cta-buttons">
+        <a class="btn btn-primary btn-lg" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">
+          Create Your Card — Free
+        </a>
+        <a class="btn btn-ghost-light btn-lg" href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-in">
+          Log In
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────── -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="footer-logo">
+            <svg width="26" height="26" viewBox="0 0 40 40" fill="none">
+              <rect width="40" height="40" rx="8" fill="#27272f"/>
+              <path d="M20 8 L28 24 H12 Z" fill="none" stroke="#B8743E" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M14 24 L26 24" stroke="#B8743E" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.6"/>
+            </svg>
+            <span class="footer-logo-text">Avant<span>Card</span></span>
+          </a>
+          <p class="footer-tagline">
+            Premium digital identity, rich media, and lead intelligence — in one elegant card layer.
+          </p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="#experience">Card Experience</a></li>
+            <li><a href="#personalisation">Design Control</a></li>
+            <li><a href="#intelligence">Lead Intelligence</a></li>
+            <li><a href="#how">How It Works</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Account</div>
+          <ul class="footer-links">
+            <li><a href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">Create a Card</a></li>
+            <li><a href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-in">Log In</a></li>
+            <li><a href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">Pricing</a></li>
+            <li><a href="https://main.d2idx6kv8dvjyf.amplifyapp.com/sign-up">For Teams</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">POPIA Compliance</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal">
+          <span>&copy; 2026 AvantCard. All Rights Reserved.</span>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">POPIA</a>
+        </div>
+        <div class="footer-powered">Powered by <span>Tech-Tok</span></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─── JS ───────────────────────────────────────────── -->
+  <script>
+    // Mobile nav
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobileNav');
+    const mobileClose = document.getElementById('mobileClose');
+
+    hamburger.addEventListener('click', () => { mobileNav.classList.add('open'); document.body.style.overflow = 'hidden'; });
+    mobileClose.addEventListener('click', closeMobileNav);
+
+    function closeMobileNav() {
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Nav scroll opacity
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 20 ? '0 1px 24px rgba(23,23,28,0.06)' : 'none';
+    });
+
+    // Intersection observer for fade-up on sections
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.why-card, .step, .feature-item, .theme-swatch').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      io.observe(el);
+    });
+
+    // Stagger theme swatches
+    document.querySelectorAll('.theme-swatch').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 0.06}s`;
+    });
+    document.querySelectorAll('.why-card').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 0.08}s`;
+    });
+    document.querySelectorAll('.step').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 0.12}s`;
+    });
+  </script>
+
+</body>
+</html>

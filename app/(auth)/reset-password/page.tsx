@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
   if (done) {
     return (
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 40, marginBottom: 16, color: '#8FAF9D' }}>✓</div>
+        <div style={{ fontSize: 40, marginBottom: 16, color: 'var(--copper)' }}>✓</div>
         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, margin: '0 0 8px' }}>Password updated</h2>
         <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>Taking you to your dashboard…</p>
       </div>
@@ -102,6 +102,6 @@ export default function ResetPasswordPage() {
   )
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 6 }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }
-const btnStyle: React.CSSProperties = { padding: '11px 0', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 500, letterSpacing: '0.03em', marginBottom: 7 }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 14px', borderRadius: 4, border: '1px solid var(--line)', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }
+const btnStyle: React.CSSProperties = { padding: '13px 0', background: 'var(--copper)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }

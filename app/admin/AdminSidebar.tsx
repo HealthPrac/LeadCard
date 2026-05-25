@@ -30,7 +30,7 @@ export function AdminSidebar({ adminEmail }: Props) {
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '9px 12px', borderRadius: 8,
           fontSize: 13.5, fontWeight: active ? 600 : 400,
-          background: active ? 'rgba(143,175,157,0.18)' : 'transparent',
+          background: active ? 'rgba(184,116,62,0.14)' : 'transparent',
           color: active ? '#F6F7F3' : 'rgba(246,247,243,0.55)',
           textDecoration: 'none', transition: '120ms',
         }}
@@ -59,7 +59,7 @@ export function AdminSidebar({ adminEmail }: Props) {
         <span style={{
           display: 'inline-block', fontSize: 9.5, fontWeight: 700,
           letterSpacing: '0.1em', textTransform: 'uppercase',
-          background: '#8FAF9D', color: '#17181C',
+          background: 'rgba(184,116,62,0.85)', color: '#fff',
           padding: '2px 8px', borderRadius: 4,
         }}>
           Admin Console
@@ -92,7 +92,7 @@ export function AdminSidebar({ adminEmail }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 12px', marginBottom: 4 }}>
           <div style={{
             width: 30, height: 30, borderRadius: '50%',
-            background: '#8FAF9D', color: '#17181C',
+            background: '#B8743E', color: '#17181C',
             display: 'grid', placeItems: 'center',
             fontSize: 13, fontWeight: 700, flexShrink: 0,
           }}>

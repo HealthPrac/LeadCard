@@ -41,7 +41,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         displayName={primaryCard?.display_name ?? null}
         logoUrl={logoUrl}
       />
-      <main style={{ minWidth: 0, padding: '36px 40px', overflowY: 'auto' }}>
+      <main style={{ minWidth: 0, padding: '40px 48px', overflowY: 'auto' }}>
         {children}
       </main>
     </div>

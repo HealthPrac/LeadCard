@@ -41,9 +41,9 @@ function ForgotPasswordForm() {
       <div>
         <label style={{ fontSize: 12.5, fontWeight: 500, display: 'block', marginBottom: 6 }}>Email</label>
         <input value={email} onChange={e => setEmail(e.target.value)} type="email" required autoFocus
-          style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+          style={{ width: '100%', padding: '12px 14px', borderRadius: 4, border: '1px solid var(--line)', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
       </div>
-      <button type="submit" style={{ padding: '11px 0', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+      <button type="submit" style={{ padding: '13px 0', background: 'var(--copper)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>
         Send reset link
       </button>
       <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>

@@ -84,6 +84,6 @@ export default function SignInPage() {
   )
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 6 }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '11px 14px', border: '1px solid var(--line)', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: 'white', outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box' }
-const btnPrimaryStyle: React.CSSProperties = { width: '100%', padding: '13px 20px', background: 'var(--charcoal)', color: 'var(--cream)', borderRadius: 10, fontSize: 15, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer', border: 'none', marginTop: 4 }
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 500, letterSpacing: '0.03em', marginBottom: 7 }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 14px', border: '1px solid var(--line)', borderRadius: 4, fontSize: 14, fontFamily: 'inherit', background: 'white', outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box' }
+const btnPrimaryStyle: React.CSSProperties = { width: '100%', padding: '14px 20px', background: 'var(--copper)', color: '#fff', borderRadius: 4, fontSize: 13, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'inherit', cursor: 'pointer', border: 'none', marginTop: 6 }

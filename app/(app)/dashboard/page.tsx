@@ -164,14 +164,14 @@ export default async function DashboardPage() {
                       const pct = totalLeads > 0 ? Math.round((leads / totalLeads) * 100) : 0
                       return (
                         <div key={c.id} style={{ padding: '11px 20px', borderTop: idx === 0 ? 'none' : '1px solid var(--line-2)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--sage-tint)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 600, flexShrink: 0 }}>{initials}</div>
+                          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--copper-pale)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 600, flexShrink: 0 }}>{initials}</div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{name}</div>
                             {c.title && <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>{c.title as string}</div>}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                             <div style={{ width: 56, height: 4, background: 'var(--cream-2)', borderRadius: 99, overflow: 'hidden' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: 'var(--sage)', borderRadius: 99 }} />
+                              <div style={{ width: `${pct}%`, height: '100%', background: 'var(--copper)', borderRadius: 99 }} />
                             </div>
                             <div style={{ fontSize: 12, color: 'var(--muted)', width: 54, textAlign: 'right' as const }}>{leads} lead{leads !== 1 ? 's' : ''}</div>
                           </div>
@@ -241,8 +241,8 @@ export default async function DashboardPage() {
                     {recentRatings.map((r, idx) => (
                       <div key={r.id} style={{ padding: '12px 20px', borderTop: idx === 0 ? 'none' : '1px solid var(--line-2)', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                         <div style={{ flexShrink: 0, paddingTop: 1 }}>
-                          <span style={{ fontSize: 16, color: 'var(--sage)' }}>{'★'.repeat(r.rating)}</span>
-                          <span style={{ fontSize: 16, color: 'var(--line)' }}>{'★'.repeat(5 - r.rating)}</span>
+                          <span style={{ fontSize: 16, color: 'var(--copper)' }}>{'★'.repeat(r.rating)}</span>
+                          <span style={{ fontSize: 16, color: 'rgba(184,116,62,0.18)' }}>{'★'.repeat(5 - r.rating)}</span>
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           {r.comment && <div style={{ fontSize: 13, color: 'var(--charcoal)', lineHeight: 1.45, marginBottom: 2 }}>&ldquo;{r.comment}&rdquo;</div>}

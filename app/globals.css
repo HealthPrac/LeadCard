@@ -1,36 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  --color-charcoal: #17181C;
-  --color-charcoal-2: #23262B;
-  --color-sage: #8FAF9D;
-  --color-sage-tint: #DCE6DE;
-  --color-cream: #F6F7F3;
-  --color-cream-2: #EFF1EB;
+  --color-charcoal: #17171C;
+  --color-charcoal-2: #23232A;
+  --color-copper: #B8743E;
+  --color-copper-lt: #D4975A;
+  --color-copper-pale: #F0DCC9;
+  --color-cream: #F9F7F3;
+  --color-cream-2: #F2EDE5;
+  /* Legacy aliases — kept so any Tailwind classes still resolve */
+  --color-sage: #B8743E;
+  --color-sage-tint: #F0DCC9;
 
-  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
 
-  --radius-sm: 0.625rem;
-  --radius-md: 0.875rem;
-  --radius-lg: 1.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
 }
 
-/* CSS vars for components that use var() directly (card experience uses these) */
+/* CSS vars for components that use var() directly */
 :root {
-  --charcoal: #17181C;
-  --charcoal-2: #23262B;
-  --sage: #8FAF9D;
-  --sage-tint: #DCE6DE;
-  --cream: #F6F7F3;
-  --cream-2: #EFF1EB;
-  --line: rgba(23, 24, 28, 0.10);
-  --line-2: rgba(23, 24, 28, 0.06);
-  --muted: rgba(23, 24, 28, 0.56);
-  --muted-2: rgba(23, 24, 28, 0.40);
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --charcoal: #17171C;
+  --charcoal-2: #23232A;
+  --copper: #B8743E;
+  --copper-lt: #D4975A;
+  --copper-pale: #F0DCC9;
+  --cream: #F9F7F3;
+  --cream-2: #F2EDE5;
+  /* Legacy aliases — pages that reference --sage / --sage-tint get copper */
+  --sage: #B8743E;
+  --sage-tint: #F0DCC9;
+  --line: rgba(23, 23, 28, 0.10);
+  --line-2: rgba(23, 23, 28, 0.06);
+  --muted: rgba(23, 23, 28, 0.52);
+  --muted-2: rgba(23, 23, 28, 0.36);
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
 }
 
@@ -46,7 +54,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection { background: var(--sage); color: var(--charcoal); }
+::selection { background: var(--copper-pale); color: var(--charcoal); }
 
 /* Phone mock — used on landing + public card preview */
 .phone {
