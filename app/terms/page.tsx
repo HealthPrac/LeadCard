@@ -14,7 +14,7 @@ export default function TermsPage() {
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 42, fontWeight: 400, letterSpacing: '-0.01em', margin: '0 0 8px' }}>
           Terms of Service
         </h1>
-        <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 48px' }}>AvantCard · Last updated 2025</p>
+        <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 48px' }}>AvantCard · Last updated 2026</p>
 
         <Section title="1. Introduction">
           These Terms of Service govern access to and use of the AvantCard platform, including its digital business cards, digital business experience features, contact exchange functionality, lead capture, lead tracking, analytics, and related tools and services.
