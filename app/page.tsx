@@ -279,7 +279,7 @@ export default function HomePage() {
               Everything you need to make a <em style={{ fontStyle: 'italic', color: 'var(--copper)' }}>lasting impression.</em>
             </h2>
             <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.75, margin: 0 }}>
-              Built for South African professionals who understand that relationships drive revenue.
+              Built for professionals who understand that relationships drive revenue.
             </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
