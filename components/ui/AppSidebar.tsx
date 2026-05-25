@@ -55,11 +55,10 @@ export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
       display: 'flex', flexDirection: 'column', gap: 2,
       position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
     }}>
-      {/* Brand / tenant logo — always white block */}
+      {/* Brand / tenant logo */}
       <div style={{
-        background: '#ffffff',
         padding: '20px 14px 18px',
-        borderBottom: '1px solid rgba(0,0,0,0.08)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
         marginBottom: 8,
       }}>
         {logoUrl ? (
@@ -68,12 +67,12 @@ export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
         ) : (
           <div style={{ height: 30, display: 'flex', alignItems: 'center', gap: 8 }}>
             <svg width="22" height="22" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
-              <rect width="40" height="40" rx="8" fill="#F2EDE5"/>
+              <rect width="40" height="40" rx="8" fill="#27272f"/>
               <path d="M20 8 L28 24 H12 Z" fill="none" stroke="#B8743E" strokeWidth="1.5" strokeLinejoin="round"/>
               <path d="M14 24 L26 24" stroke="#B8743E" strokeWidth="1.5" strokeLinecap="round"/>
               <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.8"/>
             </svg>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 16, fontWeight: 500, color: '#17171C', letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
+            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 16, fontWeight: 500, color: 'rgba(249,247,243,0.82)', letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
               Avant<span style={{ color: '#B8743E' }}>Card</span>
             </span>
           </div>
