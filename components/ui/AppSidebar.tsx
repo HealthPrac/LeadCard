@@ -11,9 +11,10 @@ interface Props {
   cardSlug: string | null
   displayName: string | null
   logoUrl: string | null
+  isAdmin?: boolean
 }
 
-export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
+export function AppSidebar({ plan, cardSlug, displayName, logoUrl, isAdmin }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -90,6 +91,23 @@ export function AppSidebar({ plan, cardSlug, displayName, logoUrl }: Props) {
         {navItem('/leads', 'Leads', '◎')}
         {navItem('/share', 'Share & QR', '⊡')}
       </div>
+
+      {isAdmin && (
+        <>
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 14px' }} />
+          <div style={{ padding: '0 14px' }}>
+            <a href="/admin" style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 4,
+              fontSize: 13, fontWeight: 500, color: 'rgba(184,116,62,0.85)', textDecoration: 'none',
+              borderLeft: '2px solid rgba(184,116,62,0.4)', background: 'rgba(184,116,62,0.07)',
+              transition: '120ms',
+            }}>
+              <span style={{ fontSize: 13, width: 16, textAlign: 'center' }}>⊞</span>
+              Admin console
+            </a>
+          </div>
+        </>
+      )}
 
       <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 14px' }} />
       <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(249,247,243,0.28)', padding: '2px 26px 8px', fontWeight: 600 }}>Account</div>

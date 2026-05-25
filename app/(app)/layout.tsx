@@ -22,11 +22,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect(adminRow ? '/admin' : '/onboarding')
   }
 
-  const { data: cards } = await supabase
-    .from('cards')
-    .select('id, slug, display_name, is_published, logo_path')
-    .eq('subscriber_id', subscriber.id)
-    .order('created_at', { ascending: true })
+  const service = createServiceClient()
+
+  const [{ data: cards }, { data: adminRow }] = await Promise.all([
+    supabase
+      .from('cards')
+      .select('id, slug, display_name, is_published, logo_path')
+      .eq('subscriber_id', subscriber.id)
+      .order('created_at', { ascending: true }),
+    service.from('admins').select('id').eq('user_id', user.id).maybeSingle(),
+  ])
 
   const primaryCard = cards?.[0] ?? null
   const logoUrl = primaryCard?.logo_path
@@ -40,6 +45,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         cardSlug={primaryCard?.slug ?? null}
         displayName={primaryCard?.display_name ?? null}
         logoUrl={logoUrl}
+        isAdmin={!!adminRow}
       />
       <main style={{ minWidth: 0, padding: '40px 48px', overflowY: 'auto' }}>
         {children}
