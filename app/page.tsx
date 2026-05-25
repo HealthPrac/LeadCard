@@ -173,7 +173,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── 3-PANEL STRIP — panels always dark ─────────────── */}
+      {/* ─── 3-PANEL STRIP — theme-aware ────────────────────── */}
       <section style={{ padding: '80px 48px', background: 'var(--cream-2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
@@ -182,11 +182,11 @@ export default function HomePage() {
               { label: 'Your video', desc: '45 seconds. An unstoppable first impression that static cards cannot match.', step: '02' },
               { label: 'Lead capture', desc: 'They share their details. You receive a notification. Every time.', step: '03' },
             ].map(({ label, desc, step }) => (
-              <div key={label} style={{ padding: '32px 28px', background: DARK_BG, borderRadius: 2, position: 'relative' }}>
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 300, color: 'rgba(184,116,62,0.22)', marginBottom: 14, lineHeight: 1 }}>{step}</div>
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: DARK_TEXT, marginBottom: 10, fontWeight: 400 }}>{label}</div>
-                <div style={{ fontSize: 13.5, color: 'rgba(249,247,243,0.5)', lineHeight: 1.65 }}>{desc}</div>
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, #B8743E, transparent)' }} />
+              <div key={label} style={{ padding: '32px 28px', background: 'var(--bg-surface)', borderRadius: 2, position: 'relative' }}>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 300, color: 'var(--copper)', opacity: 0.5, marginBottom: 14, lineHeight: 1 }}>{step}</div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: 'var(--charcoal)', marginBottom: 10, fontWeight: 400 }}>{label}</div>
+                <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.65 }}>{desc}</div>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, var(--copper), transparent)' }} />
               </div>
             ))}
           </div>
@@ -194,7 +194,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── FEATURES — theme-aware ─────────────────────────── */}
-      <section id="features" style={{ padding: '100px 48px', background: 'var(--cream)' }}>
+      <section id="features" style={{ padding: '100px 48px', background: 'var(--cream-2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ marginBottom: 60, maxWidth: 520 }}>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--copper)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
