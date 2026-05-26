@@ -138,6 +138,136 @@ html, body {
   }
 }
 
+/* ─── RESPONSIVE LAYOUT HELPERS ─────────────────────────── */
+
+/* Homepage nav */
+.lc-nav { padding: 0 48px; }
+.lc-nav-links { display: flex; align-items: center; gap: 24px; }
+.lc-mob-ham { display: none; background: none; border: none; cursor: pointer; font-size: 22px; line-height: 1; padding: 4px; color: var(--charcoal); }
+.lc-mob-menu { display: none; position: fixed; inset: 0; z-index: 200; background: var(--cream); flex-direction: column; padding: 20px 20px 32px; }
+.lc-mob-menu.open { display: flex; }
+
+/* Homepage sections */
+.lc-hero { padding: 100px 48px 80px; min-height: 92vh; display: flex; align-items: center; }
+.lc-hero-grid { max-width: 1100px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; position: relative; z-index: 1; }
+.lc-hero-mock { display: flex; justify-content: center; position: relative; }
+.lc-strip-pad { padding: 80px 48px; }
+.lc-sec-pad { padding: 100px 48px; }
+.lc-cta-pad { padding: 110px 48px; }
+.lc-footer-pad { padding: 40px 48px 28px; }
+.lc-3col { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.lc-3col-g20 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.lc-3col-start { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; align-items: start; }
+.lc-2col-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lc-pricing-featured { transform: scale(1.03); }
+.lc-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+.lc-footer-bottom { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; flex-wrap: wrap; gap: 8px; }
+
+/* App shell (subscriber area) */
+.lc-app-layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; background: var(--cream); }
+.lc-app-main { min-width: 0; padding: 40px 48px; overflow-y: auto; }
+
+/* Admin shell */
+.lc-admin-layout { display: flex; min-height: 100vh; background: var(--cream); }
+.lc-admin-main { flex: 1; min-width: 0; padding: 36px 40px; overflow-y: auto; }
+
+/* Sidebar wrappers — positioning lives here, not on the aside itself */
+.lc-app-sidebar-wrap { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.lc-admin-sidebar-wrap { position: sticky; top: 0; height: 100vh; overflow-y: auto; width: 220px; flex-shrink: 0; }
+
+/* Mobile overlay */
+.lc-mob-overlay { display: none; }
+
+/* Hamburger inside main area (visible on mobile) */
+.lc-main-ham { display: none; align-items: center; gap: 8px; margin-bottom: 16px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--charcoal); padding: 0; }
+
+/* Dashboard two-column layout */
+.lc-dash-layout { display: flex; gap: 36px; align-items: flex-start; }
+.lc-dash-phone { flex-shrink: 0; }
+.lc-dash-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.lc-stat-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.lc-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Admin overview grids */
+.lc-stat-grid-overview { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 32px; }
+.lc-2col-card { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+@media (max-width: 767px) {
+  /* Homepage nav */
+  .lc-nav { padding: 0 16px; }
+  .lc-nav-links { display: none; }
+  .lc-mob-ham { display: block; }
+
+  /* Homepage sections */
+  .lc-hero { padding: 56px 16px 44px; min-height: auto; }
+  .lc-hero-grid { grid-template-columns: 1fr; gap: 36px; }
+  .lc-hero-mock { display: none; }
+  .lc-strip-pad { padding: 44px 16px; }
+  .lc-sec-pad { padding: 56px 16px; }
+  .lc-cta-pad { padding: 64px 16px; }
+  .lc-footer-pad { padding: 28px 16px 20px; }
+  .lc-3col { grid-template-columns: 1fr; }
+  .lc-3col-g20 { grid-template-columns: 1fr; }
+  .lc-3col-start { grid-template-columns: 1fr; }
+  .lc-2col-form { grid-template-columns: 1fr; }
+  .lc-pricing-featured { transform: none; }
+  .lc-footer-bottom { flex-direction: column; align-items: flex-start; }
+
+  /* App shell */
+  .lc-app-layout { display: block; }
+  .lc-app-main { padding: 16px 16px 32px; }
+
+  /* Admin shell */
+  .lc-admin-layout { display: block; }
+  .lc-admin-main { padding: 16px 16px 32px; }
+
+  /* Sidebars: off-screen by default, slide in when .open */
+  .lc-app-sidebar-wrap,
+  .lc-admin-sidebar-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    height: 100vh;
+    width: 260px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+  }
+  .lc-app-sidebar-wrap.open,
+  .lc-admin-sidebar-wrap.open { transform: translateX(0); }
+
+  /* Overlay */
+  .lc-mob-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    z-index: 90;
+    pointer-events: none;
+    transition: background 0.25s;
+  }
+  .lc-mob-overlay.open { background: rgba(0,0,0,0.55); pointer-events: auto; }
+
+  /* Hamburger inside main */
+  .lc-main-ham { display: flex; }
+
+  /* Dashboard */
+  .lc-dash-layout { flex-direction: column; gap: 20px; }
+  .lc-dash-phone { display: none; }
+  .lc-stat-grid-3 { grid-template-columns: 1fr 1fr; }
+
+  /* Admin overview */
+  .lc-stat-grid-overview { grid-template-columns: 1fr 1fr; }
+  .lc-2col-card { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 400px) {
+  .lc-stat-grid-3 { grid-template-columns: 1fr; }
+  .lc-stat-grid-overview { grid-template-columns: 1fr; }
+}
+
 /* Animations used by card experience */
 @keyframes lc-rise {
   from { transform: translateY(40px); opacity: 0; }

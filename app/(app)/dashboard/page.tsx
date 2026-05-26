@@ -86,10 +86,10 @@ export default async function DashboardPage() {
       )}
 
       {/* Main two-column layout */}
-      <div style={{ display: 'flex', gap: 36, alignItems: 'flex-start' }}>
+      <div className="lc-dash-layout">
 
         {/* ── Left: phone mockup ── */}
-        <div style={{ flexShrink: 0 }}>
+        <div className="lc-dash-phone">
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 16 }}>
             Live preview
           </div>
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* ── Right: summary ── */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div className="lc-dash-content">
 
           {card ? (
             <>
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
                   <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500 }}>Analytics</span>
                   <Link href="/analytics" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>View all →</Link>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                <div className="lc-stat-grid-3">
                   <div style={{ padding: '18px 20px', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
                     <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted)', fontWeight: 500, marginBottom: 6 }}>All-time</div>
                     <div style={{ fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1, color: 'var(--charcoal)' }}>{totalLeads}</div>
@@ -191,7 +191,8 @@ export default async function DashboardPage() {
 
                 {recentLeads && recentLeads.length > 0 ? (
                   <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--line)', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <div className="lc-table-scroll">
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 440 }}>
                       <thead>
                         <tr style={{ background: 'var(--cream-2)' }}>
                           {['Person', 'Company', 'Source', 'When'].map(h => (
@@ -213,6 +214,7 @@ export default async function DashboardPage() {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 ) : (
                   <div style={{ background: 'var(--cream-2)', borderRadius: 16, padding: '28px 24px', textAlign: 'center' }}>

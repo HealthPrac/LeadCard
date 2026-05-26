@@ -31,7 +31,7 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* Summary strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
+      <div className="lc-stat-grid-overview">
         {[
           { label: 'Total subscribers', value: summary.total,           sub: 'all time' },
           { label: 'Active',            value: summary.active,          sub: 'paying' },
@@ -71,7 +71,7 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* 2-col: Industry + Countries */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+      <div className="lc-2col-card">
 
         {/* Industry breakdown */}
         <div style={{ background: 'var(--bg-surface)', borderRadius: 14, border: '1px solid var(--line)', padding: '20px 24px' }}>

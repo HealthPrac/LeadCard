@@ -1,7 +1,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { AppSidebar } from '@/components/ui/AppSidebar'
 import { getSignedReadUrl } from '@/lib/cards/actions'
+import { AppShell } from './AppShell'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,9 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq('user_id', user.id)
     .maybeSingle()
 
-  // New user hasn't completed onboarding yet
   if (!subscriber) {
-    // Pure admin accounts don't need a card — send them to the console
     const service = createServiceClient()
     const { data: adminRow } = await service.from('admins').select('id').eq('user_id', user.id).maybeSingle()
     redirect(adminRow ? '/admin' : '/onboarding')
@@ -39,17 +37,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     : null
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '100vh', background: 'var(--cream)' }}>
-      <AppSidebar
-        plan={subscriber.plan}
-        cardSlug={primaryCard?.slug ?? null}
-        displayName={primaryCard?.display_name ?? null}
-        logoUrl={logoUrl}
-        isAdmin={!!adminRow}
-      />
-      <main style={{ minWidth: 0, padding: '40px 48px', overflowY: 'auto' }}>
-        {children}
-      </main>
-    </div>
+    <AppShell
+      plan={subscriber.plan}
+      cardSlug={primaryCard?.slug ?? null}
+      displayName={primaryCard?.display_name ?? null}
+      logoUrl={logoUrl}
+      isAdmin={!!adminRow}
+    >
+      {children}
+    </AppShell>
   )
 }

@@ -12,9 +12,10 @@ interface Props {
   displayName: string | null
   logoUrl: string | null
   isAdmin?: boolean
+  onClose?: () => void
 }
 
-export function AppSidebar({ plan, cardSlug, displayName, logoUrl, isAdmin }: Props) {
+export function AppSidebar({ plan, cardSlug, displayName, logoUrl, isAdmin, onClose }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -30,7 +31,7 @@ export function AppSidebar({ plan, cardSlug, displayName, logoUrl, isAdmin }: Pr
   const navItem = (href: string, label: string, icon: React.ReactNode, badge?: number) => {
     const active = pathname === href || pathname.startsWith(href + '/')
     return (
-      <Link key={href} href={href} style={{
+      <Link key={href} href={href} onClick={onClose} style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '9px 12px', borderRadius: 4,
         fontSize: 13, fontWeight: active ? 500 : 400,

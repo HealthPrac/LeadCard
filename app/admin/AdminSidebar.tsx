@@ -8,9 +8,10 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 interface Props {
   adminEmail: string
   cardSlug?: string | null
+  onClose?: () => void
 }
 
-export function AdminSidebar({ adminEmail, cardSlug }: Props) {
+export function AdminSidebar({ adminEmail, cardSlug, onClose }: Props) {
   const pathname = usePathname()
   const router   = useRouter()
 
@@ -28,6 +29,7 @@ export function AdminSidebar({ adminEmail, cardSlug }: Props) {
       <Link
         key={href}
         href={href}
+        onClick={onClose}
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '9px 12px', borderRadius: 8,

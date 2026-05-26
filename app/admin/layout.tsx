@@ -1,12 +1,11 @@
 import { requireAdmin } from '@/lib/admin/gate'
 import { createServiceClient } from '@/lib/supabase/server'
-import { AdminSidebar } from './AdminSidebar'
+import { AdminShell } from './AdminShell'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireAdmin()
   const service = createServiceClient()
 
-  // Check if this admin also has a subscriber account with at least one card
   const { data: subscriber } = await service
     .from('subscribers')
     .select('id')
@@ -26,11 +25,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--cream)' }}>
-      <AdminSidebar adminEmail={user.email ?? ''} cardSlug={cardSlug} />
-      <main style={{ flex: 1, minWidth: 0, padding: '36px 40px', overflowY: 'auto' }}>
-        {children}
-      </main>
-    </div>
+    <AdminShell adminEmail={user.email ?? ''} cardSlug={cardSlug}>
+      {children}
+    </AdminShell>
   )
 }

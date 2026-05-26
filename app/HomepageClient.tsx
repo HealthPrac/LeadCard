@@ -56,7 +56,7 @@ const DARK_BG  = '#17171C'
 const DARK_TEXT = '#F9F7F3'
 
 interface Props {
-  priceMap?: Record<string, string>   // e.g. { 'solo:ZAR': 'R 69', 'solo:USD': '$ 4', ... }
+  priceMap?: Record<string, string>
 }
 
 type InquiryState = 'idle' | 'submitting' | 'success' | 'error'
@@ -66,6 +66,7 @@ export default function HomepageClient({ priceMap }: Props) {
   const [showInquiry, setShowInquiry] = useState(false)
   const [inquiryState, setInquiryState] = useState<InquiryState>('idle')
   const [inquiryError, setInquiryError] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   async function handleEnterpriseInquiry(e: React.FormEvent<HTMLFormElement>) {
@@ -100,7 +101,6 @@ export default function HomepageClient({ priceMap }: Props) {
     setInquiryError(null)
   }
 
-  // Merge DB prices over defaults
   const PLANS = PLANS_BASE.map(p => ({
     ...p,
     zarPrice: priceMap?.[`${p.planKey}:ZAR`] ?? p.zarPrice,
@@ -114,9 +114,9 @@ export default function HomepageClient({ priceMap }: Props) {
     <div style={{ fontFamily: 'var(--font-sans)', color: 'var(--charcoal)', background: 'var(--cream)', minHeight: '100vh' }}>
 
       {/* ─── NAV ────────────────────────────────────────────── */}
-      <header style={{
+      <header className="lc-nav" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 48px', height: 68,
+        height: 68,
         background: 'var(--nav-glass)', backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--line)',
         position: 'sticky', top: 0, zIndex: 50,
@@ -133,7 +133,8 @@ export default function HomepageClient({ priceMap }: Props) {
           </span>
         </div>
 
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        {/* Desktop nav */}
+        <nav className="lc-nav-links">
           <a href="#features" style={{ fontSize: 12.5, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>Features</a>
           <a href="#pricing" style={{ fontSize: 12.5, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none' }}>Pricing</a>
           <Link href="/sign-in" style={{ fontSize: 12.5, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', fontWeight: 500 }}>
@@ -150,24 +151,94 @@ export default function HomepageClient({ priceMap }: Props) {
             Sign Up
           </Link>
         </nav>
+
+        {/* Mobile: sign up + hamburger */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }} className="lc-mob-ham">
+          <Link href="/sign-up" style={{
+            padding: '8px 16px', background: 'var(--copper)', color: '#fff',
+            fontSize: 12, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase',
+            textDecoration: 'none',
+          }}>
+            Sign Up
+          </Link>
+          <button
+            onClick={() => setMenuOpen(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: 'var(--charcoal)', padding: '4px', lineHeight: 1 }}
+            aria-label="Open menu"
+          >
+            ☰
+          </button>
+        </div>
       </header>
 
+      {/* ─── MOBILE MENU ────────────────────────────────────── */}
+      <div className={`lc-mob-menu${menuOpen ? ' open' : ''}`} style={{ background: 'var(--cream)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 20, borderBottom: '1px solid var(--line)', marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <svg width="26" height="26" viewBox="0 0 40 40" fill="none">
+              <rect width="40" height="40" rx="8" fill="#17171C"/>
+              <path d="M20 8 L28 24 H12 Z" fill="none" stroke="#B8743E" strokeWidth="1.5" strokeLinejoin="round"/>
+              <path d="M14 24 L26 24" stroke="#B8743E" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.6"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 500, color: 'var(--charcoal)' }}>
+              Avant<span style={{ color: 'var(--copper)' }}>Card</span>
+            </span>
+          </div>
+          <button
+            onClick={() => setMenuOpen(false)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: 'var(--charcoal)', padding: '4px', lineHeight: 1 }}
+            aria-label="Close menu"
+          >
+            ×
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+          {[
+            { label: 'Features', href: '#features' },
+            { label: 'Pricing', href: '#pricing' },
+          ].map(({ label, href }) => (
+            <a
+              key={label}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              style={{ fontSize: 18, fontWeight: 400, color: 'var(--charcoal)', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--line)' }}
+            >
+              {label}
+            </a>
+          ))}
+          <Link href="/sign-in" onClick={() => setMenuOpen(false)} style={{ fontSize: 18, fontWeight: 400, color: 'var(--charcoal)', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid var(--line)' }}>
+            Log In
+          </Link>
+        </div>
+        <div style={{ paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Link
+            href="/sign-up"
+            onClick={() => setMenuOpen(false)}
+            style={{ display: 'block', textAlign: 'center', padding: '14px', background: 'var(--copper)', color: '#fff', fontSize: 13, fontWeight: 500, letterSpacing: '0.07em', textTransform: 'uppercase', textDecoration: 'none' }}
+          >
+            Create Your Card — Free
+          </Link>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <ThemeToggle compact />
+          </div>
+        </div>
+      </div>
+
       {/* ─── HERO — always dark ─────────────────────────────── */}
-      <section style={{
-        background: DARK_BG, minHeight: '92vh',
-        display: 'flex', alignItems: 'center',
-        padding: '100px 48px 80px',
+      <section className="lc-hero" style={{
+        background: DARK_BG,
         position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ position: 'absolute', top: '-80px', right: '-60px', width: 600, height: 600, background: 'radial-gradient(ellipse, rgba(184,116,62,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+        <div className="lc-hero-grid">
           <div>
             <div style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#B8743E', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ display: 'block', width: 32, height: 1, background: '#B8743E' }} />
               Premium Digital Identity
             </div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(42px,5vw,66px)', fontWeight: 300, lineHeight: 1.1, letterSpacing: '-0.01em', color: DARK_TEXT, margin: '0 0 28px' }}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(38px,5vw,66px)', fontWeight: 300, lineHeight: 1.1, letterSpacing: '-0.01em', color: DARK_TEXT, margin: '0 0 28px' }}>
               Your business card<br />is <em style={{ fontStyle: 'italic', color: '#D4975A' }}>an experience.</em>
             </h1>
             <p style={{ fontSize: 16, fontWeight: 300, lineHeight: 1.75, color: 'rgba(249,247,243,0.58)', marginBottom: 44, maxWidth: 440 }}>
@@ -193,8 +264,8 @@ export default function HomepageClient({ priceMap }: Props) {
             </div>
           </div>
 
-          {/* Card mockup */}
-          <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+          {/* Card mockup — hidden on mobile via .lc-hero-mock */}
+          <div className="lc-hero-mock">
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 420, height: 420, background: 'radial-gradient(ellipse, rgba(184,116,62,0.18) 0%, transparent 68%)', pointerEvents: 'none' }} />
             <div style={{
               width: 310, borderRadius: 44, background: '#0E0E12',
@@ -252,9 +323,9 @@ export default function HomepageClient({ priceMap }: Props) {
       </section>
 
       {/* ─── 3-PANEL STRIP ──────────────────────────────────── */}
-      <section style={{ padding: '80px 48px', background: 'var(--cream-2)' }}>
+      <section className="lc-strip-pad" style={{ background: 'var(--cream-2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+          <div className="lc-3col-g20">
             {[
               { label: 'Welcome', desc: 'Your face, name, and a warm introduction — before they even say hello.', step: '01' },
               { label: 'Your video', desc: '45 seconds. An unstoppable first impression that static cards cannot match.', step: '02' },
@@ -272,7 +343,7 @@ export default function HomepageClient({ priceMap }: Props) {
       </section>
 
       {/* ─── FEATURES ───────────────────────────────────────── */}
-      <section id="features" style={{ padding: '100px 48px', background: 'var(--cream-2)' }}>
+      <section id="features" className="lc-sec-pad" style={{ background: 'var(--cream-2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ marginBottom: 60, maxWidth: 520 }}>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--copper)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -286,7 +357,7 @@ export default function HomepageClient({ priceMap }: Props) {
               Built for professionals who understand that relationships drive revenue.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+          <div className="lc-3col">
             {FEATURES.map(f => (
               <div key={f.title} style={{ padding: '28px 24px', background: 'var(--bg-surface)', border: '1px solid var(--line)', position: 'relative' }}>
                 <div style={{ width: 36, height: 36, border: '1px solid rgba(184,116,62,0.25)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--copper)', fontSize: 16, marginBottom: 16 }}>
@@ -301,7 +372,7 @@ export default function HomepageClient({ priceMap }: Props) {
       </section>
 
       {/* ─── PRICING ────────────────────────────────────────── */}
-      <section id="pricing" style={{ padding: '100px 48px', background: 'var(--cream-2)' }}>
+      <section id="pricing" className="lc-sec-pad" style={{ background: 'var(--cream-2)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--copper)', marginBottom: 14 }}>Pricing</div>
@@ -325,14 +396,13 @@ export default function HomepageClient({ priceMap }: Props) {
               ))}
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, alignItems: 'start' }}>
+          <div className="lc-3col-start">
             {PLANS.map(p => (
-              <div key={p.name} style={{
+              <div key={p.name} className={p.featured ? 'lc-pricing-featured' : ''} style={{
                 padding: 32,
                 background: p.featured ? DARK_BG : 'var(--bg-surface)',
                 color: p.featured ? DARK_TEXT : 'var(--charcoal)',
                 border: p.featured ? 'none' : '1px solid var(--line)',
-                transform: p.featured ? 'scale(1.03)' : 'none',
                 position: 'relative',
               }}>
                 {p.featured && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: '#B8743E' }} />}
@@ -379,7 +449,7 @@ export default function HomepageClient({ priceMap }: Props) {
       </section>
 
       {/* ─── FINAL CTA ──────────────────────────────────────── */}
-      <section style={{ padding: '110px 48px', textAlign: 'center', background: DARK_BG, position: 'relative', overflow: 'hidden' }}>
+      <section className="lc-cta-pad" style={{ textAlign: 'center', background: DARK_BG, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 700, height: 350, background: 'radial-gradient(ellipse, rgba(184,116,62,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(184,116,62,0.35), transparent)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -452,7 +522,7 @@ export default function HomepageClient({ priceMap }: Props) {
               </div>
             ) : (
               <form ref={formRef} onSubmit={handleEnterpriseInquiry}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                <div className="lc-2col-form" style={{ marginBottom: 14 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
                       Your name <span style={{ color: '#B8743E' }}>*</span>
@@ -483,7 +553,7 @@ export default function HomepageClient({ priceMap }: Props) {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                <div className="lc-2col-form" style={{ marginBottom: 14 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Phone</label>
                     <input
@@ -539,7 +609,7 @@ export default function HomepageClient({ priceMap }: Props) {
       )}
 
       {/* ─── FOOTER ─────────────────────────────────────────── */}
-      <footer style={{ padding: '40px 48px 28px', background: '#111115', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <footer className="lc-footer-pad" style={{ background: '#111115', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -553,7 +623,7 @@ export default function HomepageClient({ priceMap }: Props) {
                 Avant<span style={{ color: '#B8743E' }}>Card</span>
               </span>
             </div>
-            <div style={{ display: 'flex', gap: 28 }}>
+            <div className="lc-footer-links">
               {[
                 { label: 'Sign In', href: '/sign-in' },
                 { label: 'Sign Up', href: '/sign-up' },
@@ -564,7 +634,7 @@ export default function HomepageClient({ priceMap }: Props) {
               ))}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11.5 }}>
+          <div className="lc-footer-bottom">
             <span style={{ color: 'rgba(249,247,243,0.22)' }}>© {new Date().getFullYear()} Tech-Tok. All Rights Reserved.</span>
             <span style={{ color: 'rgba(249,247,243,0.18)' }}>Powered by <span style={{ color: 'rgba(184,116,62,0.45)' }}>Tech-Tok</span></span>
           </div>
