@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { proposePriceChange, approveProposal, rejectProposal } from '@/lib/admin/pricing-actions'
-import type { PricingCurrentRow, PricingProposalRow, PricingAuditRow, AdminOption } from '@/lib/admin/pricing-queries'
-import { planLabel } from '@/lib/admin/pricing-queries'
+import type { PricingCurrentRow, PricingProposalRow, PricingAuditRow, AdminOption } from '@/lib/admin/pricing-shared'
+import { planLabel } from '@/lib/admin/pricing-shared'
 
 /* ── helpers ─────────────────────────────────────────────────────────────── */
 function fmtDate(d: string) {
