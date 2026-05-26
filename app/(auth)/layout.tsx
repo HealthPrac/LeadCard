@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       {/* ── Left panel — dark brand ── */}
       <div style={{
-        background: 'var(--charcoal)',
+        background: '#17171C',
         display: 'flex', flexDirection: 'column',
         justifyContent: 'space-between',
         padding: '48px 52px',
@@ -59,7 +59,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       {/* ── Right panel — form ── */}
       <div style={{
-        background: 'var(--cream)',
+        background: '#F9F7F3',
+        color: '#17171C',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '60px 52px',
       }}>

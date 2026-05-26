@@ -40,7 +40,7 @@ function SignInForm() {
       <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, margin: '0 0 8px', textAlign: 'center', letterSpacing: '-0.01em' }}>
         Welcome back
       </h1>
-      <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--muted)', margin: '0 0 28px' }}>
+      <p style={{ textAlign: 'center', fontSize: 14, color: 'rgba(23,23,28,0.52)', margin: '0 0 28px' }}>
         Sign in to your AvantCard account
       </p>
 
@@ -52,7 +52,7 @@ function SignInForm() {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
             <label style={labelStyle}>Password</label>
-            <Link href="/forgot-password" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'underline' }}>Forgot password?</Link>
+            <Link href="/forgot-password" style={{ fontSize: 12, color: 'rgba(23,23,28,0.52)', textDecoration: 'underline' }}>Forgot password?</Link>
           </div>
           <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
         </div>
@@ -68,9 +68,9 @@ function SignInForm() {
         </button>
       </form>
 
-      <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--muted)', marginTop: 20 }}>
+      <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(23,23,28,0.52)', marginTop: 20 }}>
         Don&apos;t have an account?{' '}
-        <Link href="/sign-up" style={{ color: 'var(--charcoal)', textDecoration: 'underline' }}>Start free</Link>
+        <Link href="/sign-up" style={{ color: '#17171C', textDecoration: 'underline' }}>Start free</Link>
       </p>
     </div>
   )
@@ -84,6 +84,6 @@ export default function SignInPage() {
   )
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 500, letterSpacing: '0.03em', marginBottom: 7 }
-const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 14px', border: '1px solid var(--line)', borderRadius: 4, fontSize: 14, fontFamily: 'inherit', background: 'var(--bg-surface)', outline: 'none', color: 'var(--charcoal)', boxSizing: 'border-box' }
-const btnPrimaryStyle: React.CSSProperties = { width: '100%', padding: '14px 20px', background: 'var(--copper)', color: '#fff', borderRadius: 4, fontSize: 13, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'inherit', cursor: 'pointer', border: 'none', marginTop: 6 }
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 500, letterSpacing: '0.03em', marginBottom: 7, color: '#17171C' }
+const inputStyle: React.CSSProperties = { width: '100%', padding: '12px 14px', border: '1px solid rgba(23,23,28,0.10)', borderRadius: 4, fontSize: 14, fontFamily: 'inherit', background: '#ffffff', outline: 'none', color: '#17171C', boxSizing: 'border-box' }
+const btnPrimaryStyle: React.CSSProperties = { width: '100%', padding: '14px 20px', background: '#B8743E', color: '#fff', borderRadius: 4, fontSize: 13, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'inherit', cursor: 'pointer', border: 'none', marginTop: 6 }
