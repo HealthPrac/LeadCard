@@ -364,6 +364,91 @@ export async function sendPricingApprovalRequest(payload: {
   })
 }
 
+// ── Plan change: admin notification ──────────────────────────────────────────
+export async function sendPlanChangeAdminNotification(payload: {
+  subscriberEmail: string
+  fromPlan: string
+  toPlan: string
+  fromPrice: string
+  toPrice: string
+  cardsUnpublished: number
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+  const isUpgrade = ['Solo → Small Business', 'Small Business → Enterprise'].includes(`${payload.fromPlan} → ${payload.toPlan}`)
+  const directionLabel = isUpgrade ? 'Upgrade' : 'Downgrade'
+  const directionColor = isUpgrade ? '#2A7A4A' : '#B8743E'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">LeadCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:${directionColor};color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">Plan ${directionLabel}</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:${directionColor};font-weight:500">Billing adjustment required</p>
+        <h2 style="margin:0 0 20px;font-family:Georgia,serif;font-size:26px;font-weight:400">${payload.subscriberEmail}</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0;width:160px">Change</td><td style="padding:10px 0;font-weight:500">${payload.fromPlan} → ${payload.toPlan}</td></tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">Old billing</td><td style="padding:10px 0;text-decoration:line-through;color:#999">${payload.fromPrice}</td></tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">New billing</td><td style="padding:10px 0;font-weight:600">${payload.toPrice}</td></tr>
+          ${payload.cardsUnpublished > 0 ? `<tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">Cards unpublished</td><td style="padding:10px 0;color:#B8743E;font-weight:500">${payload.cardsUnpublished} card${payload.cardsUnpublished !== 1 ? 's' : ''}</td></tr>` : ''}
+        </table>
+        <div style="background:#FEF3E2;border:1px solid #F6C675;border-radius:8px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#7A4A0F">
+          ⚠️ Update the subscriber's PayFast subscription amount manually to <strong>${payload.toPrice}</strong>.
+        </div>
+        <a href="${appUrl}/admin" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 22px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">View admin console →</a>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from: `LeadCard <${FROM}>`,
+    to: 'admin@healthprac.com',
+    subject: `Plan ${directionLabel.toLowerCase()}: ${payload.subscriberEmail} — ${payload.fromPlan} → ${payload.toPlan}`,
+    html,
+  })
+}
+
+// ── Plan change: subscriber confirmation ──────────────────────────────────────
+export async function sendPlanChangeSubscriberConfirmation(payload: {
+  toEmail: string
+  fromPlan: string
+  toPlan: string
+  toPrice: string
+  cardsUnpublished: number
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+  const isUpgrade = payload.toPlan !== 'Solo'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">LeadCard</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#8FAF9D;font-weight:500">Plan ${isUpgrade ? 'upgraded' : 'changed'}</p>
+        <h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:26px;font-weight:400">You're now on ${payload.toPlan}.</h2>
+        <p style="font-size:15px;line-height:1.6;color:#444;margin:0 0 20px">
+          Your plan has been updated from <strong>${payload.fromPlan}</strong> to <strong>${payload.toPlan}</strong>.
+          Your billing will be adjusted to <strong>${payload.toPrice}</strong> within 24 hours.
+        </p>
+        ${payload.cardsUnpublished > 0 ? `
+        <div style="background:#FEF3E2;border:1px solid #F6C675;border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13.5px;color:#7A4A0F;line-height:1.5">
+          <strong>${payload.cardsUnpublished} team card${payload.cardsUnpublished !== 1 ? 's were' : ' was'} unpublished</strong> as the Solo plan supports 1 card.
+          Your cards and their data are preserved — they can be republished if you upgrade again.
+        </div>` : ''}
+        <a href="${appUrl}/settings" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 22px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">View account settings →</a>
+        <p style="margin:20px 0 0;font-size:12px;color:#999">Questions about billing? Contact <a href="mailto:billing@leadcard.app" style="color:#999">billing@leadcard.app</a></p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from: `LeadCard <${FROM}>`,
+    to: payload.toEmail,
+    subject: `Your plan has been updated to ${payload.toPlan} — LeadCard`,
+    html,
+  })
+}
+
 // ── Pricing: decision notification (to proposer) ──────────────────────────────
 export async function sendPricingDecisionNotification(payload: {
   toEmail:   string

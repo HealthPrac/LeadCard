@@ -4,10 +4,36 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
-const PLANS = {
-  solo: { label: 'Solo', price: 'R 69/mo', priceMonthly: 6900, description: '1 card · Unlimited leads · Analytics · QR + NFC' },
-  small: { label: 'Small business', price: 'R 199/mo', priceMonthly: 19900, description: 'Up to 5 cards · Team management · Priority support' },
-  enterprise: { label: 'Enterprise', price: 'Custom', priceMonthly: 0, description: 'Unlimited cards · SSO · Dedicated account manager' },
+const PLAN_ORDER: Record<string, number> = { solo: 0, small: 1, enterprise: 2 }
+
+interface PlanMeta {
+  label: string
+  zarPrice: string
+  features: string[]
+  cardLimit: string
+}
+
+function buildPlanMeta(priceMap?: Record<string, string>): Record<string, PlanMeta> {
+  return {
+    solo: {
+      label: 'Solo',
+      zarPrice: priceMap?.['solo:ZAR'] ?? 'R 69',
+      features: ['1 card', 'Unlimited leads', 'Analytics', 'QR + NFC sharing'],
+      cardLimit: '1 card',
+    },
+    small: {
+      label: 'Small Business',
+      zarPrice: priceMap?.['small_business:ZAR'] ?? 'R 199',
+      features: ['Up to 5 cards', 'Team management', 'Priority support', 'Brand theming'],
+      cardLimit: '5 cards',
+    },
+    enterprise: {
+      label: 'Enterprise',
+      zarPrice: 'Custom',
+      features: ['Unlimited cards', 'SSO', 'Dedicated account manager', 'Custom SLA'],
+      cardLimit: 'Unlimited',
+    },
+  }
 }
 
 interface Subscriber {
@@ -22,6 +48,7 @@ interface Card {
   id: string
   display_name: string | null
   slug: string
+  is_owner_card: boolean
 }
 
 interface Props {
@@ -30,9 +57,10 @@ interface Props {
   cards: Card[]
   leadCount: number
   payfastMerchantId: string
+  priceMap?: Record<string, string>
 }
 
-export default function SettingsClient({ email, subscriber, cards, leadCount, payfastMerchantId }: Props) {
+export default function SettingsClient({ email, subscriber, cards, leadCount, payfastMerchantId, priceMap }: Props) {
   const router = useRouter()
   const [section, setSection] = useState<'account' | 'billing' | 'data'>('account')
   const [newEmail, setNewEmail] = useState(email)
@@ -44,6 +72,15 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
   const [promoMsg, setPromoMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
   const [promoOpen, setPromoOpen] = useState(false)
   const [promoLoading, setPromoLoading] = useState(false)
+
+  // Plan change state
+  const [planTarget, setPlanTarget] = useState<string | null>(null)
+  const [planLoading, setPlanLoading] = useState(false)
+  const [planError, setPlanError] = useState<string | null>(null)
+  const [planSuccess, setPlanSuccess] = useState<string | null>(null)
+  const [downgradeConfirm, setDowngradeConfirm] = useState('')
+
+  const PLANS = buildPlanMeta(priceMap)
 
   async function applyPromo() {
     if (!promoCode.trim()) return
@@ -62,11 +99,57 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
     router.refresh()
   }
 
-  const plan = PLANS[subscriber.plan as keyof typeof PLANS] ?? PLANS.solo
+  async function submitPlanChange() {
+    if (!planTarget) return
+    setPlanLoading(true)
+    setPlanError(null)
+
+    const res = await fetch('/api/billing/change-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: planTarget }),
+    })
+    const json = await res.json()
+    setPlanLoading(false)
+
+    if (json.requiresInquiry) {
+      router.push('/#enterprise')
+      return
+    }
+    if (json.requiresAdminContact) {
+      setPlanError('Enterprise plan changes require contacting billing@leadcard.app.')
+      return
+    }
+    if (!res.ok || !json.success) {
+      setPlanError(json.error ?? 'Something went wrong. Please try again.')
+      return
+    }
+
+    const targetMeta = PLANS[planTarget]
+    let msg = `You're now on ${targetMeta.label}.`
+    if (json.cardsUnpublished > 0) {
+      msg += ` ${json.cardsUnpublished} team card${json.cardsUnpublished !== 1 ? 's were' : ' was'} unpublished.`
+    }
+    msg += ' Billing will be adjusted within 24 hours.'
+    setPlanSuccess(msg)
+    setPlanTarget(null)
+    setDowngradeConfirm('')
+    router.refresh()
+  }
+
+  function cancelPlanChange() {
+    setPlanTarget(null)
+    setPlanError(null)
+    setDowngradeConfirm('')
+  }
+
+  const currentPlan = subscriber.plan
   const isTrialing = subscriber.subscription_status === 'trialing'
   const trialDaysLeft = subscriber.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(subscriber.trial_ends_at).getTime() - Date.now()) / 86400000))
     : null
+
+  const currentMeta = PLANS[currentPlan] ?? PLANS.solo
 
   async function updateEmail() {
     const supabase = createClient()
@@ -83,7 +166,6 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
   }
 
   async function initPayfast() {
-    // Get a signed PayFast payment URL from the server (includes MD5 signature)
     const res = await fetch('/api/billing/payfast-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -112,6 +194,11 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
     </button>
   )
 
+  // Extra non-owner cards (relevant for Small→Solo downgrade warning)
+  const extraCards = cards.filter(c => !c.is_owner_card)
+  const isDowngrade = planTarget ? PLAN_ORDER[planTarget] < PLAN_ORDER[currentPlan] : false
+  const needsDowngradeConfirm = isDowngrade && planTarget === 'solo' && extraCards.length > 0
+
   return (
     <div style={{ maxWidth: 680 }}>
       <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, margin: '0 0 24px', letterSpacing: '-0.01em' }}>Settings</h1>
@@ -122,6 +209,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
         {tab('data', 'Data & privacy')}
       </div>
 
+      {/* ── Account ─────────────────────────────────────────────────────── */}
       {section === 'account' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
@@ -146,36 +234,189 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
         </div>
       )}
 
+      {/* ── Billing ─────────────────────────────────────────────────────── */}
       {section === 'billing' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Current plan */}
+
+          {/* Current plan summary */}
           <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Current plan</div>
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, marginBottom: 2 }}>{plan.label}</div>
-                <div style={{ fontSize: 13, color: 'var(--muted)' }}>{plan.description}</div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, marginBottom: 2 }}>{currentMeta.label}</div>
+                <div style={{ fontSize: 13, color: 'var(--muted)' }}>{currentMeta.cardLimit} · Unlimited leads</div>
                 {isTrialing && trialDaysLeft !== null && (
                   <div style={{ marginTop: 10, padding: '6px 12px', background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, fontSize: 13, display: 'inline-block' }}>
                     ⚠️ Trial ends in <strong>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'}</strong>
                   </div>
                 )}
               </div>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22 }}>{plan.price}</div>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22 }}>{currentMeta.zarPrice}{currentMeta.zarPrice !== 'Custom' ? '/mo' : ''}</div>
             </div>
           </div>
 
-          {/* Activate / upgrade */}
+          {/* Activate (trial / inactive) */}
           {(isTrialing || subscriber.subscription_status === 'inactive') && (
             <div style={{ padding: 24, borderRadius: 14, background: 'var(--sage-tint)', border: '1px solid var(--line)' }}>
               <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 6 }}>Activate your subscription</div>
               <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 16px' }}>Add a payment method to keep your card live and leads flowing after the trial ends.</p>
               <button onClick={initPayfast} style={{ padding: '10px 22px', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 13.5, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
-                ◈ Add payment method — R 69/mo
+                ◈ Add payment method — {currentMeta.zarPrice}/mo
               </button>
               <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 10 }}>Powered by PayFast · Secure · Cancel anytime</div>
             </div>
           )}
+
+          {/* Success banner */}
+          {planSuccess && (
+            <div style={{ padding: '14px 18px', borderRadius: 10, background: '#F0FDF4', border: '1px solid #86EFAC', fontSize: 13.5, color: '#166534' }}>
+              ✓ {planSuccess}
+            </div>
+          )}
+
+          {/* Plan change — not available for enterprise (custom pricing) */}
+          {currentPlan !== 'enterprise' && !planTarget && (
+            <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 16 }}>Change plan</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                {(['solo', 'small', 'enterprise'] as const).map(key => {
+                  const meta = PLANS[key]
+                  const isCurrent = key === currentPlan
+                  const isHigher = PLAN_ORDER[key] > PLAN_ORDER[currentPlan]
+                  const isLower = PLAN_ORDER[key] < PLAN_ORDER[currentPlan]
+
+                  return (
+                    <div
+                      key={key}
+                      style={{
+                        padding: '16px 14px',
+                        borderRadius: 12,
+                        border: isCurrent ? '2px solid var(--charcoal)' : '1px solid var(--line)',
+                        background: isCurrent ? 'var(--cream-2)' : 'var(--bg-surface)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8,
+                      }}
+                    >
+                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15 }}>{meta.label}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--charcoal)', lineHeight: 1 }}>
+                        {meta.zarPrice === 'Custom' ? (
+                          <span>Custom</span>
+                        ) : (
+                          <span>{meta.zarPrice}<span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)' }}>/mo</span></span>
+                        )}
+                      </div>
+                      <ul style={{ margin: 0, padding: '0 0 0 14px', fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.7 }}>
+                        {meta.features.map(f => <li key={f}>{f}</li>)}
+                      </ul>
+                      {isCurrent ? (
+                        <div style={{ marginTop: 4, fontSize: 11.5, fontWeight: 600, color: 'var(--charcoal)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          Current plan
+                        </div>
+                      ) : key === 'enterprise' ? (
+                        <a
+                          href="/#enterprise"
+                          style={{ marginTop: 4, display: 'inline-block', padding: '7px 14px', borderRadius: 7, background: '#B8743E', color: '#fff', fontSize: 12.5, fontWeight: 500, textDecoration: 'none', textAlign: 'center' }}
+                        >
+                          Contact us →
+                        </a>
+                      ) : (
+                        <button
+                          onClick={() => { setPlanTarget(key); setPlanError(null); setPlanSuccess(null) }}
+                          style={{
+                            marginTop: 4, padding: '7px 14px', borderRadius: 7,
+                            background: isHigher ? 'var(--charcoal)' : 'transparent',
+                            color: isHigher ? 'var(--cream)' : 'var(--muted)',
+                            border: isHigher ? 'none' : '1px solid var(--line)',
+                            fontSize: 12.5, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+                          }}
+                        >
+                          {isHigher ? 'Upgrade →' : 'Downgrade'}
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Enterprise plan — direct to billing for changes */}
+          {currentPlan === 'enterprise' && (
+            <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Plan changes</div>
+              <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
+                Enterprise plan changes are handled by our team. Contact <a href="mailto:billing@leadcard.app" style={{ color: 'var(--charcoal)' }}>billing@leadcard.app</a> to adjust your plan or seats.
+              </p>
+            </div>
+          )}
+
+          {/* Plan change confirmation panel */}
+          {planTarget && (() => {
+            const targetMeta = PLANS[planTarget]
+            const isUpgrade = PLAN_ORDER[planTarget] > PLAN_ORDER[currentPlan]
+
+            return (
+              <div style={{ padding: 24, borderRadius: 14, background: isUpgrade ? '#F0FDF4' : '#FEF9C3', border: `1px solid ${isUpgrade ? '#86EFAC' : '#FDE047'}` }}>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: isUpgrade ? '#166534' : '#854D0E', marginBottom: 12, fontWeight: 600 }}>
+                  {isUpgrade ? 'Confirm upgrade' : 'Confirm downgrade'}
+                </div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, marginBottom: 8 }}>
+                  {currentMeta.label} → {targetMeta.label}
+                </div>
+                <p style={{ fontSize: 13.5, color: '#444', margin: '0 0 12px', lineHeight: 1.6 }}>
+                  Your plan will update immediately. Billing will be adjusted from{' '}
+                  <strong>{currentMeta.zarPrice}{currentMeta.zarPrice !== 'Custom' ? '/mo' : ''}</strong> to{' '}
+                  <strong>{targetMeta.zarPrice}{targetMeta.zarPrice !== 'Custom' ? '/mo' : ''}</strong> within 24 hours.
+                </p>
+
+                {/* Downgrade + extra cards warning */}
+                {needsDowngradeConfirm && (
+                  <div style={{ background: 'rgba(180,60,0,0.07)', borderRadius: 8, padding: '12px 14px', marginBottom: 14, fontSize: 13 }}>
+                    <strong>⚠️ {extraCards.length} team card{extraCards.length !== 1 ? 's' : ''} will be unpublished</strong>
+                    <p style={{ margin: '6px 0 0', color: '#7A4A0F', lineHeight: 1.5 }}>
+                      The Solo plan supports 1 card. Your team cards and all their data will be preserved but unpublished. They can be re-activated if you upgrade again.
+                    </p>
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ fontSize: 12, color: '#7A4A0F', marginBottom: 6 }}>Type <strong>downgrade</strong> to confirm:</div>
+                      <input
+                        value={downgradeConfirm}
+                        onChange={e => setDowngradeConfirm(e.target.value)}
+                        placeholder="downgrade"
+                        style={{ padding: '8px 12px', borderRadius: 7, border: '1px solid #F6C675', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', width: 160 }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {planError && (
+                  <div style={{ fontSize: 13, color: '#EF4444', marginBottom: 12 }}>{planError}</div>
+                )}
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={submitPlanChange}
+                    disabled={planLoading || (needsDowngradeConfirm && downgradeConfirm !== 'downgrade')}
+                    style={{
+                      padding: '9px 20px', background: isUpgrade ? '#17181C' : '#B8743E',
+                      color: '#fff', border: 'none', borderRadius: 8, fontSize: 13.5, fontWeight: 500,
+                      cursor: (planLoading || (needsDowngradeConfirm && downgradeConfirm !== 'downgrade')) ? 'not-allowed' : 'pointer',
+                      opacity: (planLoading || (needsDowngradeConfirm && downgradeConfirm !== 'downgrade')) ? 0.55 : 1,
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {planLoading ? 'Updating…' : isUpgrade ? 'Confirm upgrade' : 'Confirm downgrade'}
+                  </button>
+                  <button
+                    onClick={cancelPlanChange}
+                    style={{ padding: '9px 18px', background: 'transparent', color: 'var(--muted)', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Promo code */}
           {!subscriber.promo_code_id && (
@@ -213,7 +454,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
             </div>
           )}
 
-          {/* Active */}
+          {/* Active subscription status */}
           {subscriber.subscription_status === 'active' && (
             <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
               <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Subscription</div>
@@ -227,6 +468,7 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
         </div>
       )}
 
+      {/* ── Data & privacy ───────────────────────────────────────────────── */}
       {section === 'data' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>

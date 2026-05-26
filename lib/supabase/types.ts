@@ -111,6 +111,12 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      plan_change_history: {
+        Row: PlanChangeHistory
+        Insert: Omit<PlanChangeHistory, 'id' | 'created_at'>
+        Update: Partial<Omit<PlanChangeHistory, 'id' | 'created_at'>>
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -383,6 +389,18 @@ export interface EnterprisePricingAuditEntry {
   new_value: string
   actor_email: string | null
   notes: string | null
+}
+
+export interface PlanChangeHistory {
+  id: string
+  created_at: string
+  subscriber_id: string
+  subscriber_email: string
+  from_plan: 'solo' | 'small' | 'enterprise'
+  to_plan: 'solo' | 'small' | 'enterprise'
+  cards_unpublished: number
+  status: 'pending_billing' | 'billing_updated' | 'cancelled'
+  admin_notes: string | null
 }
 
 export type CrmStatus = 'new' | 'engaged' | 'prospect' | 'client' | 'lost'

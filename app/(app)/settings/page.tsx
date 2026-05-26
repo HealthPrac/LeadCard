@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import SettingsClient from './SettingsClient'
 
@@ -16,7 +16,7 @@ export default async function SettingsPage() {
 
   const { data: cards } = await supabase
     .from('cards')
-    .select('id, display_name, slug')
+    .select('id, display_name, slug, is_owner_card')
     .eq('subscriber_id', subscriber.id)
     .order('created_at', { ascending: true })
 
@@ -24,6 +24,18 @@ export default async function SettingsPage() {
     .from('leads')
     .select('*', { count: 'exact', head: true })
     .eq('subscriber_id', subscriber.id)
+
+  // DB-driven prices for plan comparison (service client — pricing_current has public RLS but use
+  // service client to avoid exposing anon key on server)
+  const svc = createServiceClient()
+  const { data: pricingRows } = await svc
+    .from('pricing_current')
+    .select('plan_key, currency, price')
+
+  const priceMap: Record<string, string> = {}
+  for (const row of pricingRows ?? []) {
+    priceMap[`${row.plan_key}:${row.currency}`] = row.price
+  }
 
   const payfastMerchantId = process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_ID ?? ''
 
@@ -34,6 +46,7 @@ export default async function SettingsPage() {
       cards={cards ?? []}
       leadCount={leadCount ?? 0}
       payfastMerchantId={payfastMerchantId}
+      priceMap={priceMap}
     />
   )
 }
