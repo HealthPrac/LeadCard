@@ -139,3 +139,116 @@ export async function sendLeadConfirmation(payload: { toEmail: string; toName: s
     html,
   })
 }
+
+// ── Pricing: approval request (to assigned approver) ─────────────────────────
+export async function sendPricingApprovalRequest(payload: {
+  toEmail:    string
+  proposedBy: string
+  planLabel:  string
+  currency:   string
+  oldPrice:   string
+  newPrice:   string
+  notes?:     string
+  proposalId: string
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+  const reviewUrl = `${appUrl}/admin/pricing`
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">AvantCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(184,116,62,0.85);color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">Admin · Pricing</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#B8743E;font-weight:500">Approval required</p>
+        <h2 style="margin:0 0 20px;font-family:Georgia,serif;font-size:26px;font-weight:400">Price change: ${payload.planLabel} (${payload.currency})</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)">
+            <td style="color:#666;padding:10px 0;width:140px">Plan</td>
+            <td style="padding:10px 0;font-weight:500">${payload.planLabel}</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)">
+            <td style="color:#666;padding:10px 0">Currency</td>
+            <td style="padding:10px 0">${payload.currency}</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)">
+            <td style="color:#666;padding:10px 0">Current price</td>
+            <td style="padding:10px 0;text-decoration:line-through;color:#999">${payload.oldPrice}</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)">
+            <td style="color:#666;padding:10px 0">Proposed price</td>
+            <td style="padding:10px 0;font-weight:600;color:#17181C">${payload.newPrice}</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)">
+            <td style="color:#666;padding:10px 0">Proposed by</td>
+            <td style="padding:10px 0">${payload.proposedBy}</td>
+          </tr>
+          ${payload.notes ? `
+          <tr>
+            <td style="color:#666;padding:10px 0;vertical-align:top">Notes</td>
+            <td style="padding:10px 0">${payload.notes}</td>
+          </tr>` : ''}
+        </table>
+        ${payload.currency === 'ZAR' ? `
+        <div style="background:#FEF3E2;border:1px solid #F6C675;border-radius:8px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#7A4A0F">
+          ⚠️ <strong>PayFast reminder:</strong> If you approve, remember to update the ZAR price in your PayFast merchant account manually.
+        </div>` : ''}
+        <a href="${reviewUrl}" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">
+          Review &amp; approve →
+        </a>
+        <p style="margin:20px 0 0;font-size:12px;color:#999">Log in to the AvantCard admin console to approve or reject this proposal.</p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from:    `AvantCard Admin <${FROM}>`,
+    to:      payload.toEmail,
+    subject: `Approval required: ${payload.planLabel} (${payload.currency}) price change`,
+    html,
+  })
+}
+
+// ── Pricing: decision notification (to proposer) ──────────────────────────────
+export async function sendPricingDecisionNotification(payload: {
+  toEmail:   string
+  decision:  'approved' | 'rejected'
+  planLabel: string
+  currency:  string
+  newPrice:  string
+}) {
+  const approved = payload.decision === 'approved'
+  const subject  = approved
+    ? `Price change approved — ${payload.planLabel} (${payload.currency})`
+    : `Price change rejected — ${payload.planLabel} (${payload.currency})`
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3">AvantCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(184,116,62,0.85);color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">Admin · Pricing</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:${approved ? '#2A7A4A' : '#C0392B'};font-weight:500">${approved ? 'Approved' : 'Rejected'}</p>
+        <h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:26px;font-weight:400">
+          ${payload.planLabel} (${payload.currency}) — ${approved ? 'price updated' : 'proposal rejected'}
+        </h2>
+        ${approved ? `
+        <p style="font-size:15px;color:#444;margin:0 0 16px">
+          The new price <strong>${payload.newPrice}</strong> is now live on the website.
+          ${payload.currency === 'ZAR' ? 'Remember to update PayFast manually.' : ''}
+        </p>` : `
+        <p style="font-size:15px;color:#444;margin:0 0 16px">
+          Your proposed price of <strong>${payload.newPrice}</strong> was not approved. Check the audit log for details.
+        </p>`}
+        <p style="margin:0;font-size:12px;color:#999">AvantCard Admin Console</p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from:    `AvantCard Admin <${FROM}>`,
+    to:      payload.toEmail,
+    subject,
+    html,
+  })
+}
