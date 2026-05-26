@@ -54,9 +54,16 @@ export function AdminSidebar({ adminEmail, cardSlug }: Props) {
     }}>
       {/* Brand */}
       <div style={{ padding: '6px 12px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/AvantCard_logo.svg" alt="AvantCard" height={22} style={{ display: 'block', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
+            <rect width="40" height="40" rx="8" fill="#111114"/>
+            <path d="M20 8 L28 24 H12 Z" fill="none" stroke="#B8743E" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M14 24 L26 24" stroke="#B8743E" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="20" cy="30" r="2.5" fill="#D4975A" opacity="0.85"/>
+          </svg>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 500, letterSpacing: '0.03em', lineHeight: 1 }}>
+            <span style={{ color: '#F6F7F3' }}>Avant</span><span style={{ color: '#C07B40' }}>Card</span>
+          </span>
         </div>
         <span style={{
           display: 'inline-block', fontSize: 9.5, fontWeight: 700,
