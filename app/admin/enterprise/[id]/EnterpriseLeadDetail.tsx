@@ -2,9 +2,9 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import type { EnterpriseLead, EnterpriseEnrollment, EnterprisePricingProposal, EnterprisePricingAuditRow } from '@/lib/admin/enterprise-queries'
+import type { EnterpriseLead, EnterpriseEnrollment, EnterprisePricingProposal, EnterprisePricingAuditRow } from '@/lib/admin/enterprise-types'
 import type { AdminOption } from '@/lib/admin/pricing-queries'
-import { changeTypeLabel } from '@/lib/admin/enterprise-queries'
+import { changeTypeLabel } from '@/lib/admin/enterprise-types'
 import {
   updateLeadStatus,
   enrollEnterprise,
