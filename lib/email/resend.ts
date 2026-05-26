@@ -364,6 +364,128 @@ export async function sendPricingApprovalRequest(payload: {
   })
 }
 
+// ── Cancellation: admin notification ─────────────────────────────────────────
+export async function sendCancellationAdminNotification(payload: {
+  subscriberEmail: string
+  requestType: 'cancel' | 'delete'
+  effectiveDate: string
+  pastCutoff: boolean
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+  const isDelete = payload.requestType === 'delete'
+  const actionLabel = isDelete ? 'Account Deletion' : 'Cancellation'
+  const color = isDelete ? '#C0392B' : '#B8743E'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">LeadCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:${color};color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">${actionLabel}</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:${color};font-weight:500">Action required — billing</p>
+        <h2 style="margin:0 0 20px;font-family:Georgia,serif;font-size:26px;font-weight:400">${payload.subscriberEmail}</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0;width:160px">Request type</td><td style="padding:10px 0;font-weight:500">${actionLabel}</td></tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">Effective date</td><td style="padding:10px 0;font-weight:600">${payload.effectiveDate}</td></tr>
+          <tr><td style="color:#666;padding:10px 0">Billing cutoff</td><td style="padding:10px 0">${payload.pastCutoff ? '⚠️ Past 15th — billed for current month' : '✓ Before 15th — no further billing'}</td></tr>
+        </table>
+        <div style="background:#FEF3E2;border:1px solid #F6C675;border-radius:8px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#7A4A0F">
+          ${isDelete
+            ? '⚠️ Cancel this subscriber\'s <strong>PayFast subscription</strong> and schedule account data deletion after the effective date.'
+            : '⚠️ Cancel this subscriber\'s <strong>PayFast subscription</strong> after the effective date.'}
+        </div>
+        <a href="${appUrl}/admin" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 22px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">View admin console →</a>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from: `LeadCard <${FROM}>`,
+    to: 'admin@healthprac.com',
+    subject: `${actionLabel}: ${payload.subscriberEmail} — effective ${payload.effectiveDate}`,
+    html,
+  })
+}
+
+// ── Cancellation: subscriber confirmation ─────────────────────────────────────
+export async function sendCancellationSubscriberConfirmation(payload: {
+  toEmail: string
+  requestType: 'cancel' | 'delete'
+  effectiveDate: string
+  pastCutoff: boolean
+}) {
+  const isDelete = payload.requestType === 'delete'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">LeadCard</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#8FAF9D;font-weight:500">
+          ${isDelete ? 'Deletion requested' : 'Cancellation confirmed'}
+        </p>
+        <h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:26px;font-weight:400">
+          ${isDelete ? 'Your account will be deleted.' : 'Your subscription is being cancelled.'}
+        </h2>
+        <p style="font-size:15px;line-height:1.6;color:#444;margin:0 0 20px">
+          Your card will remain live until <strong>${payload.effectiveDate}</strong>.
+          After that date, anyone visiting your card link will see a "no longer in use" notice.
+        </p>
+        ${payload.pastCutoff ? `
+        <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:13px;color:#854D0E">
+          You requested after the 15th — you may be charged for the current billing month.
+        </div>` : `
+        <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:13px;color:#166534">
+          Requested before the 15th — no further billing after this month.
+        </div>`}
+        ${!isDelete ? `
+        <p style="font-size:13.5px;color:#444;margin:0 0 20px">
+          Changed your mind? You can revoke this cancellation from <a href="${appUrl}/settings" style="color:#17181C">Settings → Billing</a> before the effective date.
+        </p>` : ''}
+        <p style="margin:0;font-size:12px;color:#999">Questions? Contact <a href="mailto:billing@leadcard.app" style="color:#999">billing@leadcard.app</a></p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from: `LeadCard <${FROM}>`,
+    to: payload.toEmail,
+    subject: isDelete
+      ? `Account deletion confirmed — effective ${payload.effectiveDate}`
+      : `Subscription cancellation confirmed — effective ${payload.effectiveDate}`,
+    html,
+  })
+}
+
+// ── Revocation confirmation ───────────────────────────────────────────────────
+export async function sendRevocationConfirmation(payload: { toEmail: string }) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">LeadCard</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#8FAF9D;font-weight:500">Cancellation revoked</p>
+        <h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:26px;font-weight:400">Welcome back.</h2>
+        <p style="font-size:15px;line-height:1.6;color:#444;margin:0 0 20px">
+          Your cancellation has been revoked and your subscription is active again. Your card is live and nothing has changed.
+        </p>
+        <a href="${appUrl}/dashboard" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 22px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Go to dashboard →</a>
+        <p style="margin:20px 0 0;font-size:12px;color:#999">Questions? Contact <a href="mailto:billing@leadcard.app" style="color:#999">billing@leadcard.app</a></p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from: `LeadCard <${FROM}>`,
+    to: payload.toEmail,
+    subject: 'Cancellation revoked — your LeadCard subscription is active',
+    html,
+  })
+}
+
 // ── Plan change: admin notification ──────────────────────────────────────────
 export async function sendPlanChangeAdminNotification(payload: {
   subscriberEmail: string

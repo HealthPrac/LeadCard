@@ -111,6 +111,12 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      account_cancellations: {
+        Row: AccountCancellation
+        Insert: Omit<AccountCancellation, 'id' | 'created_at'>
+        Update: Partial<Omit<AccountCancellation, 'id' | 'created_at'>>
+        Relationships: []
+      }
       plan_change_history: {
         Row: PlanChangeHistory
         Insert: Omit<PlanChangeHistory, 'id' | 'created_at'>
@@ -132,9 +138,11 @@ export interface Subscriber {
   plan: 'solo' | 'small' | 'enterprise'
   payfast_customer_id: string | null
   payfast_subscription_id: string | null
-  subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
+  subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete' | 'canceling' | 'pending_deletion'
   trial_ends_at: string | null
   promo_code_id: string | null
+  cancellation_requested_at: string | null
+  effective_end_date: string | null
   created_at: string
   updated_at: string
 }
@@ -388,6 +396,18 @@ export interface EnterprisePricingAuditEntry {
   old_value: string
   new_value: string
   actor_email: string | null
+  notes: string | null
+}
+
+export interface AccountCancellation {
+  id: string
+  created_at: string
+  subscriber_id: string
+  subscriber_email: string
+  request_type: 'cancel' | 'delete'
+  effective_date: string
+  status: 'pending' | 'processed' | 'revoked'
+  processed_at: string | null
   notes: string | null
 }
 

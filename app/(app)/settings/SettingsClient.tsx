@@ -42,6 +42,22 @@ interface Subscriber {
   subscription_status: string
   trial_ends_at: string | null
   promo_code_id: string | null
+  cancellation_requested_at: string | null
+  effective_end_date: string | null
+}
+
+function fmtDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+function calcCancellationEffectiveDate(): { dateStr: string; displayStr: string; pastCutoff: boolean } {
+  const today = new Date()
+  const pastCutoff = today.getDate() >= 15
+  const targetMonth = pastCutoff ? today.getMonth() + 1 : today.getMonth()
+  const effectiveDate = new Date(today.getFullYear(), targetMonth + 1, 0) // last day of target month
+  const dateStr = effectiveDate.toISOString().slice(0, 10)
+  const displayStr = effectiveDate.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })
+  return { dateStr, displayStr, pastCutoff }
 }
 
 interface Card {
@@ -80,7 +96,63 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
   const [planSuccess, setPlanSuccess] = useState<string | null>(null)
   const [downgradeConfirm, setDowngradeConfirm] = useState('')
 
+  // Cancel / delete state
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [cancelConfirm, setCancelConfirm] = useState('')
+  const [accountActionLoading, setAccountActionLoading] = useState(false)
+  const [accountActionMsg, setAccountActionMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [revokeLoading, setRevokeLoading] = useState(false)
+
   const PLANS = buildPlanMeta(priceMap)
+
+  // Cancellation helpers
+  const isCanceling = subscriber.subscription_status === 'canceling'
+  const isPendingDeletion = subscriber.subscription_status === 'pending_deletion'
+  const hasScheduledEnd = isCanceling || isPendingDeletion
+  const effectiveDateDisplay = subscriber.effective_end_date ? fmtDate(subscriber.effective_end_date) : null
+
+  async function submitAccountAction(type: 'cancel' | 'delete') {
+    setAccountActionLoading(true)
+    setAccountActionMsg(null)
+    const res = await fetch('/api/billing/cancel-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    })
+    const json = await res.json()
+    setAccountActionLoading(false)
+    if (!res.ok || !json.success) {
+      setAccountActionMsg({ type: 'err', text: json.error ?? 'Something went wrong.' })
+      return
+    }
+    const msg = type === 'cancel'
+      ? `Cancellation confirmed. Your card stays live until ${json.effectiveDateDisplay}.`
+      : `Deletion requested. Your card stays live until ${json.effectiveDateDisplay}.`
+    setAccountActionMsg({ type: 'ok', text: msg })
+    setCancelConfirm('')
+    setCancelOpen(false)
+    setDeleteOpen(false)
+    router.refresh()
+  }
+
+  async function submitRevoke() {
+    setRevokeLoading(true)
+    setAccountActionMsg(null)
+    const res = await fetch('/api/billing/cancel-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'revoke' }),
+    })
+    const json = await res.json()
+    setRevokeLoading(false)
+    if (!res.ok || !json.success) {
+      setAccountActionMsg({ type: 'err', text: json.error ?? 'Something went wrong.' })
+      return
+    }
+    setAccountActionMsg({ type: 'ok', text: 'Cancellation revoked. Your subscription is active again.' })
+    router.refresh()
+  }
 
   async function applyPromo() {
     if (!promoCode.trim()) return
@@ -454,15 +526,102 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
             </div>
           )}
 
-          {/* Active subscription status */}
-          {subscriber.subscription_status === 'active' && (
-            <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 8 }}>Subscription</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
-                <span style={{ fontSize: 14, fontWeight: 500 }}>Active</span>
+          {/* Account action feedback */}
+          {accountActionMsg && (
+            <div style={{ padding: '14px 18px', borderRadius: 10, background: accountActionMsg.type === 'ok' ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${accountActionMsg.type === 'ok' ? '#86EFAC' : '#FECACA'}`, fontSize: 13.5, color: accountActionMsg.type === 'ok' ? '#166534' : '#991B1B' }}>
+              {accountActionMsg.type === 'ok' ? '✓' : '✕'} {accountActionMsg.text}
+            </div>
+          )}
+
+          {/* Cancellation pending banner */}
+          {hasScheduledEnd && effectiveDateDisplay && (
+            <div style={{ padding: 20, borderRadius: 14, background: '#FEF9C3', border: '1px solid #FDE047' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#854D0E', marginBottom: 4 }}>
+                    {isCanceling ? '⚠️ Cancellation scheduled' : '⚠️ Deletion scheduled'}
+                  </div>
+                  <p style={{ fontSize: 13, color: '#92400E', margin: 0, lineHeight: 1.5 }}>
+                    Your card will stop working on <strong>{effectiveDateDisplay}</strong>.
+                    {isCanceling && ' You can revoke this before that date.'}
+                  </p>
+                </div>
+                {isCanceling && (
+                  <button
+                    onClick={submitRevoke}
+                    disabled={revokeLoading}
+                    style={{ flexShrink: 0, padding: '7px 14px', background: '#17181C', color: '#F6F7F3', border: 'none', borderRadius: 7, fontSize: 12.5, fontWeight: 500, cursor: revokeLoading ? 'not-allowed' : 'pointer', opacity: revokeLoading ? 0.6 : 1, fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                  >
+                    {revokeLoading ? 'Revoking…' : 'Revoke cancellation'}
+                  </button>
+                )}
               </div>
-              <p style={{ fontSize: 13, color: 'var(--muted)', margin: '8px 0 0' }}>To cancel or update billing, contact <a href="mailto:billing@leadcard.app" style={{ color: 'var(--charcoal)' }}>billing@leadcard.app</a>.</p>
+            </div>
+          )}
+
+          {/* Active subscription status + cancel option */}
+          {(subscriber.subscription_status === 'active' || isTrialing) && !hasScheduledEnd && (
+            <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: cancelOpen ? 20 : 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>
+                    {isTrialing ? 'Trial active' : 'Subscription active'}
+                  </span>
+                </div>
+                {!cancelOpen && (
+                  <button
+                    onClick={() => { setCancelOpen(true); setCancelConfirm(''); setAccountActionMsg(null) }}
+                    style={{ fontSize: 12.5, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, textDecoration: 'underline' }}
+                  >
+                    Cancel subscription
+                  </button>
+                )}
+              </div>
+
+              {cancelOpen && (() => {
+                const { displayStr, pastCutoff } = calcCancellationEffectiveDate()
+                return (
+                  <div>
+                    <div style={{ fontSize: 13.5, color: '#444', lineHeight: 1.6, marginBottom: 14 }}>
+                      Your card stays live until <strong>{displayStr}</strong>. After that, anyone visiting your card link will see a "no longer in use" notice. Your data is preserved.
+                    </div>
+                    {pastCutoff ? (
+                      <div style={{ background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12.5, color: '#854D0E' }}>
+                        ⚠️ You're past the 15th — your cancellation takes effect end of <strong>next month</strong>. You may be charged for the current month.
+                      </div>
+                    ) : (
+                      <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12.5, color: '#166534' }}>
+                        ✓ Before the 15th — no further billing after this month.
+                      </div>
+                    )}
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>
+                      Type <strong>cancel</strong> to confirm:
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <input
+                        value={cancelConfirm}
+                        onChange={e => setCancelConfirm(e.target.value)}
+                        placeholder="cancel"
+                        style={{ padding: '8px 12px', borderRadius: 7, border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', width: 130 }}
+                      />
+                      <button
+                        onClick={() => submitAccountAction('cancel')}
+                        disabled={accountActionLoading || cancelConfirm !== 'cancel'}
+                        style={{ padding: '8px 16px', background: '#B8743E', color: '#fff', border: 'none', borderRadius: 7, fontSize: 13, fontWeight: 500, cursor: (accountActionLoading || cancelConfirm !== 'cancel') ? 'not-allowed' : 'pointer', opacity: (accountActionLoading || cancelConfirm !== 'cancel') ? 0.5 : 1, fontFamily: 'inherit' }}
+                      >
+                        {accountActionLoading ? 'Confirming…' : 'Confirm cancel'}
+                      </button>
+                      <button
+                        onClick={() => { setCancelOpen(false); setCancelConfirm('') }}
+                        style={{ fontSize: 12.5, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+                      >
+                        Never mind
+                      </button>
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
         </div>
@@ -486,27 +645,75 @@ export default function SettingsClient({ email, subscriber, cards, leadCount, pa
             </div>
           </div>
 
-          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--line-danger, #FEE2E2)' }}>
+          <div style={{ padding: 24, borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid #FEE2E2' }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#EF4444', marginBottom: 8 }}>Danger zone</div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 14px' }}>
-              Deleting your account permanently removes your card, all leads, and cancels your subscription. This cannot be undone.
-            </p>
-            <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 10px' }}>Type <strong>delete my account</strong> to confirm:</p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <input
-                value={deleteConfirm}
-                onChange={e => setDeleteConfirm(e.target.value)}
-                placeholder="delete my account"
-                style={{ flex: 1, padding: '9px 14px', borderRadius: 8, border: '1px solid var(--line)', fontSize: 13.5, fontFamily: 'inherit', outline: 'none' }}
-              />
-              <button
-                disabled={deleteConfirm !== 'delete my account'}
-                onClick={() => alert('Please contact support@leadcard.app to delete your account.')}
-                style={{ padding: '9px 18px', background: '#EF4444', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: deleteConfirm === 'delete my account' ? 'pointer' : 'not-allowed', opacity: deleteConfirm === 'delete my account' ? 1 : 0.4, fontFamily: 'inherit' }}
-              >
-                Delete account
-              </button>
-            </div>
+
+            {isPendingDeletion && effectiveDateDisplay ? (
+              <div>
+                <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '0 0 10px', lineHeight: 1.6 }}>
+                  <strong>Deletion is scheduled</strong> — your account and card will be removed on <strong>{effectiveDateDisplay}</strong>.
+                </p>
+                <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: 0 }}>
+                  To reverse this, contact <a href="mailto:billing@leadcard.app" style={{ color: '#EF4444' }}>billing@leadcard.app</a> before that date.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 6px', lineHeight: 1.6 }}>
+                  Your subscription is cancelled and your account data is scheduled for removal at end of month. Your card link will show a "no longer in use" notice after the effective date. <strong>This cannot be undone.</strong>
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--muted)', margin: '0 0 16px' }}>
+                  Must be requested before the <strong>15th of the month</strong> to take effect this month.
+                </p>
+
+                {!deleteOpen ? (
+                  <button
+                    onClick={() => { setDeleteOpen(true); setCancelConfirm(''); setAccountActionMsg(null) }}
+                    style={{ padding: '9px 18px', background: 'transparent', color: '#EF4444', border: '1px solid #FCA5A5', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}
+                  >
+                    Delete my account
+                  </button>
+                ) : (() => {
+                  const { displayStr, pastCutoff } = calcCancellationEffectiveDate()
+                  return (
+                    <div>
+                      <div style={{ fontSize: 13.5, color: '#444', lineHeight: 1.6, marginBottom: 12 }}>
+                        Your card goes dark on <strong>{displayStr}</strong>. Data is archived internally for compliance. Login will be disabled after that date.
+                      </div>
+                      {pastCutoff && (
+                        <div style={{ background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12.5, color: '#854D0E' }}>
+                          ⚠️ Past the 15th — effective end of <strong>next month</strong>. You may be billed for current month.
+                        </div>
+                      )}
+                      <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>
+                        Type <strong>delete my account</strong> to confirm:
+                      </div>
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        <input
+                          value={cancelConfirm}
+                          onChange={e => setCancelConfirm(e.target.value)}
+                          placeholder="delete my account"
+                          style={{ flex: '1 1 200px', padding: '9px 14px', borderRadius: 8, border: '1px solid #FCA5A5', fontSize: 13.5, fontFamily: 'inherit', outline: 'none', minWidth: 0 }}
+                        />
+                        <button
+                          onClick={() => submitAccountAction('delete')}
+                          disabled={accountActionLoading || cancelConfirm !== 'delete my account'}
+                          style={{ padding: '9px 18px', background: '#EF4444', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: (accountActionLoading || cancelConfirm !== 'delete my account') ? 'not-allowed' : 'pointer', opacity: (accountActionLoading || cancelConfirm !== 'delete my account') ? 0.4 : 1, fontFamily: 'inherit', flexShrink: 0 }}
+                        >
+                          {accountActionLoading ? 'Scheduling…' : 'Delete account'}
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => { setDeleteOpen(false); setCancelConfirm('') }}
+                        style={{ marginTop: 10, fontSize: 12.5, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )
+                })()}
+              </>
+            )}
           </div>
         </div>
       )}
