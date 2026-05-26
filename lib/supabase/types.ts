@@ -63,6 +63,54 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      pricing_current: {
+        Row: PricingCurrent
+        Insert: Omit<PricingCurrent, 'id'>
+        Update: Partial<Omit<PricingCurrent, 'id'>>
+        Relationships: []
+      }
+      pricing_proposals: {
+        Row: PricingProposal
+        Insert: Omit<PricingProposal, 'id' | 'created_at'>
+        Update: Partial<Omit<PricingProposal, 'id'>>
+        Relationships: []
+      }
+      pricing_audit_log: {
+        Row: PricingAuditEntry
+        Insert: Omit<PricingAuditEntry, 'id' | 'created_at'>
+        Update: never
+        Relationships: []
+      }
+      admins: {
+        Row: Admin
+        Insert: Omit<Admin, 'id' | 'created_at'>
+        Update: Partial<Omit<Admin, 'id'>>
+        Relationships: []
+      }
+      enterprise_leads: {
+        Row: EnterpriseLead
+        Insert: Omit<EnterpriseLead, 'id' | 'created_at'>
+        Update: Partial<Omit<EnterpriseLead, 'id'>>
+        Relationships: []
+      }
+      enterprise_enrollments: {
+        Row: EnterpriseEnrollment
+        Insert: Omit<EnterpriseEnrollment, 'id' | 'created_at' | 'enrolled_at'>
+        Update: Partial<Omit<EnterpriseEnrollment, 'id'>>
+        Relationships: []
+      }
+      enterprise_pricing_proposals: {
+        Row: EnterprisePricingProposal
+        Insert: Omit<EnterprisePricingProposal, 'id' | 'created_at'>
+        Update: Partial<Omit<EnterprisePricingProposal, 'id'>>
+        Relationships: []
+      }
+      enterprise_pricing_audit_log: {
+        Row: EnterprisePricingAuditEntry
+        Insert: Omit<EnterprisePricingAuditEntry, 'id' | 'created_at'>
+        Update: never
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -231,6 +279,110 @@ export interface ServiceRating {
   rating: number
   comment: string | null
   created_at: string
+}
+
+export interface PricingCurrent {
+  id: string
+  plan_key: string
+  currency: string
+  price: string
+  updated_at: string
+  updated_by: string | null
+}
+
+export interface PricingProposal {
+  id: string
+  plan_key: string
+  currency: string
+  old_price: string
+  new_price: string
+  notes: string | null
+  proposed_by: string
+  assigned_to: string
+  status: 'pending' | 'approved' | 'rejected'
+  actioned_by: string | null
+  actioned_at: string | null
+  created_at: string
+}
+
+export interface PricingAuditEntry {
+  id: string
+  proposal_id: string
+  plan_key: string
+  currency: string
+  action: 'proposed' | 'approved' | 'rejected'
+  old_price: string
+  new_price: string
+  actor_email: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface Admin {
+  id: string
+  user_id: string
+  email: string
+  role: string | null
+  created_at: string
+}
+
+export interface EnterpriseLead {
+  id: string
+  created_at: string
+  contact_name: string
+  contact_email: string
+  contact_phone: string | null
+  company_name: string
+  estimated_seats: number | null
+  message: string | null
+  status: 'new' | 'contacted' | 'enrolled' | 'lost'
+  admin_notes: string | null
+  enrolled_enrollment_id: string | null
+}
+
+export interface EnterpriseEnrollment {
+  id: string
+  created_at: string
+  lead_id: string | null
+  subscriber_id: string | null
+  company_name: string
+  seats: number
+  price_per_user_display: string
+  currency: string
+  setup_fee_display: string | null
+  discount_code: string | null
+  api_access: boolean
+  sla_path: string | null
+  enrolled_by: string
+  enrolled_at: string
+}
+
+export interface EnterprisePricingProposal {
+  id: string
+  created_at: string
+  enrollment_id: string
+  change_type: 'per_user' | 'setup_fee' | 'seats'
+  old_value: string
+  new_value: string
+  notes: string | null
+  proposed_by: string
+  assigned_to: string
+  status: 'pending' | 'approved' | 'rejected'
+  actioned_by: string | null
+  actioned_at: string | null
+}
+
+export interface EnterprisePricingAuditEntry {
+  id: string
+  created_at: string
+  proposal_id: string
+  enrollment_id: string
+  change_type: string
+  action: 'proposed' | 'approved' | 'rejected'
+  old_value: string
+  new_value: string
+  actor_email: string | null
+  notes: string | null
 }
 
 export type CrmStatus = 'new' | 'engaged' | 'prospect' | 'client' | 'lost'

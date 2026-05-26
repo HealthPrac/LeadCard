@@ -140,6 +140,161 @@ export async function sendLeadConfirmation(payload: { toEmail: string; toName: s
   })
 }
 
+// ── Enterprise inquiry: notification to admin@healthprac.com ─────────────────
+export async function sendEnterpriseInquiryNotification(payload: {
+  contact_name: string
+  contact_email: string
+  contact_phone: string | null
+  company_name: string
+  estimated_seats: number | null
+  message: string | null
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+  const rows = [
+    payload.contact_phone    && `<tr><td style="color:#666;padding:6px 0;width:140px">Phone</td><td style="padding:6px 0">${payload.contact_phone}</td></tr>`,
+    payload.estimated_seats  && `<tr><td style="color:#666;padding:6px 0">Est. team size</td><td style="padding:6px 0">${payload.estimated_seats}</td></tr>`,
+    payload.message          && `<tr><td style="color:#666;padding:6px 0;vertical-align:top">Message</td><td style="padding:6px 0">${payload.message}</td></tr>`,
+  ].filter(Boolean).join('')
+
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">AvantCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(184,116,62,0.85);color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">Enterprise Inquiry</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#B8743E;font-weight:500">New enterprise inquiry</p>
+        <h2 style="margin:0 0 20px;font-family:Georgia,serif;font-size:26px;font-weight:400">${payload.company_name}</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:1px solid rgba(23,24,28,0.1)">
+          <tr><td style="color:#666;padding:10px 0 6px;width:140px">Contact</td><td style="padding:10px 0 6px;font-weight:500">${payload.contact_name}</td></tr>
+          <tr><td style="color:#666;padding:6px 0">Email</td><td style="padding:6px 0"><a href="mailto:${payload.contact_email}" style="color:#17181C">${payload.contact_email}</a></td></tr>
+          ${rows}
+        </table>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(23,24,28,0.1);display:flex;gap:12px">
+          <a href="${appUrl}/admin/enterprise" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 22px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">
+            View in admin →
+          </a>
+          <a href="mailto:${payload.contact_email}" style="display:inline-block;background:transparent;color:#17181C;border:1px solid rgba(23,24,28,0.2);padding:12px 22px;border-radius:8px;text-decoration:none;font-size:14px">
+            Reply to ${payload.contact_name}
+          </a>
+        </div>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from:    `AvantCard <${FROM}>`,
+    to:      'admin@healthprac.com',
+    replyTo: payload.contact_email,
+    subject: `Enterprise inquiry — ${payload.company_name}`,
+    html,
+  })
+}
+
+// ── Enterprise inquiry: confirmation to submitter ─────────────────────────────
+export async function sendEnterpriseInquiryConfirmation(payload: {
+  toName: string
+  toEmail: string
+  companyName: string
+}) {
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">AvantCard</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#8FAF9D;font-weight:500">We got it</p>
+        <h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:26px;font-weight:400">Thanks, ${payload.toName}.</h2>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#444">
+          Your enterprise inquiry for <strong>${payload.companyName}</strong> has been received. Our team will be in touch within one business day.
+        </p>
+        <p style="margin:0;font-size:12px;color:#999">
+          Questions in the meantime? Reply directly to this email.
+        </p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from:    `AvantCard <${FROM}>`,
+    to:      payload.toEmail,
+    subject: `We received your enterprise inquiry — AvantCard`,
+    html,
+  })
+}
+
+// ── Enterprise pricing: approval request ─────────────────────────────────────
+export async function sendEnterprisePricingApprovalRequest(payload: {
+  toEmail: string
+  proposedBy: string
+  companyName: string
+  changeLabel: string
+  oldValue: string
+  newValue: string
+  notes?: string
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://main.d2idx6kv8dvjyf.amplifyapp.com'
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3;letter-spacing:-0.01em">AvantCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(184,116,62,0.85);color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">Enterprise · Pricing</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#B8743E;font-weight:500">Approval required</p>
+        <h2 style="margin:0 0 20px;font-family:Georgia,serif;font-size:26px;font-weight:400">${payload.companyName} — ${payload.changeLabel}</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:24px">
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0;width:140px">Change</td><td style="padding:10px 0;font-weight:500">${payload.changeLabel}</td></tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">Current</td><td style="padding:10px 0;text-decoration:line-through;color:#999">${payload.oldValue}</td></tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">Proposed</td><td style="padding:10px 0;font-weight:600">${payload.newValue}</td></tr>
+          <tr style="border-bottom:1px solid rgba(23,24,28,0.08)"><td style="color:#666;padding:10px 0">Proposed by</td><td style="padding:10px 0">${payload.proposedBy}</td></tr>
+          ${payload.notes ? `<tr><td style="color:#666;padding:10px 0;vertical-align:top">Notes</td><td style="padding:10px 0">${payload.notes}</td></tr>` : ''}
+        </table>
+        <a href="${appUrl}/admin/enterprise" style="display:inline-block;background:#17181C;color:#F6F7F3;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500">Review &amp; approve →</a>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from:    `AvantCard Admin <${FROM}>`,
+    to:      payload.toEmail,
+    subject: `Approval required: ${payload.companyName} — ${payload.changeLabel}`,
+    html,
+  })
+}
+
+// ── Enterprise pricing: decision notification ─────────────────────────────────
+export async function sendEnterprisePricingDecisionNotification(payload: {
+  toEmail: string
+  decision: 'approved' | 'rejected'
+  companyName: string
+  changeLabel: string
+  newValue: string
+}) {
+  const approved = payload.decision === 'approved'
+  const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;color:#17181C">
+      <div style="background:#17181C;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-family:Georgia,serif;font-size:22px;color:#F6F7F3">AvantCard</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(184,116,62,0.85);color:#fff;display:inline-block;padding:2px 8px;border-radius:4px;margin-top:8px">Enterprise · Pricing</div>
+      </div>
+      <div style="background:#F6F7F3;padding:32px;border-radius:0 0 12px 12px;border:1px solid rgba(23,24,28,0.1)">
+        <p style="margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:${approved ? '#2A7A4A' : '#C0392B'};font-weight:500">${approved ? 'Approved' : 'Rejected'}</p>
+        <h2 style="margin:0 0 16px;font-family:Georgia,serif;font-size:26px;font-weight:400">${payload.companyName} — ${payload.changeLabel}</h2>
+        <p style="font-size:15px;color:#444;margin:0">
+          ${approved
+            ? `The change to <strong>${payload.newValue}</strong> was approved and is now active.`
+            : `The proposed change to <strong>${payload.newValue}</strong> was rejected. Check the audit log for details.`
+          }
+        </p>
+      </div>
+    </div>`
+
+  await getResend().emails.send({
+    from:    `AvantCard Admin <${FROM}>`,
+    to:      payload.toEmail,
+    subject: `${approved ? 'Approved' : 'Rejected'}: ${payload.companyName} — ${payload.changeLabel}`,
+    html,
+  })
+}
+
 // ── Pricing: approval request (to assigned approver) ─────────────────────────
 export async function sendPricingApprovalRequest(payload: {
   toEmail:    string

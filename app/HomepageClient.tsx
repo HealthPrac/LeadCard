@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
@@ -47,7 +47,7 @@ const PLANS_BASE = [
     description: 'For large organisations',
     features:    ['Unlimited cards', 'SSO / SAML', 'Dedicated account manager', 'SLA & uptime guarantee', 'API access', 'Custom integrations'],
     cta:         'Contact us',
-    href:        'mailto:hello@avantcard.app',
+    href:        '#enterprise-inquiry',
     featured:    false,
   },
 ]
@@ -59,8 +59,46 @@ interface Props {
   priceMap?: Record<string, string>   // e.g. { 'solo:ZAR': 'R 69', 'solo:USD': '$ 4', ... }
 }
 
+type InquiryState = 'idle' | 'submitting' | 'success' | 'error'
+
 export default function HomepageClient({ priceMap }: Props) {
   const [currency, setCurrency] = useState<'ZAR' | 'USD'>('ZAR')
+  const [showInquiry, setShowInquiry] = useState(false)
+  const [inquiryState, setInquiryState] = useState<InquiryState>('idle')
+  const [inquiryError, setInquiryError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  async function handleEnterpriseInquiry(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setInquiryState('submitting')
+    setInquiryError(null)
+    const fd = new FormData(e.currentTarget)
+    try {
+      const res = await fetch('/api/enterprise/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(fd.entries())),
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        setInquiryState('error')
+        setInquiryError(data.error ?? 'Something went wrong. Please try again.')
+      } else {
+        setInquiryState('success')
+        formRef.current?.reset()
+      }
+    } catch {
+      setInquiryState('error')
+      setInquiryError('Could not reach the server. Please try again.')
+    }
+  }
+
+  function openInquiry(e: React.MouseEvent) {
+    e.preventDefault()
+    setShowInquiry(true)
+    setInquiryState('idle')
+    setInquiryError(null)
+  }
 
   // Merge DB prices over defaults
   const PLANS = PLANS_BASE.map(p => ({
@@ -312,14 +350,28 @@ export default function HomepageClient({ priceMap }: Props) {
                     </li>
                   ))}
                 </ul>
-                <Link href={p.href} style={{
-                  display: 'block', textAlign: 'center', padding: '13px 0',
-                  background: p.featured ? '#B8743E' : DARK_BG, color: '#fff',
-                  fontSize: 12.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase',
-                  textDecoration: 'none',
-                }}>
-                  {p.cta}
-                </Link>
+                {p.planKey === 'enterprise' ? (
+                  <button
+                    onClick={openInquiry}
+                    style={{
+                      display: 'block', width: '100%', textAlign: 'center', padding: '13px 0',
+                      background: DARK_BG, color: '#fff', border: 'none', cursor: 'pointer',
+                      fontSize: 12.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {p.cta}
+                  </button>
+                ) : (
+                  <Link href={p.href} style={{
+                    display: 'block', textAlign: 'center', padding: '13px 0',
+                    background: p.featured ? '#B8743E' : DARK_BG, color: '#fff',
+                    fontSize: 12.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase',
+                    textDecoration: 'none',
+                  }}>
+                    {p.cta}
+                  </Link>
+                )}
               </div>
             ))}
           </div>
@@ -351,6 +403,140 @@ export default function HomepageClient({ priceMap }: Props) {
           </p>
         </div>
       </section>
+
+      {/* ─── ENTERPRISE INQUIRY MODAL ──────────────────────── */}
+      {showInquiry && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowInquiry(false); setInquiryState('idle') } }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.72)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', padding: '20px',
+          }}
+        >
+          <div style={{
+            background: 'var(--bg-surface)', maxWidth: 500, width: '100%',
+            padding: '36px 36px 32px', position: 'relative',
+            borderTop: '3px solid #B8743E',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+          }}>
+            <button
+              onClick={() => { setShowInquiry(false); setInquiryState('idle') }}
+              style={{
+                position: 'absolute', top: 16, right: 16,
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 18, color: 'var(--muted)', lineHeight: 1, padding: 4,
+              }}
+              aria-label="Close"
+            >×</button>
+
+            <p style={{ margin: '0 0 4px', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8743E' }}>Enterprise</p>
+            <h2 style={{ margin: '0 0 6px', fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400, color: 'var(--charcoal)' }}>
+              Request a call back
+            </h2>
+            <p style={{ margin: '0 0 24px', fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.6 }}>
+              Tell us about your organisation. We'll be in touch within one business day.
+            </p>
+
+            {inquiryState === 'success' ? (
+              <div style={{ textAlign: 'center', padding: '28px 0' }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, margin: '0 0 8px', color: 'var(--charcoal)' }}>Inquiry received</h3>
+                <p style={{ fontSize: 14, color: 'var(--muted)' }}>We'll be in touch within one business day.</p>
+                <button
+                  onClick={() => { setShowInquiry(false); setInquiryState('idle') }}
+                  style={{ marginTop: 20, padding: '10px 24px', background: DARK_BG, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form ref={formRef} onSubmit={handleEnterpriseInquiry}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+                      Your name <span style={{ color: '#B8743E' }}>*</span>
+                    </label>
+                    <input
+                      name="contact_name" required
+                      style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', background: 'var(--cream)', color: 'var(--charcoal)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+                      Company <span style={{ color: '#B8743E' }}>*</span>
+                    </label>
+                    <input
+                      name="company_name" required
+                      style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', background: 'var(--cream)', color: 'var(--charcoal)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+                    Work email <span style={{ color: '#B8743E' }}>*</span>
+                  </label>
+                  <input
+                    name="contact_email" type="email" required
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', background: 'var(--cream)', color: 'var(--charcoal)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Phone</label>
+                    <input
+                      name="contact_phone" type="tel"
+                      style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', background: 'var(--cream)', color: 'var(--charcoal)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Estimated team size</label>
+                    <select
+                      name="estimated_seats"
+                      style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', background: 'var(--cream)', color: 'var(--charcoal)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' }}
+                    >
+                      <option value="">Select…</option>
+                      <option value="6">6 – 15</option>
+                      <option value="16">16 – 50</option>
+                      <option value="51">51 – 200</option>
+                      <option value="201">201+</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Message</label>
+                  <textarea
+                    name="message" rows={3}
+                    placeholder="Tell us about your use case, timeline, or any specific requirements…"
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', background: 'var(--cream)', color: 'var(--charcoal)', fontSize: 14, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {inquiryError && (
+                  <p style={{ margin: '0 0 14px', fontSize: 13, color: '#C0392B', background: 'rgba(192,57,43,0.08)', padding: '10px 14px', borderLeft: '3px solid #C0392B' }}>
+                    {inquiryError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={inquiryState === 'submitting'}
+                  style={{
+                    width: '100%', padding: '13px', background: inquiryState === 'submitting' ? 'rgba(23,24,28,0.5)' : DARK_BG,
+                    color: '#fff', border: 'none', cursor: inquiryState === 'submitting' ? 'not-allowed' : 'pointer',
+                    fontSize: 13, fontWeight: 500, letterSpacing: '0.07em', textTransform: 'uppercase', fontFamily: 'inherit',
+                  }}
+                >
+                  {inquiryState === 'submitting' ? 'Sending…' : 'Send inquiry'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ─── FOOTER ─────────────────────────────────────────── */}
       <footer style={{ padding: '40px 48px 28px', background: '#111115', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
