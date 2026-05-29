@@ -293,7 +293,9 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
   const activeFontSize = FONT_SIZE_OPTIONS.find(s => s.value === themeFontSize)?.nameSize ?? 44
 
   return (
-    <div style={{ maxWidth: 780 }}>
+    <div style={{ display: 'flex', gap: 36, alignItems: 'flex-start' }}>
+    {/* ── Left: editor ── */}
+    <div style={{ flex: '1 1 auto', minWidth: 0, maxWidth: 700 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, margin: 0, letterSpacing: '-0.01em' }}>Edit card</h1>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -765,6 +767,172 @@ export default function EditorClient({ card, photoUrl, logoUrl, videoUrl, appUrl
           style={{ padding: '10px 28px', background: 'var(--charcoal)', color: 'var(--cream)', border: 'none', borderRadius: 8, fontSize: 13.5, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
           {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save changes'}
         </button>
+      </div>
+    </div>
+
+    {/* ── Right: live phone preview ── */}
+    <div className="lc-editor-preview-col">
+      <CardPreviewPanel
+        themeBg={themeBg}
+        themeFg={themeFg}
+        themeAccent={themeAccent}
+        themeBannerBg={themeBannerBg}
+        themeHeading={themeHeading}
+        themeSubtext={themeSubtext}
+        displayName={displayName}
+        title={title}
+        company={company}
+        email={email}
+        mobile={joinPhone(mobileCode, mobileNumber)}
+        photoUrl={photoPreview}
+        logoUrl={logoPreview}
+        ctaPrimaryLabel={ctaPrimaryLabel}
+        industry={industry}
+        welcomeHeadline={headline}
+        fontFamily={activeFontFamily}
+        fontSize={activeFontSize}
+      />
+    </div>
+    </div>
+  )
+}
+
+// ── Live card preview panel ──────────────────────────────────────────────────
+function CardPreviewPanel({
+  themeBg, themeFg, themeAccent, themeBannerBg, themeHeading, themeSubtext,
+  displayName, title, company, email, mobile,
+  photoUrl, logoUrl, ctaPrimaryLabel, industry, welcomeHeadline,
+  fontFamily, fontSize,
+}: {
+  themeBg: string; themeFg: string; themeAccent: string
+  themeBannerBg: string; themeHeading: string; themeSubtext: string
+  displayName: string; title: string; company: string; email: string; mobile: string
+  photoUrl: string | null; logoUrl: string | null
+  ctaPrimaryLabel: string; industry: string; welcomeHeadline: string
+  fontFamily: string; fontSize: number
+}) {
+  const CARD_W = 390
+  const CARD_H = 800
+  const SCALE = 0.67
+  const scaledW = Math.round(CARD_W * SCALE)
+  const scaledH = Math.round(CARD_H * SCALE)
+
+  const bannerBg = themeBannerBg || `linear-gradient(135deg, ${themeAccent}1E 0%, ${themeAccent}08 100%)`
+  const headingColor = themeHeading || themeFg
+  const subtextColor = themeSubtext || themeFg
+  const subtextOpacity = themeSubtext ? 1 : 0.78
+  const initials = (displayName || 'A').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+
+  return (
+    <div style={{ position: 'sticky', top: 40, flexShrink: 0 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', textAlign: 'center', marginBottom: 14, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        Live preview
+      </div>
+
+      {/* Phone shell */}
+      <div style={{
+        background: '#0D0D10',
+        borderRadius: 44,
+        padding: 14,
+        boxShadow: '0 28px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)',
+        border: '2px solid rgba(255,255,255,0.07)',
+        width: scaledW + 28,
+      }}>
+        {/* Status bar */}
+        <div style={{ height: 20, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px' }}>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', fontFamily: '"Geist Mono", monospace' }}>9:41</span>
+          <div style={{ width: 38, height: 8, background: 'rgba(255,255,255,0.12)', borderRadius: 4 }} />
+          <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+            {([4, 6, 8, 10] as number[]).map((h, i) => (
+              <div key={i} style={{ width: 3, height: h, background: i < 3 ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)', borderRadius: 1 }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Screen */}
+        <div style={{ width: scaledW, height: scaledH, overflow: 'hidden', borderRadius: 12, position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: CARD_W, transform: `scale(${SCALE})`, transformOrigin: 'top left', background: themeBg, color: themeFg, fontFamily: 'inherit' }}>
+
+            {/* Banner */}
+            <div style={{ height: 124, background: bannerBg, borderBottom: `1px solid ${themeFg}0C`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 26px', flexShrink: 0 }}>
+              {logoUrl
+                ? <img src={logoUrl} alt="logo" style={{ maxHeight: 66, maxWidth: '82%', objectFit: 'contain', display: 'block' }} />
+                : company
+                  ? <span style={{ fontSize: 16, opacity: 0.72, fontWeight: 500 }}>{company}</span>
+                  : <span style={{ fontSize: 28, opacity: 0.1 }}>✦</span>
+              }
+            </div>
+
+            {/* Photo */}
+            <div style={{ padding: '0 26px', marginTop: -46 }}>
+              <div style={{
+                width: 92, height: 92, borderRadius: '50%',
+                background: photoUrl ? `url(${photoUrl}) center/cover` : `${themeAccent}28`,
+                backgroundSize: 'cover',
+                display: 'grid', placeItems: 'center',
+                fontFamily, fontSize: 36, color: themeFg,
+                border: `3px solid ${themeBg}`,
+                boxShadow: `0 2px 14px ${themeFg}1A`,
+              }}>{!photoUrl && initials}</div>
+            </div>
+
+            {/* Identity */}
+            <div style={{ padding: '14px 26px 0' }}>
+              <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, color: subtextColor, opacity: themeSubtext ? 0.85 : 0.65 }}>
+                {welcomeHeadline || 'Hello —'}
+              </div>
+              <div style={{ fontFamily, fontSize: Math.round(fontSize * 0.92), lineHeight: 0.98, letterSpacing: '-0.015em', color: headingColor }}>
+                {displayName || 'Your Name'}
+              </div>
+              <div style={{ fontSize: 15, marginTop: 10, color: subtextColor, opacity: subtextOpacity }}>
+                {[title, company].filter(Boolean).join(' · ') || 'Title · Company'}
+              </div>
+              {industry && (
+                <div style={{ marginTop: 10, display: 'inline-block', padding: '4px 11px', background: `${themeAccent}22`, color: themeAccent, borderRadius: 999, fontSize: 12, fontWeight: 500 }}>
+                  {industry}
+                </div>
+              )}
+              {(email || mobile) && (
+                <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {email && (
+                    <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden', color: subtextColor, opacity: subtextOpacity }}>
+                      <span style={{ opacity: 0.55, fontSize: 12, flexShrink: 0 }}>✉</span>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
+                    </div>
+                  )}
+                  {mobile && (
+                    <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, color: subtextColor, opacity: subtextOpacity }}>
+                      <span style={{ opacity: 0.55, fontSize: 12, flexShrink: 0 }}>✆</span>
+                      <span>{mobile}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div style={{ padding: '18px 26px 0', marginTop: 16 }}>
+              <div style={{ background: themeAccent, color: themeBg, padding: '14px 18px', borderRadius: 10, fontSize: 15, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+                ▶ {ctaPrimaryLabel || 'Watch my intro'}
+              </div>
+              <div style={{ background: `${themeFg}10`, color: themeFg, border: `1px solid ${themeFg}1A`, padding: '14px 18px', borderRadius: 10, fontSize: 15, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                ↗ Share my card
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div style={{ padding: '12px 26px 26px', display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+              {(['Terms', 'Privacy', 'Disclaimer'] as const).map(l => (
+                <span key={l} style={{ fontSize: 10, color: themeFg, opacity: 0.35 }}>{l}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Home indicator */}
+        <div style={{ height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 100, height: 4, background: 'rgba(255,255,255,0.22)', borderRadius: 2 }} />
+        </div>
       </div>
     </div>
   )

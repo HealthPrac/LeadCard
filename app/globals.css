@@ -181,6 +181,10 @@ html, body {
 /* Hamburger inside main area (visible on mobile) */
 .lc-main-ham { display: none; align-items: center; gap: 8px; margin-bottom: 16px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--charcoal); padding: 0; }
 
+/* Editor phone preview column — hidden below 1150px */
+.lc-editor-preview-col { display: none; }
+@media (min-width: 1150px) { .lc-editor-preview-col { display: block; } }
+
 /* Dashboard two-column layout */
 .lc-dash-layout { display: flex; gap: 36px; align-items: flex-start; }
 .lc-dash-phone { flex-shrink: 0; }
