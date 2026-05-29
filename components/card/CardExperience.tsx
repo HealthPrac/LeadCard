@@ -966,8 +966,8 @@ function getSource(): string {
 function btnAccent(t: { accent: string; bg: string }): CSSProperties {
   return { background: t.accent, color: t.bg, border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }
 }
-function btnGhost(t: { fg: string }): CSSProperties {
-  return { background: `${t.fg}10`, color: t.fg, border: `1px solid ${t.fg}1A`, borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }
+function btnGhost(t: { fg: string; accent: string }): CSSProperties {
+  return { background: `${t.accent}14`, color: t.accent, border: `1px solid ${t.accent}38`, borderRadius: 12, fontSize: 16, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }
 }
 function frostedBtn(top: number, left?: number, right?: number): CSSProperties {
   return { position: 'absolute', top, left, right, width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', color: 'white', display: 'grid', placeItems: 'center', border: '1px solid rgba(255,255,255,0.16)', fontSize: 16, cursor: 'pointer', fontFamily: 'inherit' }
