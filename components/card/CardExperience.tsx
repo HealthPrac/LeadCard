@@ -284,7 +284,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
         position: 'relative',
         height: 124,
         background: t.bannerBg ?? `linear-gradient(135deg, ${t.accent}1E 0%, ${t.accent}08 100%)`,
-        borderBottom: `1px solid ${t.fg}0C`,
+        borderBottom: `1px solid ${t.accent}30`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -309,7 +309,7 @@ function ScreenWelcome({ card, t, photoUrl, logoUrl, go }: SP & { photoUrl: stri
           display: 'grid', placeItems: 'center',
           fontFamily: t.headingFont, fontSize: 36,
           border: `3px solid ${t.bg}`,
-          boxShadow: `0 2px 14px ${t.fg}1A`,
+          boxShadow: `0 0 0 2px ${t.accent}55, 0 4px 18px ${t.accent}38`,
         }}>{!photoUrl && initials}</div>
       </div>
 
